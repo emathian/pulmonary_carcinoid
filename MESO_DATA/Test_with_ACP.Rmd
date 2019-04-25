@@ -28,7 +28,7 @@ library(data.table)
 
 
 ## Importation des données
-
+**Ce Rmarkdown a été crée à partir du dossier MESO_DATA**
 ```{r eval=TRUE, echo=TRUE}
 
 metadata <- read.table("metaBuenoTCGAred_FGS.txt", sep = "\t", dec="." , header = TRUE,   quote="")
@@ -90,7 +90,7 @@ ClinicalAttributes <- data.frame( sample = groupsBuenoTCGAred_2$Sample, Asbestos
 ```
 Ajout des données subtype.fgs et type.fgs
 
-```{r eval=TRUE, echo=TRUE}
+```{r eval=TRUE, echo=FALSE}
 Subtype_Type_revised =  data.frame( sample = as.character(metadata$Sample) , Subtype_FGS = metadata$Subtype.FGS , Type_FGS = metadata$Type.FGS , Necrosis = metadata$Necrosis, grade = metadata$Grade, stringsAsFactors=FALSE)
 str(Subtype_Type_revised)
 Diff= setdiff(Subtype_Type_revised$sample, suptable1$Samples); Diff
@@ -182,7 +182,7 @@ Attributes3$Type = as.character(Attributes3$Type)
 ```
 
 
-```{r eval=TRUE, echo=TRUE}
+```{r eval=TRUE, echo=FALSE}
 
 Attributes3$Type[is.na(Attributes3$Type)] <- "Diffuse_NOS"
 ```
@@ -231,7 +231,7 @@ write.table(Attributes3.sample, file='Attributes_PCA_sample.tsv', quote=FALSE, s
 ```
 
 # Donnée rna_Seq
-```{r eval=TRUE, echo=TRUE}
+```{r eval=TRUE, echo=FALSE}
 
 dinomesomics_t = as.data.frame(t(dinomesomics) )
 setDT(dinomesomics_t , keep.rownames = TRUE)[]
@@ -246,8 +246,226 @@ write.table(dinomesomics_t_sample, file='feature_data.tsv', quote=FALSE, sep='\t
 
 # Cohorte des 187 échantillons avec les données d'Immunohistochimie
 
-# Importation des données
+## Importation des données
+
+**Attention GNT57 a été enlevé manuelement du fichier `IHC_Lecture_LM_20181116_333_2.csv`**
 ```{r eval=TRUE, echo=TRUE}
-IHC_333.2 <- read.table("IHC_Lecture_LM_20181116_333_2.csv", sep = "\t", dec="." , header = TRUE,   quote="")
+IHC_333.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_333_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+IHC_334.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_334_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+IHC_351.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_351_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+IHC_351.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_351_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+IHC_352.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_352_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+IHC_353.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_353_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+IHC_354.1 <-   read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_354_1.csv", sep = ";", dec="." , header = TRUE,na.strings=c("","NA"))
+#IHC_411.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_411_1.csv", sep = ";", dec="." , header = TRUE,na.strings=c("","NA"))
+#IHC_412.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_412_1.csv", sep = ";", dec="." , header = TRUE,na.strings=c("","NA"))
+```
+
+
+## Changement du nom  des échantillons
+
+
+```{r eval=TRUE, echo=TRUE}
+change_sample_name_IHC_file <- function(data){
+  TGCA_ID <- c()
+  for (i in 1:dim(data)[1]){
+    if (is.na(data$IARC_ID[i])==F){
+      if (sum(is.na(data[i,4:8])) != 5){
+        withM <- test_ID <- sub("GNT", "M", data$IARC_ID[i])[1]    
+        g_expr = gregexpr(pattern ='_',withM)[[1]][1]
+        if  (g_expr !=  -1){
+          TGCA_ID[i] <- paste(substr(withM, 1, g_expr-1), "PT", sep="")[1]
+        }
+        else{
+         TGCA_ID[i] <- paste(withM, "PT", sep="")[1]
+       }
+      }
+      else{
+        print("Here")
+        TGCA_ID[i] <- NA
+      }
+    }
+    else{
+      TGCA_ID[i] <- NA
+    }
+  }
+  return(TGCA_ID)
+}
+
+IHC_333.2["Sample"] =  change_sample_name_IHC_file(IHC_333.2)
+IHC_334.2["Sample"]  = change_sample_name_IHC_file(IHC_334.2)
+IHC_351.1["Sample"]  = change_sample_name_IHC_file(IHC_351.1)
+colnames(IHC_352.1)[2] <- "IARC_ID"
+IHC_352.1["Sample"]  = change_sample_name_IHC_file(IHC_352.1)
+colnames(IHC_353.1)[2] <- "IARC_ID"
+IHC_353.1["Sample"]  = change_sample_name_IHC_file(IHC_353.1)
+colnames(IHC_354.1)[2] <- "IARC_ID"
+IHC_354.1["Sample"]  = change_sample_name_IHC_file(IHC_354.1)
+#colnames(IHC_411.1)[2] <- "IARC_ID"
+#IHC_411.1["Sample"]  = change_sample_name_IHC_file(IHC_411.1)
+#colnames(IHC_412.1)[2] <- "IARC_ID"
+#IHC_412.1["Sample"]  = change_sample_name_IHC_file(IHC_412.1)
+```
+
+
+```{r eval=TRUE, echo=TRUE}
+U_333.2 <-length(unique(IHC_333.2$Sample))
+U_334.2 <-length(unique(IHC_334.2$Sample))
+U_351.1 <-length(unique(IHC_351.1$Sample))
+U_352.1 <-length(unique(IHC_352.1$Sample))
+U_353.1 <-length(unique(IHC_353.1$Sample))
+U_354.1 <-length(unique(IHC_354.1$Sample))
+#U_411.1 <-length(unique(IHC_411.1$Sample))
+#U_412.1 <-length(unique(IHC_412.1$Sample))
+tot_sample <- c(IHC_333.2$Sample , IHC_334.2$Sample, IHC_351.1$Sample, IHC_352.1$Sample,  IHC_353.1$Sample , IHC_354.1$Sample     ) #IHC_411.1$Sample , IHC_412.1$Sample 
+
+length(unique(tot_sample))
+uniq_tot_sample= unique(tot_sample)[-1]
+```
+
+
+**Attention : 108  échantillons moins le NA**
+
+## Pour CD8 et VEGFR3M passage en pourcentage 
+
+```{r eval=TRUE, echo=TRUE}
+CD8_VEGFR3_Pourcent <- function(data){
+  CD8_p <- c()
+  VEGFR3M_p <- c()
+  for (i in 1:dim(data)[1]){
+    if (is.na(data$CD8[i]) == F){
+      if (data$CD8[i]==0){
+        CD8_p[i]<- 0
+      }
+      else if(data$CD8[i]==1){
+        CD8_p[i]<- 25
+      }
+      else if(data$CD8[i]==2){
+        CD8_p[i]<- 50
+      }
+      else if(data$CD8[i]==3){
+        CD8_p[i]<- 75
+      }
+      else if(data$CD8[i]==4){
+        CD8_p[i]<- 100
+      }
+      else {
+        CD8_p[i]<- NA
+      }
+    }
+    else{
+       CD8_p[i]<- NA
+    }
+    if (is.na(data$VEGFR3M[i])==F){
+    if (data$VEGFR3M[i]==0){
+      VEGFR3M_p[i]<- 0
+    }
+    else if(data$VEGFR3M[i]==1){
+      VEGFR3M_p[i]<- 25
+    }
+    else if(data$VEGFR3M[i]==2){
+      VEGFR3M_p[i]<- 50
+    }
+    else if(data$VEGFR3M[i]==3){
+      VEGFR3M_p[i]<- 75
+    }
+    else if(data$VEGFR3M[i]==4){
+      VEGFR3M_p[i]<- 100
+    }
+    else {
+      VEGFR3M_p[i]<- NA
+    }
+    }
+    else{
+       VEGFR3M_p[i]<- NA
+    }
+  }
+  CD8_VEGFR3_Pourcent_df <- data.frame(CD8_p, VEGFR3M_p) 
+  return (CD8_VEGFR3_Pourcent_df)
+}
+
+
+IHC_333.2["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_333.2)[,1]
+IHC_333.2["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_333.2)[,2]
+
+IHC_334.2["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_334.2)[,1]
+IHC_334.2["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_334.2)[,2]   
+
+IHC_351.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_351.1)[,1]
+IHC_351.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_351.1)[,2]    
+
+IHC_352.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_352.1)[,1]
+IHC_352.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_352.1)[,2] 
+
+
+IHC_353.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_353.1)[,1]
+IHC_353.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_353.1)[,2] 
+
+IHC_354.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_354.1)[,1]
+IHC_354.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_354.1)[,2] 
+
+                                      
+```
+
+
+# Création d'une table finale 
+```{r eval=TRUE, echo=TRUE}
+IHC_all <- data.frame()
+
+IHC_333.2_2 <- data.frame( Sample = IHC_333.2$Sample , VISTA = IHC_333.2$VISTA, PDL1 = IHC_333.2$PDL1 , VEGFR3 = IHC_333.2$VEGFR3M_p , CD8 = IHC_333.2$CD8_p , VEGFR2 = IHC_333.2$VEGFR2)
+
+IHC_all <- rbind(IHC_333.2_2 ,IHC_all)
+
+
+IHC_334.2_2<- data.frame( Sample = IHC_334.2$Sample , VISTA = IHC_334.2$VISTA, PDL1 = IHC_334.2$PDL1 , VEGFR3 = IHC_334.2$VEGFR3M_p , CD8 = IHC_334.2$CD8_p , VEGFR2 = IHC_334.2$VEGFR2)
+
+IHC_all <- rbind(IHC_334.2_2 ,IHC_all)
+
+IHC_351.1_2<- data.frame( Sample = IHC_351.1$Sample , VISTA = IHC_351.1$VISTA, PDL1 = IHC_351.1$PDL1 , VEGFR3 = IHC_351.1$VEGFR3M_p , CD8 = IHC_351.1$CD8_p , VEGFR2 = IHC_351.1$VEGFR2)
+
+IHC_all <- rbind(IHC_351.1_2 ,IHC_all)
+
+IHC_352.1_2<- data.frame( Sample = IHC_352.1$Sample , VISTA = IHC_352.1$VISTA, PDL1 = IHC_352.1$PDL1 , VEGFR3 = IHC_352.1$VEGFR3M_p , CD8 = IHC_352.1$CD8_p , VEGFR2 = IHC_352.1$VEGFR2)
+IHC_all <- rbind(IHC_352.1_2 ,IHC_all)
+
+IHC_353.1_2<- data.frame( Sample = IHC_353.1$Sample , VISTA = IHC_353.1$VISTA, PDL1 = IHC_353.1$PDL1 , VEGFR3 = IHC_353.1$VEGFR3M_p , CD8 = IHC_353.1$CD8_p , VEGFR2 = IHC_353.1$VEGFR2)
+IHC_all <- rbind(IHC_353.1_2 ,IHC_all)
+
+IHC_354.1_2<- data.frame( Sample = IHC_354.1$Sample , VISTA = IHC_354.1$VISTA, PDL1 = IHC_354.1$PDL1 , VEGFR3 = IHC_354.1$VEGFR3M_p , CD8 = IHC_354.1$CD8_p , VEGFR2 = IHC_354.1$VEGFR2)
+IHC_all <- rbind(IHC_354.1_2 ,IHC_all)
+
+#IHC_411.1_2<- data.frame( Sample = IHC_411.1$Sample , VISTA = IHC_411.1$VISTA, PDL1 = IHC_411.1$PDL1 , VEGFR3 = IHC_411.1$VEGFR3M_p , CD8 = IHC_411.1$CD8_p , VEGFR2 = IHC_411.1$VEGFR2)
+#IHC_all <- rbind(IHC_411.1_2 ,IHC_all)
+
+
+#IHC_412.1_2<- data.frame( Sample = IHC_412.1$Sample , VISTA = IHC_412.1$VISTA, PDL1 = IHC_412.1$PDL1 , VEGFR3 = IHC_412.1$VEGFR3M_p , CD8 = IHC_412.1$CD8_p , VEGFR2 = IHC_412.1$VEGFR2)
+#IHC_all <- rbind(IHC_412.1_2 ,IHC_all)
+
+```
+
+## Moyenne par échantillon
+
+```{r eval=TRUE, echo=TRUE}
+IHC_moy_df <- data.frame(Sample =uniq_tot_sample  ,  VEGFR2 = rep(0,length(uniq_tot_sample)), VEGFR3M = rep(0,length(uniq_tot_sample)), PDL1_p = rep(0,length(uniq_tot_sample)), CD8_p = rep(0,length(uniq_tot_sample)), VISTA = rep(0,length(uniq_tot_sample)))
+
+IHC_moy_sample <- function(data, res_df){
+  for (i in 1:length(uniq_tot_sample)){
+    c_sample_id = IHC_moy_df$Sample[i]
+    c_CD8_m =  mean(as.numeric(IHC_all$CD8[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+    res_df[i,5] <-c_CD8_m
+    c_VISTA =  mean(as.numeric(IHC_all$VISTA[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+    res_df[i,6] <-c_VISTA 
+    c_PDL1 =  mean(as.numeric(IHC_all$PDL1[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+    res_df[i,4] <-c_PDL1
+    c_VEGFR3 =  mean(as.numeric(IHC_all$VEGFR3[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+    res_df[i,3] <-c_VEGFR3
+    c_VEGFR2 =  mean(as.numeric(IHC_all$VEGFR2[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+    res_df[i,2] <- c_VEGFR2 
+  }
+  return(res_df)
+    
+}
+Test = IHC_moy_sample(IHC_all , IHC_moy_df)
+IHC_moy_df = IHC_moy_sample(IHC_all , IHC_moy_df)
 
 ```
