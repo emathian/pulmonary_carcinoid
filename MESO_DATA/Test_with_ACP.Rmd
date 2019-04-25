@@ -1,0 +1,253 @@
+---
+title: "TD2 - Modèle mixte"
+author: "Emilie Mathian"
+date: "01/10/2018"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    mathjax: local
+    self_contained: false
+---
+<style>
+.alert-info {
+  color: rgb(49,112,143) !important;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Librairie
+```{r eval=TRUE, echo=TRUE}
+
+library(DESeq2)
+library(data.table)
+```
+
+
+## Importation des données
+
+```{r eval=TRUE, echo=TRUE}
+
+metadata <- read.table("metaBuenoTCGAred_FGS.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+head(metadata,4)
+
+```
+
+
+`metadata` contient 284 échantillons avec les données principales PC1, PC2, Type , Sample ...
+
+```{r eval=TRUE, echo=TRUE}
+attribute <- load("Rdata8nov2018.RData")
+```
+**Remarque : dinomesomics RNA reads count pour 284 ech**
+
+```{r eval=TRUE, echo=TRUE}
+suptable1<- read.table("SupTables_R1_20190418/TableS1_Characteristics_of_gene-Tableau 1.csv", sep = ";", dec="," , header = TRUE,   quote="")
+head(suptable1,4)
+```
+
+
+
+# Ceration du tableau des coordonnées 
+
+
+```{r eval=TRUE, echo=TRUE}
+
+Coordinates <- data.frame( sample = suptable1$Samples , x = suptable1$Dimension.1 , y = suptable1$Dimension.2)
+```
+
+## Correction du nom des échantillons dans Groups Bueno TCGA red :
+```{r eval=TRUE, echo=TRUE}
+Diff  = setdiff(groupsBuenoTCGAred$Sample , suptable1$Samples)
+```
+**Attention qq nom d'échantillons ne sont pas identiques entre suptable1 et groupsBuenoTCGAred**
+
+
+```{r eval=TRUE, echo=TRUE}
+
+groupsBuenoTCGAred_2= groupsBuenoTCGAred
+for (i in  1:284){
+  if (groupsBuenoTCGAred$Sample[i] %in% Diff){
+    groupsBuenoTCGAred_2$Sample[i] = paste("M", groupsBuenoTCGAred$Sample[i], sep="" )
+  }
+}
+setdiff(groupsBuenoTCGAred_2$Sample, suptable1$Samples)
+```
+
+# Definition des attributs
+
+
+```{r eval=TRUE, echo=TRUE}
+
+TILS <- data.frame( sample = suptable1$Samples , B = suptable1$B , Macrophages.M1 = suptable1$Macrophages.M1 , Macrophages.M2 = suptable1$Macrophages.M2 , Monocytes = suptable1$Monocytes, Neutrophils = suptable1$Neutrophils , NK.cells = suptable1$Macrophages.M2 ,T.cells.CD4 = suptable1$T.cells.CD4  , T.cells.CD8 = suptable1$T.cells.CD8 , Tregs = suptable1$Tregs , Dendritic.cells = suptable1$Dendritic.cells )
+
+
+ClinicalAttributes <- data.frame( sample = groupsBuenoTCGAred_2$Sample, Asbestos =  groupsBuenoTCGAred_2$Asbestos , Sex= groupsBuenoTCGAred_2$Sex , Type = groupsBuenoTCGAred_2$Type , Age = groupsBuenoTCGAred_2$Age , Survival = groupsBuenoTCGAred_2$Survival ) 
+
+```
+Ajout des données subtype.fgs et type.fgs
+
+```{r eval=TRUE, echo=TRUE}
+Subtype_Type_revised =  data.frame( sample = as.character(metadata$Sample) , Subtype_FGS = metadata$Subtype.FGS , Type_FGS = metadata$Type.FGS , Necrosis = metadata$Necrosis, grade = metadata$Grade, stringsAsFactors=FALSE)
+str(Subtype_Type_revised)
+Diff= setdiff(Subtype_Type_revised$sample, suptable1$Samples); Diff
+for (i in  1:284){
+  if (Subtype_Type_revised$sample[i] %in% Diff){
+       Subtype_Type_revised$sample[i] = paste("M",as.character( Subtype_Type_revised$sample[i]), sep="" )
+  }
+}
+
+
+```
+
+# Genes d'intérêt
+
+
+* VISTA  : ENSG00000107738.19
+* CD8A   : ENSG00000153563.15
+* VEGFR1 : ENSG00000102755.10
+* VEGFR2 : ENSG00000128052.8
+* VEGFR3 : ENSG00000113721.13
+* VEGFC  : ENSG00000150630.3
+* PDGFRB : ENSG00000113721.13
+* PD1    : ENSG00000188389.10
+* PDL1  : ENSG00000120217.13
+* CTLA4  : ENSG00000163599.14
+* TIM3  : ENSG00000135077.8
+* LAG3  : ENSG00000089692.8
+
+Création de vecteurs de comptage pour ces gènes  :
+
+```{r eval=TRUE, echo=TRUE}
+VISTA = c(dinomesomics["ENSG00000107738.19",])
+CD8A = c(dinomesomics["ENSG00000153563.15",])
+VEGFR1 = c(dinomesomics["ENSG00000102755.10",])
+VEGFR2 = c(dinomesomics["ENSG00000128052.8",])
+VEGFR3 = c(dinomesomics["ENSG00000037280.15",])
+VEGFC = c(dinomesomics["ENSG00000150630.3",])
+PDGFRB = c(dinomesomics["ENSG00000113721.13",])
+PD1  = c(dinomesomics["ENSG00000188389.10",])
+PDL1 = c(dinomesomics["ENSG00000120217.13",])
+CTLA4 = c(dinomesomics["ENSG00000163599.14",])
+TIM3 = c(dinomesomics["ENSG00000135077.8",])
+LAG3 = c(dinomesomics["ENSG00000089692.8",])
+```
+
+Création d'une clée :
+```{r eval=TRUE, echo=TRUE}
+gene_interet <- data.frame(VISTA,CD8A,VEGFR1, VEGFR2,VEGFR3, VEGFC , PDGFRB,PD1,PDL1, CTLA4 , TIM3 , LAG3 )
+
+ID = sampleFilesred
+New_ID = c()
+for (i in 1:length(ID)){
+  New_ID[i] =  sub("_count.txt","", ID[i])  
+}
+
+
+
+metadataID = data.frame(ID = New_ID, sample = suptable1$Sample)
+setDT(gene_interet, keep.rownames = TRUE)[]
+colnames(gene_interet)[1] <- "ID"
+
+gene_interet_samples_names <- merge(metadataID, gene_interet, by="ID")
+gene_interet2 <- gene_interet_samples_names[,-1]
+```
+
+
+# Construction du data frame des atributs
+
+
+
+```{r eval=TRUE, echo=TRUE}
+
+Attributes1 <- merge(TILS, ClinicalAttributes, by="sample")
+
+Attributes2 <- merge(Attributes1, gene_interet2, by="sample")
+
+Attributes3 <- merge(Attributes2, Subtype_Type_revised , by = "sample")
+str(Attributes3)
+# Convert factor to char
+Attributes3.2 <- Attributes3
+Attributes3.2$sample = as.character(Attributes3$sample)
+Attributes3.2$Asbestos =  as.character(Attributes3$Asbestos)
+Attributes3.2$Sex =  as.character(Attributes3$Sex)
+Attributes3.2$Type =  as.character(Attributes3$Type)
+Attributes3.2$Subtype_FGS=  as.character(Attributes3$Subtype_FGS)
+Attributes3.2$Type_FGS=  as.character(Attributes3$Type_FGS)
+str(Attributes3.2)
+Attributes3$Type = as.character(Attributes3$Type)
+```
+
+
+```{r eval=TRUE, echo=TRUE}
+
+Attributes3$Type[is.na(Attributes3$Type)] <- "Diffuse_NOS"
+```
+
+# Remplacement des valeurs manquantes pas 0
+
+```{r eval=TRUE, echo=TRUE}
+
+Attributes3.2[is.na(Attributes3.2)] <- 0
+```
+
+# Survie en mois
+
+```{r eval=TRUE, echo=TRUE}
+
+Attributes3$Survival<- Attributes3$Survival*12
+```
+
+
+# Ecriture des tableau 
+```{r eval=TRUE, echo=TRUE}
+write.table(Coordinates, file='Coordinates_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attributes3, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
+
+```
+
+
+# Test sur le type de matrices
+```{r eval=TRUE, echo=TRUE}
+Sample_coord <- read.table("Coordinates_PCA_f1.tsv", header = T)
+
+Attributes3.sample<-data.frame(matrix(ncol = 32))
+colnames(Attributes3.sample) <- colnames(Attributes3)
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M23PT") )
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M35PT") )
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M54PT") )
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M42PT") )
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M36PT") )
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M70PT") )
+Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M18PT") )
+
+Attributes3.sample <- Attributes3.sample[-1,]
+Attributes3.sample<-Attributes3.sample[,1:5]
+write.table(Attributes3.sample, file='Attributes_PCA_sample.tsv', quote=FALSE, sep='\t', row.names = F)
+
+```
+
+# Donnée rna_Seq
+```{r eval=TRUE, echo=TRUE}
+
+dinomesomics_t = as.data.frame(t(dinomesomics) )
+setDT(dinomesomics_t , keep.rownames = TRUE)[]
+colnames(dinomesomics_t)[1] <- "ID"
+dinomesomics_t_sample = merge(metadataID,dinomesomics_t, by ='ID')
+dinomesomics_t_sample = dinomesomics_t_sample[,-1]
+dinomesomics_t_sample = t(dinomesomics_t_sample)
+write.table(dinomesomics_t_sample, file='feature_data.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+```
+
+
+
+# Cohorte des 187 échantillons avec les données d'Immunohistochimie
+
+# Importation des données
+```{r eval=TRUE, echo=TRUE}
+IHC_333.2 <- read.table("IHC_Lecture_LM_20181116_333_2.csv", sep = "\t", dec="." , header = TRUE,   quote="")
+
+```
