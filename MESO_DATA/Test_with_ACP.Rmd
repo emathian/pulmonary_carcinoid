@@ -30,9 +30,8 @@ library(data.table)
 ## Importation des données
 **Ce Rmarkdown a été crée à partir du dossier MESO_DATA**
 ```{r eval=TRUE, echo=TRUE}
-
 metadata <- read.table("metaBuenoTCGAred_FGS.txt", sep = "\t", dec="." , header = TRUE,   quote="")
-head(metadata,4)
+
 
 ```
 
@@ -57,6 +56,9 @@ head(suptable1,4)
 ```{r eval=TRUE, echo=TRUE}
 
 Coordinates <- data.frame( sample = suptable1$Samples , x = suptable1$Dimension.1 , y = suptable1$Dimension.2)
+
+Coordinates2 <- Coordinates 
+Coordinates2$y <- Coordinates2$y * -1
 ```
 
 ## Correction du nom des échantillons dans Groups Bueno TCGA red :
@@ -149,7 +151,7 @@ for (i in 1:length(ID)){
 
 
 metadataID = data.frame(ID = New_ID, sample = suptable1$Sample)
-setDT(gene_interet, keep.rownames = TRUE)[]
+metadataID = setDT(gene_interet, keep.rownames = TRUE)[]
 colnames(gene_interet)[1] <- "ID"
 
 gene_interet_samples_names <- merge(metadataID, gene_interet, by="ID")
@@ -205,6 +207,7 @@ Attributes3$Survival<- Attributes3$Survival*12
 # Ecriture des tableau 
 ```{r eval=TRUE, echo=TRUE}
 write.table(Coordinates, file='Coordinates_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F)
 write.table(Attributes3, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
 
 ```
@@ -234,7 +237,7 @@ write.table(Attributes3.sample, file='Attributes_PCA_sample.tsv', quote=FALSE, s
 ```{r eval=TRUE, echo=FALSE}
 
 dinomesomics_t = as.data.frame(t(dinomesomics) )
-setDT(dinomesomics_t , keep.rownames = TRUE)[]
+dinomesomics_t = setDT(dinomesomics_t , keep.rownames = TRUE)[]
 colnames(dinomesomics_t)[1] <- "ID"
 dinomesomics_t_sample = merge(metadataID,dinomesomics_t, by ='ID')
 dinomesomics_t_sample = dinomesomics_t_sample[,-1]
@@ -446,17 +449,17 @@ IHC_all <- rbind(IHC_354.1_2 ,IHC_all)
 ## Moyenne par échantillon
 
 ```{r eval=TRUE, echo=TRUE}
-IHC_moy_df <- data.frame(Sample =uniq_tot_sample  ,  VEGFR2 = rep(0,length(uniq_tot_sample)), VEGFR3M = rep(0,length(uniq_tot_sample)), PDL1_p = rep(0,length(uniq_tot_sample)), CD8_p = rep(0,length(uniq_tot_sample)), VISTA = rep(0,length(uniq_tot_sample)))
+IHC_moy_df <- data.frame(sample =uniq_tot_sample  ,  VEGFR2.IHC = rep(0,length(uniq_tot_sample)), VEGFR3M.IHC = rep(0,length(uniq_tot_sample)), PDL1.IHC = rep(0,length(uniq_tot_sample)), CD8.IHC = rep(0,length(uniq_tot_sample)), VISTA.IHC = rep(0,length(uniq_tot_sample)))
 
 IHC_moy_sample <- function(data, res_df){
   for (i in 1:length(uniq_tot_sample)){
-    c_sample_id = IHC_moy_df$Sample[i]
+    c_sample_id = IHC_moy_df$sample[i]
     c_CD8_m =  mean(as.numeric(IHC_all$CD8[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,5] <-c_CD8_m
+    res_df[i,5] <-c_CD8_m # Ok
     c_VISTA =  mean(as.numeric(IHC_all$VISTA[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
     res_df[i,6] <-c_VISTA 
     c_PDL1 =  mean(as.numeric(IHC_all$PDL1[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,4] <-c_PDL1
+    res_df[i,4] <-c_PDL1 #OK
     c_VEGFR3 =  mean(as.numeric(IHC_all$VEGFR3[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
     res_df[i,3] <-c_VEGFR3
     c_VEGFR2 =  mean(as.numeric(IHC_all$VEGFR2[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
@@ -467,5 +470,106 @@ IHC_moy_sample <- function(data, res_df){
 }
 Test = IHC_moy_sample(IHC_all , IHC_moy_df)
 IHC_moy_df = IHC_moy_sample(IHC_all , IHC_moy_df)
+# Supression des données pour lesquels les données génomiques sont manquantes
+v1 = which(IHC_moy_df$sample=="M654PT")
+IHC_moy_df = IHC_moy_df [-v1,]
+v2 = which(IHC_moy_df$sample=="M78PT")
+IHC_moy_df = IHC_moy_df [-v2,]
+v3 = which(IHC_moy_df$sample=="M601PT")
+IHC_moy_df = IHC_moy_df [-v3,]
+```
 
+
+## Observation des corrélation
+```{r eval=TRUE, echo=TRUE}
+IHC_attribute = merge(IHC_moy_df, Attributes3, by="sample", all=FALSE)
+
+cor(IHC_attribute$CD8.IHC, IHC_attribute$CD8A, use = "complete.obs")
+cor(IHC_attribute$VEGFR2.IHC, IHC_attribute$VEGFR2, use = "complete.obs")
+cor(IHC_attribute$PDL1.IHC, IHC_attribute$PDL1, use = "complete.obs")
+cor(IHC_attribute$VEGFR3M.IHC, IHC_attribute$VEGFR3, use = "complete.obs")
+cor(IHC_attribute$VISTA.IHC, IHC_attribute$VISTA, use = "complete.obs")
+```
+
+# Write Attribut avec IHC
+```{r eval=TRUE, echo=TRUE}
+Attributes4 <- merge(Attributes3 , IHC_moy_df , by= "sample" , all= TRUE) 
+colnames(Attributes4)[2] <- "B.Cells"
+colnames(Attributes4)[29] <- "Subtype"
+colnames(Attributes4)[30] <- "Type_revised"
+write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
+```
+
+
+# Feature_DATA with the largest variance
+
+```{r eval=TRUE, echo=TRUE}
+data_lv  = merge(data , dataNOS , by=0) # Merge by row names
+f_colnames = data_lv$Row.names
+data_lv = as.data.frame(t(data_lv), col.names =FALSE )
+colnames(data_lv) <- f_colnames 
+data_lv = setDT(data_lv , keep.rownames = TRUE)[]
+data_lv = data_lv[-1,]
+colnames(data_lv)[1] <- "ID"
+data_lv_t_sample = merge(metadataID,data_lv, by ='ID')
+data_lv_t_sample = data_lv_t_sample[,-1]
+data_lv_t_sample = t(data_lv_t_sample)
+write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+```
+
+
+# Reproduction fig 3 
+
+## Fig 3A
+
+```{r eval=TRUE, echo=TRUE}
+Attributes5 <- Attributes4
+colnames(Attributes5)[2] <- "B.Cells"
+colnames(Attributes5)[29] <- "Subtype"
+colnames(Attributes5)[30] <- "Type_revised"
+Attributes5["Type_and_Survival"] = Attributes5$Type
+Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
+Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
+Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
+
+
+```
+
+# Importation de la cohorte de replication 
+
+
+```{r eval=TRUE, echo=TRUE}
+Replication_data <-  read.csv("IHC_discovery_+_replication_cohorts/dataIHC.csv", sep = ",", dec="." , header = TRUE, na.strings=c("","NA"))
+```
+
+
+# Création de la table pour ACP 
+
+```{r eval=TRUE, echo=TRUE}
+Attributes5 <- Attributes4
+colnames(Attributes5)[2] <- "B.Cells"
+colnames(Attributes5)[29] <- "Subtype"
+colnames(Attributes5)[30] <- "Type_revised"
+Attributes5["Type_and_Survival"] = Attributes5$Type
+Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
+Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
+Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
+```
+
+
+```{r eval=TRUE, echo=TRUE}
+Attributes5 <- Attributes4
+colnames(Attributes5)[2] <- "B.Cells"
+colnames(Attributes5)[29] <- "Subtype"
+colnames(Attributes5)[30] <- "Type_revised"
+Attributes5["Type_and_Survival"] = Attributes5$Type
+Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
+Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
+Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
 ```
