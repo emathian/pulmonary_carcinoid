@@ -546,17 +546,17 @@ c
 
 ## Vérification des valeurs
 ```{r eval=TRUE, echo=TRUE}
-dinomesomics_df = as.data.frame(dinomesomics)
-c= 0
-for (i in 1:284){
-     print(as.numeric(as.character(dinomesomics_df["ENSG00000002746.14",][i] )))
-    print(as.numeric(as.character(data_lv$ENSG00000002746.14[i])))
-  if (as.numeric(as.character(dinomesomics_df["ENSG00000002746.14",][i] ))== as.numeric(as.character(data_lv$ENSG00000002746.14[i]))){
+#dinomesomics_df = as.data.frame(dinomesomics)
+#c= 0
+#for (i in 1:284){
+#     print(as.numeric(as.character(dinomesomics_df["ENSG00000002746.14",][i] )))
+#    print(as.numeric(as.character(data_lv$ENSG00000002746.14[i])))
+#  if (as.numeric(as.character(dinomesomics_df["ENSG00000002746.14",][i] ))== as.numeric(as.character(data_lv$ENSG00000002746.14[i]))){
  
-     c =c+1
-  }
-}
-c
+#     c =c+1
+#  }
+#}
+#c
 ```
 
 # Reproduction fig 3 
@@ -578,15 +578,10 @@ Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid
 
 ```
 
-# Importation de la cohorte de replication 
 
 
-```{r eval=TRUE, echo=TRUE}
-Replication_data <-  read.csv("IHC_discovery_+_replication_cohorts/dataIHC.csv", sep = ",", dec="." , header = TRUE, na.strings=c("","NA"))
-```
 
-
-# Création de la table pour ACP 
+## Création de la table pour ACP  cf fig 3 A
 
 ```{r eval=TRUE, echo=TRUE}
 Attributes5 <- Attributes4
@@ -596,11 +591,18 @@ colnames(Attributes5)[30] <- "Type_revised"
 Attributes5["Type_and_Survival"] = Attributes5$Type
 Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
 Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
-Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
-Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
-Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
+Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ] # Removing biphasic tumors
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),] # Removing middle survival epithelioid tumors
+Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),] # Removing long survival sarcomatoid tumors
 
-Test_survival_epi_sup_Bueno = groupsBuenoTCGAred$Survival[groupsBuenoTCGAred$Type=="Epithelioid" & groupsBuenoTCGAred$Survival *12 > 30]
+
+groupsBuenoTCGAred.2 = groupsBuenoTCGAred
+groupsBuenoTCGAred.2["Type_and_survival"] = groupsBuenoTCGAred.2$Type
+groupsBuenoTCGAred.2$Type_and_survival[groupsBuenoTCGAred.2$Type=="Epithelioid" & groupsBuenoTCGAred.2$Survival *12 > 30] = "Epithelioid.long.survival"
+groupsBuenoTCGAred.2$Type_and_survival[groupsBuenoTCGAred.2$Type=="Epithelioid" & groupsBuenoTCGAred.2$Survival *12 < 10] = "Epithelioid.short.survival"
+
+
+#groupsBuenoTCGAred= groupsBuenoTCGAred$Survival[groupsBuenoTCGAred$Type=="Epithelioid" & groupsBuenoTCGAred$Survival *12 > 30]
 
 Test_survival_epi_sup_meta = metadata$Survival[metadata$Type=="Epithelioid" & metadata$Survival *12 > 30]
 
@@ -630,7 +632,7 @@ plot(Attributes5$Axis1 , Attributes5$Axis2 , col= as.factor(Attributes5$Type_and
 ```
 
 # ACP avec 5 marqueurs
-
+** A priori cet ACP a été construite avec tous les gènes **
 
 ```{r eval=TRUE, echo=TRUE}
 Attributes5 = merge(Attributes5 , metadataID , by ='sample')
@@ -708,4 +710,129 @@ colnames(suptable1)[1]<-"Sample"
 suptable1.2 <- merge(suptable1, metadata, by='Sample')
 plot(acp_fig1_li_df$Axis1 , acp_fig1_li_df$Axis2 , col=as.factor(acp_fig1_li_df$Type) )  # ;)   Victoire
 plot(suptable1.2$Dimension.1 , suptable1.2$Dimension.2 , col=suptable1.2$Type ) #OK
+```
+
+
+
+# Importation de la cohorte de replication 
+
+
+```{r eval=TRUE, echo=TRUE}
+Replication_data <-  read.csv("IHC_discovery_+_replication_cohorts/dataIHC.csv", sep = ",", dec="." , header = TRUE, na.strings=c("","NA"))
+
+Vista_r = Replication_data$VISTA.membranous
+CD8_r = Replication_data$CD8
+Vegfr2_r = Replication_data$VEGFR2
+Vegfr2_r.f = c()
+for (i in 1:77){
+ if (is.na(Vegfr2_r[i])==F){
+  if (Vegfr2_r[i] =='0'){
+    Vegfr2_r.f[i] = 0
+  }
+  else if (Vegfr2_r[i]=='1M'){
+    Vegfr2_r.f[i] = 0.25
+  }
+  else if (Vegfr2_r[i]=='2M'){
+    Vegfr2_r.f[i] = 0.5
+  }
+  else if (Vegfr2_r[i]=='3M'){
+    Vegfr2_r.f[i] = 0.75
+  }
+  else if (Vegfr2_r[i]=='4M'){
+    Vegfr2_r.f[i] = 1
+  }
+ }
+  else{
+    Vegfr2_r.f[i] = NA
+  }
+}
+
+
+Vegfr2_r_mb = Replication_data$VEGFR2.membranous
+
+PDL1_r = Replication_data$PDL1.Tumor
+Vegfr3_r = Replication_data$VEGFR3.membranous
+Vegfr3_r.f = c()
+for (i in 1:77){
+ if (is.na(Vegfr3_r[i])==F){
+  if (Vegfr3_r[i] ==0){
+    Vegfr3_r.f[i] = 0
+  }
+  else if (Vegfr3_r[i]==1){
+    Vegfr3_r.f[i] = 0.25
+  }
+  else if (Vegfr3_r[i]==2){
+    Vegfr3_r.f[i] = 0.5
+  }
+  else if (Vegfr3_r[i]==3){
+    Vegfr3_r.f[i] = 0.75
+  }
+  else if (Vegfr3_r[i]==4){
+    Vegfr3_r.f[i] = 1
+  }
+ }
+  else{
+    Vegfr3_r.f[i] = NA
+  }
+}
+
+Vegfr3_r_cyto =Replication_data$VEGFR3.cytoplasmic
+Vegfr3_r_cyto.f =c()
+for (i in 1:77){
+ if (is.na(Vegfr3_r_cyto[i])==F){
+  if (Vegfr3_r_cyto[i] ==0){
+    Vegfr3_r_cyto.f[i] = 0
+  }
+  else if (Vegfr3_r_cyto[i]==1){
+    Vegfr3_r_cyto.f[i] = 0.25
+  }
+  else if (Vegfr3_r_cyto[i]==2){
+    Vegfr3_r_cyto.f[i] = 0.5
+  }
+  else if (Vegfr3_r_cyto[i]==3){
+    Vegfr3_r_cyto.f[i] = 0.75
+  }
+  else if (Vegfr3_r_cyto[i]==4){
+    Vegfr3_r_cyto.f[i] = 1
+  }
+ }
+  else{
+    Vegfr3_r_cyto.f[i] = NA
+  }
+}
+
+PDL1.TILS_r = Replication_data$PDL1.TILS
+PDL1.TILS_r.f = c()
+for (i in 1:77){
+ if (is.na(PDL1.TILS_r[i])==F){
+  if (PDL1.TILS_r[i] ==0){
+    PDL1.TILS_r.f[i] = 0
+  }
+  else if (PDL1.TILS_r[i]==1){
+    PDL1.TILS_r.f[i] = 1/3
+  }
+  else if (PDL1.TILS_r[i]==2){
+    PDL1.TILS_r.f[i] = 2/3
+  }
+  else if ( PDL1.TILS_r[i]==3){
+    PDL1.TILS_r.f[i] = 1
+  }
+ 
+ }
+  else{
+    PDL1.TILS_r.f[i] = NA
+  }
+}
+
+replication_acp = data.frame(Vista_r, Vegfr2_r_mb ,Vegfr2_r.f ,   Vegfr3_r.f , CD8_r,  PDL1.TILS_r.f) #PDL1_r,Vegfr3_r_cyto.f
+rownames(replication_acp)=Replication_data$X
+replication_acp = replication_acp[complete.cases(replication_acp),]
+
+acp_rep <- dudi.pca(replication_acp , center = T  , scale = F)
+acp_rep_li = as.data.frame(acp_rep$li)
+acp_rep_li = setDT(acp_rep_li, keep.rownames = TRUE)[]
+colnames(acp_rep_li)[1] <- "X"
+Attributes_replication = merge(Replication_data, acp_rep_li , by="X")
+
+plot(Attributes_replication$Axis1, Attributes_replication$Axis2 , col = as.factor(Attributes_replication$GRP))
 ```
