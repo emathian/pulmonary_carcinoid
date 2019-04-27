@@ -824,7 +824,7 @@ for (i in 1:77){
   }
 }
 
-replication_acp = data.frame(Vista_r, Vegfr2_r_mb ,Vegfr2_r.f ,   Vegfr3_r.f , CD8_r,  PDL1.TILS_r.f) #PDL1_r,Vegfr3_r_cyto.f
+replication_acp = data.frame(Vista_r, Vegfr2_r_mb ,  Vegfr3_r.f , CD8_r,  PDL1.TILS_r.f, PDL1_r) #Vegfr3_r_cyto.f ,Vegfr2_r.f , 
 rownames(replication_acp)=Replication_data$X
 replication_acp = replication_acp[complete.cases(replication_acp),]
 
@@ -834,5 +834,5 @@ acp_rep_li = setDT(acp_rep_li, keep.rownames = TRUE)[]
 colnames(acp_rep_li)[1] <- "X"
 Attributes_replication = merge(Replication_data, acp_rep_li , by="X")
 
-plot(Attributes_replication$Axis1, Attributes_replication$Axis2 , col = as.factor(Attributes_replication$GRP))
+plot(Attributes_replication$Axis1, Attributes_replication$Axis2 , col = as.factor(Attributes_replication$GRP)) # Victoire
 ```
