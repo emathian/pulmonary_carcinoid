@@ -720,30 +720,30 @@ plot(suptable1.2$Dimension.1 , suptable1.2$Dimension.2 , col=suptable1.2$Type ) 
 ```{r eval=TRUE, echo=TRUE}
 Replication_data <-  read.csv("IHC_discovery_+_replication_cohorts/dataIHC.csv", sep = ",", dec="." , header = TRUE, na.strings=c("","NA"))
 
-Vista_r = Replication_data$VISTA.membranous
+Vista_r_mb = Replication_data$VISTA.membranous
 CD8_r = Replication_data$CD8
-Vegfr2_r = Replication_data$VEGFR2
-Vegfr2_r.f = c()
+Vegfr2_r_cyto = Replication_data$VEGFR2
+Vegfr2_r_cyto.f = c()
 for (i in 1:77){
- if (is.na(Vegfr2_r[i])==F){
-  if (Vegfr2_r[i] =='0'){
-    Vegfr2_r.f[i] = 0
+ if (is.na(Vegfr2_r_cyto[i])==F){
+  if (Vegfr2_r_cyto[i] =='0'){
+    Vegfr2_r_cyto.f[i] = 0
   }
-  else if (Vegfr2_r[i]=='1M'){
-    Vegfr2_r.f[i] = 0.25
+  else if (Vegfr2_r_cyto[i]=='1M'){
+    Vegfr2_r_cyto.f[i] = 0.25
   }
-  else if (Vegfr2_r[i]=='2M'){
-    Vegfr2_r.f[i] = 0.5
+  else if (Vegfr2_r_cyto[i]=='2M'){
+    Vegfr2_r_cyto.f[i] = 0.5
   }
-  else if (Vegfr2_r[i]=='3M'){
-    Vegfr2_r.f[i] = 0.75
+  else if (Vegfr2_r_cyto[i]=='3M'){
+    Vegfr2_r_cyto.f[i] = 0.75
   }
-  else if (Vegfr2_r[i]=='4M'){
-    Vegfr2_r.f[i] = 1
+  else if (Vegfr2_r_cyto[i]=='4M'){
+    Vegfr2_r_cyto.f[i] = 1
   }
  }
   else{
-    Vegfr2_r.f[i] = NA
+    Vegfr2_r_cyto.f[i] = NA
   }
 }
 
@@ -824,8 +824,9 @@ for (i in 1:77){
   }
 }
 
-replication_acp = data.frame(Vista_r, Vegfr2_r_mb ,  Vegfr3_r.f , CD8_r,  PDL1.TILS_r.f, PDL1_r) #Vegfr3_r_cyto.f ,Vegfr2_r.f , 
+replication_acp = data.frame(Vista_r_mb, Vegfr2_r_mb , PDL1_r, PDL1.TILS_r.f,  CD8_r,Vegfr3_r.f  ) #   Vegfr2_r_cyto.f  , Vegfr3_r_cyto.f
 rownames(replication_acp)=Replication_data$X
+
 replication_acp = replication_acp[complete.cases(replication_acp),]
 
 acp_rep <- dudi.pca(replication_acp , center = T  , scale = F)
