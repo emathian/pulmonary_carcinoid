@@ -254,7 +254,6 @@ write.table(Attributes3, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', ro
 IHC_333.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_333_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
 IHC_334.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_334_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
 IHC_351.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_351_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
-IHC_351.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_351_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
 IHC_352.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_352_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
 IHC_353.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_353_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
 IHC_354.1 <-   read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_354_1.csv", sep = ";", dec="." , header = TRUE,na.strings=c("","NA"))
@@ -495,10 +494,53 @@ Attributes4 <- merge(Attributes3 , IHC_moy_df , by= "sample" , all= TRUE)
 colnames(Attributes4)[2] <- "B.Cells"
 colnames(Attributes4)[29] <- "Subtype"
 colnames(Attributes4)[30] <- "Type_revised"
-write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
 ```
 
 
+```{r eval=TRUE, echo=TRUE}
+hist(Attributes4$PDL1)
+sort(Attributes4$PDL1, decreasing = T)
+top_PDL1 = sort(Attributes4$PDL1, decreasing = T)[1:20]
+s =as.character(Attributes4$sample[Attributes4$PDL1 %in% top_PDL1 ])
+```
+```{r eval=TRUE, echo=TRUE}
+
+sort(Attributes4$CD8A, decreasing = T)
+top_CD8A = sort(Attributes4$CD8A, decreasing = T)[1:20]
+ss =as.character(Attributes4$sample[Attributes4$CD8A %in% top_CD8A ])
+
+```
+
+
+```{r eval=TRUE, echo=TRUE}
+top_CD8A = c()
+for (i in 1:284){
+  if (as.character(Attributes4$sample[i])%in% ss){
+    top_CD8A[i]="Y"
+  }
+  else{
+    top_CD8A[i]="N"
+  }
+}
+
+
+top_PDL1 = c()
+for (i in 1:284){
+  if (as.character(Attributes4$sample[i])%in% s){
+    top_PDL1[i]="Y"
+  }
+  else{
+   top_PDL1[i]="N"
+  }
+}
+
+top = data.frame("sample"= Attributes4$sample , "top_PDL1"= top_PDL1 , "top_CD8A"= top_CD8A)
+write.table(top , file='top.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+
+Attributes4.2 <- merge(Attributes4, top, by="sample")
+write.table(Attributes4.2 , file='Attributes_test_stat.tsv', quote=FALSE, sep='\t', row.names = F, col.names = T)
+```
 # Feature_DATA with the largest variance
 
 ```{r eval=TRUE, echo=TRUE}
@@ -518,18 +560,31 @@ write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t'
 
 
 ```{r eval=TRUE, echo=TRUE}
-data_lv  = merge(data , dataNOS , by=0) # Merge by row names
-dim(data_lv)
-f_colnames = data_lv$Row.names
-data_lv = as.data.frame(t(data_lv), col.names =FALSE )
-colnames(data_lv) <- f_colnames 
-data_lv  <- data_lv[-1,]
+#data_lv  = merge(data , dataNOS , by=0) # Merge by row names
+#dim(data_lv)
+#f_colnames = data_lv$Row.names
+#data_lv = as.data.frame(t(data_lv), col.names =FALSE )
+#colnames(data_lv) <- f_colnames 
+#data_lv  <- data_lv[-1,]
 #data_lv = setDT(data_lv , keep.rownames = TRUE)[]
 #data_lv = data_lv[-1,]
 #colnames(data_lv)[1] <- "ID"
 #data_lv_t_sample = merge(metadataID,data_lv, by ='ID')
 #data_lv_t_sample = data_lv_t_sample[,-1]
 #data_lv_t_sample = t(data_lv_t_sample)
+#data_lv = t(data_lv)
+#write.table(data_lv, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+
+data_lv  = merge(data , dataNOS , by=0) # Merge by row names
+f_colnames = data_lv$Row.names
+data_lv = as.data.frame(t(data_lv), col.names =FALSE )
+colnames(data_lv) <- f_colnames 
+data_lv = setDT(data_lv , keep.rownames = TRUE)[]
+data_lv = data_lv[-1,]
+colnames(data_lv)[1] <- "ID"
+data_lv_t_sample = merge(metadataID,data_lv, by ='ID')
+data_lv_t_sample = data_lv_t_sample[,-1]
+data_lv_t_sample = t(data_lv_t_sample)
 write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 ```
 
@@ -565,16 +620,46 @@ c
 
 ```{r eval=TRUE, echo=TRUE}
 Attributes5 <- Attributes4
+Attributes5$Survival = groupsBuenoTCGAred$Survival *12
 colnames(Attributes5)[2] <- "B.Cells"
 colnames(Attributes5)[29] <- "Subtype"
 colnames(Attributes5)[30] <- "Type_revised"
 Attributes5["Type_and_Survival"] = Attributes5$Type
-Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
-Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
-Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
-Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
-Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
+#Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
+#Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
+#Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
+#Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
+#Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
 
+
+Type_and_surv = c()
+save_ID = c()
+for(i in 1:284){
+  if (as.character(Attributes5$Type)[i] == "Epithelioid" & Attributes5$Survival[i] > 30 ){
+
+    Type_and_surv[i] = "Epithelioid.long.survival"
+    save_ID[i] = as.character(Attributes5$sample)[i]
+  }
+  else if (as.character(Attributes5$Type)[i] == "Epithelioid" & Attributes5$Survival[i] < 10){
+     Type_and_surv[i] = "Epithelioid.short.survival"
+    save_ID[i] =as.character( Attributes5$sample)[i]
+  }
+  else if (as.character(Attributes5$Type)[i] == "Sarcomatoid" & Attributes5$Survival[i] < 10){
+    Type_and_surv[i] = "Sarcomatoid"
+    save_ID[i] =as.character( Attributes5$sample)[i]
+  }
+}
+
+
+fig_3a_top  <- data.frame("sample"= save_ID  , "Type_and_survival"= Type_and_surv)
+table(fig_3a_top$Type_and_survival)
+
+sample.2 =c()
+for (i in 1:184){
+  if (is.na(fig_3a_top$sample)==F){
+    sample.2[i]= paste("M", Coord_fig3_b$X[i], sep="" )
+  }
+}
 
 ```
 
@@ -596,10 +681,10 @@ Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid
 Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),] # Removing long survival sarcomatoid tumors
 
 
-groupsBuenoTCGAred.2 = groupsBuenoTCGAred
-groupsBuenoTCGAred.2["Type_and_survival"] = groupsBuenoTCGAred.2$Type
-groupsBuenoTCGAred.2$Type_and_survival[groupsBuenoTCGAred.2$Type=="Epithelioid" & groupsBuenoTCGAred.2$Survival *12 > 30] = "Epithelioid.long.survival"
-groupsBuenoTCGAred.2$Type_and_survival[groupsBuenoTCGAred.2$Type=="Epithelioid" & groupsBuenoTCGAred.2$Survival *12 < 10] = "Epithelioid.short.survival"
+#groupsBuenoTCGAred.2 = groupsBuenoTCGAred
+groupsBuenoTCGAred["Type_and_survival"] = groupsBuenoTCGAred$Type
+groupsBuenoTCGAred$Type_and_survival[groupsBuenoTCGAred$Type=="Epithelioid" & groupsBuenoTCGAred$Survival *12 > 30] = "Epithelioid.long.survival"
+groupsBuenoTCGAred$Type_and_survival[groupsBuenoTCGAred$Type=="Epithelioid" & groupsBuenoTCGAred$Survival *12 < 10] = "Epithelioid.short.survival"
 
 
 #groupsBuenoTCGAred= groupsBuenoTCGAred$Survival[groupsBuenoTCGAred$Type=="Epithelioid" & groupsBuenoTCGAred$Survival *12 > 30]
@@ -607,6 +692,9 @@ groupsBuenoTCGAred.2$Type_and_survival[groupsBuenoTCGAred.2$Type=="Epithelioid" 
 Test_survival_epi_sup_meta = metadata$Survival[metadata$Type=="Epithelioid" & metadata$Survival *12 > 30]
 
 ```
+
+
+
 
 
 ```{r eval=TRUE, echo=TRUE}
@@ -688,11 +776,13 @@ plot(Attributes5$Axis1 , Attributes5$Axis2 , col= as.factor(Attributes5$Type_and
 # Reproduction de l'ACP de la figure 1
 ```{r eval=TRUE, echo=TRUE}
 df_acp_fig1 <-data_lv
+df_acp_fig1.2 = as.data.frame( df_acp_fig1[,2:7146] )
+rownames(df_acp_fig1.2) <- df_acp_fig1$ID
 for (i in 1:7145){
-  df_acp_fig1[,i] <- as.numeric(as.character(df_acp_fig1[,i]) )
+  df_acp_fig1.2[,i] <- as.numeric(as.character(df_acp_fig1.2[,i]) )
 }
-str(df_acp_fig1)
-acp_fig1 <- dudi.pca( df_acp_fig1 ,center = T , scale = F) #
+str(df_acp_fig1.2)
+acp_fig1 <- dudi.pca( df_acp_fig1.2 ,center = T , scale = F) #
 s.label(acp_fig1$li, xax = 1, yax = 2)
 acp_fig1_li_df =  as.data.frame(acp_fig1$li)
 acp_fig1_li_df  = setDT(acp_fig1_li_df , keep.rownames = TRUE)[]
@@ -722,6 +812,7 @@ Replication_data <-  read.csv("IHC_discovery_+_replication_cohorts/dataIHC.csv",
 
 Vista_r_mb = Replication_data$VISTA.membranous
 CD8_r = Replication_data$CD8
+Replication_data$VEGFR2[26] = "1M"
 Vegfr2_r_cyto = Replication_data$VEGFR2
 Vegfr2_r_cyto.f = c()
 for (i in 1:77){
@@ -809,13 +900,13 @@ for (i in 1:77){
     PDL1.TILS_r.f[i] = 0
   }
   else if (PDL1.TILS_r[i]==1){
-    PDL1.TILS_r.f[i] = 1/3
+    PDL1.TILS_r.f[i] = 0.25
   }
   else if (PDL1.TILS_r[i]==2){
-    PDL1.TILS_r.f[i] = 2/3
+    PDL1.TILS_r.f[i] = 0.5
   }
   else if ( PDL1.TILS_r[i]==3){
-    PDL1.TILS_r.f[i] = 1
+    PDL1.TILS_r.f[i] = 0.75
   }
  
  }
@@ -824,7 +915,7 @@ for (i in 1:77){
   }
 }
 
-replication_acp = data.frame(Vista_r_mb, Vegfr2_r_mb , PDL1_r, PDL1.TILS_r.f,  CD8_r,Vegfr3_r.f  ) #   Vegfr2_r_cyto.f  , Vegfr3_r_cyto.f
+replication_acp = data.frame(Vista_r_mb, Vegfr2_r_mb , PDL1_r, PDL1.TILS_r.f,  CD8_r,Vegfr3_r.f  ) #     , ,Vegfr2_r_cyto.f Vegfr3_r_cyto.f
 rownames(replication_acp)=Replication_data$X
 
 replication_acp = replication_acp[complete.cases(replication_acp),]
@@ -833,7 +924,136 @@ acp_rep <- dudi.pca(replication_acp , center = T  , scale = F)
 acp_rep_li = as.data.frame(acp_rep$li)
 acp_rep_li = setDT(acp_rep_li, keep.rownames = TRUE)[]
 colnames(acp_rep_li)[1] <- "X"
-Attributes_replication = merge(Replication_data, acp_rep_li , by="X")
+Attributes_replication = merge(Replication_data, acp_rep_li , by="X", all=TRUE)
+replication_acp = setDT(replication_acp, keep.rownames = TRUE)[]
+colnames(replication_acp)[1] = "X"
+Attributes_replication = merge(Attributes_replication , replication_acp , by="X", all=FALSE)
+plot(Attributes_replication$Axis1*-1, Attributes_replication$Axis2 , col = as.factor(Attributes_replication$GRP)) # Victoire
 
-plot(Attributes_replication$Axis1, Attributes_replication$Axis2 , col = as.factor(Attributes_replication$GRP)) # Victoire
+Coord_fig3_b <- data.frame("X"=Attributes_replication$X ,"Axis1"= Attributes_replication$Axis1 , "Axis2" = Attributes_replication$Axis2)
+
+Coord_fig3_b$X = as.character(Coord_fig3_b$X)
+sample.2 =c()
+for (i in 1:63){
+  sample.2[i]= paste("M", Coord_fig3_b$X[i], sep="" )
+}
+Coord_fig3_b$X = sample.2
+Coord_fig3_b$Axis1 = Coord_fig3_b$Axis1*-1
+Coord_fig3_b$Axis2 = Coord_fig3_b$Axis2*-1
+write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+
+Attribute_fig3a_b <-data.frame( "sample"=Attributes_replication$X, "Sex" = Attributes_replication$SEXE ,"Age"  = Attributes_replication$Age, "Asbestos"= Attributes_replication$Expo.A.codée , "Smoking"= Attributes_replication$Tabagisme , "Type"= Attributes_replication$GRP , "Survival"= Attributes_replication$Survie, "CD8.IHC" =Attributes_replication$CD8_r  , "Vegfr2.mb.IHC"= Attributes_replication$Vegfr2_r_mb , "Vegfr3.mb.IHC"= Attributes_replication$Vegfr3_r.f , "PDL1.IHC" = Attributes_replication$PDL1_r , "PDL1.TILS" = Attributes_replication$PDL1.TILS_r.f , "VISTA.IHC" = Attributes_replication$Vista_r_mb)
+
+Attribute_fig3a_b$Asbestos <- as.character(Attribute_fig3a_b$Asbestos)
+Asbestos.2 =c()
+for (i in 1:63){
+  if (is.na(Attribute_fig3a_b$Asbestos[i])==F){
+  if (Attribute_fig3a_b$Asbestos[i] == "non"){
+   
+    Asbestos.2[i] = "No"
+  }
+  else if (Attribute_fig3a_b$Asbestos[i] == "oui"){
+    Asbestos.2[i] = "Yes"
+  }
+   else  if (Attribute_fig3a_b$Asbestos[i] == "poss"){
+   Asbestos.2[i] = "Possible"
+   }
+    else  if (Attribute_fig3a_b$Asbestos[i]== "prob"){
+   Asbestos.2[i] = "Probable"
+    }
+  }
+  else{
+     Asbestos.2[i] = NA
+  }
+}
+
+
+Attribute_fig3a_b$Asbestos =  Asbestos.2
+Attribute_fig3a_b$Smoking <- as.character(Attribute_fig3a_b$Smoking)
+Smoking.2 = c()
+for (i in 1:63){
+  if (is.na(Attribute_fig3a_b$Smoking[i])==F){
+  if (Attribute_fig3a_b$Smoking[i] == "Non fumeur"){
+   
+    Smoking.2[i] = "No.Smoker"
+  }
+  else if (Attribute_fig3a_b$Smoking[i] == "Fumeur"){
+    Smoking.2[i] = "Smoker"
+  }
+   else  if (Attribute_fig3a_b$Smoking[i] == "Ex-Fumeur"){
+    Smoking.2[i] = "Former.smoker"
+   }
+  }
+  else{
+    Smoking.2[i] = NA
+  }
+}
+Attribute_fig3a_b$Smoking <- Smoking.2
+
+Attribute_fig3a_b$Type <- as.character(Attribute_fig3a_b$Type)
+Type.2 <-c()
+
+for (i in 1:63){
+  if (is.na(Attribute_fig3a_b$Type[i])==F){
+  if (Attribute_fig3a_b$Type[i] == "MME.long.surv"){
+   
+    Type.2[i] = "Epithelioid.long.survival"
+  }
+  else if (Attribute_fig3a_b$Type[i] == "MME.short.surv"){
+    Type.2[i] = "Epithelioid.short.survival"
+  }
+   else  if (Attribute_fig3a_b$Type[i] == "MMS"){
+    Type.2[i] = "Sarcomatoid"
+   }
+  }
+  else{
+    Type.2[i] = NA
+  }
+}
+
+Attribute_fig3a_b$Type = Type.2
+
+Attribute_fig3a_b$sample = as.character(Attribute_fig3a_b$sample)
+sample.2 =c()
+for (i in 1:63){
+  sample.2[i]= paste("M", Attribute_fig3a_b$sample [i], sep="" )
+}
+
+Attribute_fig3a_b$sample = sample.2
+write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\t', row.names = F)
+
+```
+
+# Fig 3a top Panel (29/04)
+```{r eval=TRUE, echo=TRUE}
+Surv_table <- read.table("surv_data.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Surv_table_2 <- data_frame("sample" = Surv_table$sample , "Type_and_survival" = Surv_table$Group)
+Attributes5 <- merge(Attributes4 , Surv_table_2 , by="sample")
+Attributes5 <- merge(metadataID  , Attributes5 , by="sample")
+To_delete = which(is.na(Attributes5$Type_and_survival)==T )
+
+# Construire la matrice
+data_attributes_fi3a = Attributes5[-c(To_delete),]
+ID_selected = as.character(data_attributes_fi3a$ID)
+ID_selected_df = data.frame("ID"= ID_selected)
+data_lv = setDT(data_lv, keep.rownames = TRUE)[]
+data_lv_fig3 = merge(data_lv ,ID_selected_df , by="ID")
+
+rownames(data_lv_fig3) = data_lv_fig3$ID
+data_lv_fig3 = data_lv_fig3[,-1]
+data_lv_fig3 = as.data.frame(data_lv_fig3 )
+
+for ( i in 1:7145){
+  data_lv_fig3[,i]= as.numeric(as.character(data_lv_fig3[,i]))
+}
+rownames(data_lv_fig3) = ID_selected_df$ID
+# ACP 
+acp_fig3a <- dudi.pca(data_lv_fig3, center = T , scale = F)
+summary(acp_fig3a)
+data_attributes_fi3a["Axis1"] = acp_fig3a$li$Axis1
+data_attributes_fi3a["Axis2"] = acp_fig3a$li$Axis2
+
+plot(data_attributes_fi3a$Axis1 , data_attributes_fi3a$Axis2 , col = data_attributes_fi3a$Type_and_survival)
 ```
