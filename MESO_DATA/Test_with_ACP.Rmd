@@ -441,6 +441,10 @@ IHC_all <- rbind(IHC_354.1_2 ,IHC_all)
 #IHC_412.1_2<- data.frame( Sample = IHC_412.1$Sample , VISTA = IHC_412.1$VISTA, PDL1 = IHC_412.1$PDL1 , VEGFR3 = IHC_412.1$VEGFR3M_p , CD8 = IHC_412.1$CD8_p , VEGFR2 = IHC_412.1$VEGFR2)
 #IHC_all <- rbind(IHC_412.1_2 ,IHC_all)
 
+
+tot_sample <- c(IHC_333.2$Sample , IHC_334.2$Sample, IHC_351.1$Sample, IHC_352.1$Sample,  IHC_353.1$Sample , IHC_354.1$Sample     ) #IHC_411.1$Sample , IHC_412.1$Sample 
+#length(unique(tot_sample))
+uniq_tot_sample= unique(tot_sample)[-1]
 ```
 
 ## Moyenne par échantillon
@@ -585,7 +589,7 @@ colnames(data_lv)[1] <- "ID"
 data_lv_t_sample = merge(metadataID,data_lv, by ='ID')
 data_lv_t_sample = data_lv_t_sample[,-1]
 data_lv_t_sample = t(data_lv_t_sample)
-write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+#write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 ```
 
 ## Vérification des ID 
@@ -763,6 +767,7 @@ PCA_Coord <- as.data.frame(acp_transcriptome_fig3a$li )
 PCA_Coord = setDT(PCA_Coord, keep.rownames = TRUE)[]
 colnames(PCA_Coord)[1]<- "ID"
 Attributes5 <- merge(Attributes5 , PCA_Coord , by= "ID")
+
 
 
 plot(Attributes5$Axis1 , Attributes5$Axis2 , col= as.factor(Attributes5$Type_and_Survival))
@@ -1028,19 +1033,28 @@ write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\
 
 # Fig 3a top Panel (29/04)
 ```{r eval=TRUE, echo=TRUE}
-Surv_table <- read.table("surv_data.txt", sep = "\t", dec="." , header = TRUE,   quote="")
-Surv_table_2 <- data_frame("sample" = Surv_table$sample , "Type_and_survival" = Surv_table$Group)
-Attributes5 <- merge(Attributes4 , Surv_table_2 , by="sample")
-Attributes5 <- merge(metadataID  , Attributes5 , by="sample")
-To_delete = which(is.na(Attributes5$Type_and_survival)==T )
 
-# Construire la matrice
+# Echantillons 
+Surv_table <- read.table("surv_data.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+# Df avec échantillons et type_+_survie
+Surv_table_2 <- data_frame("sample" = Surv_table$sample , "Type_and_survival" = Surv_table$Group)
+# Joint Surv_table_2 avec les 284 élmts de Attributes4
+Attributes5 <- merge(Attributes4 , Surv_table_2 , by="sample")
+# Ajout des ID au tableau
+Attributes5 <- merge(metadataID  , Attributes5 , by="sample")
+# Supression des Type_+_survival non def
+To_delete = which(is.na(Attributes5$Type_and_survival)==T )
 data_attributes_fi3a = Attributes5[-c(To_delete),]
+to_write_data_attributes_fi3a_top = data_attributes_fi3a[ , -2]
+
+# Taille du df 113 ech data_attributes_fi3a
+
+# Liste des IDs conservés
+# Création de la matrice de comptage pour les 113 échantillons
 ID_selected = as.character(data_attributes_fi3a$ID)
 ID_selected_df = data.frame("ID"= ID_selected)
 data_lv = setDT(data_lv, keep.rownames = TRUE)[]
 data_lv_fig3 = merge(data_lv ,ID_selected_df , by="ID")
-
 rownames(data_lv_fig3) = data_lv_fig3$ID
 data_lv_fig3 = data_lv_fig3[,-1]
 data_lv_fig3 = as.data.frame(data_lv_fig3 )
@@ -1049,11 +1063,210 @@ for ( i in 1:7145){
   data_lv_fig3[,i]= as.numeric(as.character(data_lv_fig3[,i]))
 }
 rownames(data_lv_fig3) = ID_selected_df$ID
-# ACP 
+# ACP avec tous les 7145 gènes
 acp_fig3a <- dudi.pca(data_lv_fig3, center = T , scale = F)
 summary(acp_fig3a)
-data_attributes_fi3a["Axis1"] = acp_fig3a$li$Axis1
-data_attributes_fi3a["Axis2"] = acp_fig3a$li$Axis2
+acp_fig3a_li <- acp_fig3a$li
+acp_fig3a_li <- setDT(acp_fig3a_li, keep.rownames = TRUE)[]
+colnames(acp_fig3a_li)[1] = "ID"
+
+data_attributes_fi3a = merge (data_attributes_fi3a ,acp_fig3a_li , by='ID' )
+
+#data_acp_trans_fig3 <- data.frame(VISTA.f , CD8A.f,VEGFR2.f , VEGFR3.f , PDL1.f)
+#row.names(data_acp_trans_fig3) = Attributes5$ID
+#acp_transcriptome_fig3a <- dudi.pca(data_acp_trans_fig3, center = T , scale = F) #,nf=F
+#summary(acp_transcriptome_fig3a)
+#PCA_Coord <- as.data.frame(acp_transcriptome_fig3a$li ) 
+#PCA_Coord = setDT(PCA_Coord, keep.rownames = TRUE)[]
+#colnames(PCA_Coord)[1]<- "ID"
+#Attributes5 <- merge(Attributes5 , PCA_Coord , by= "ID")
+
+
+#plot(Attributes5$Axis1 , Attributes5$Axis2 , col= as.factor(Attributes5$Type_and_Survival))
+
 
 plot(data_attributes_fi3a$Axis1 , data_attributes_fi3a$Axis2 , col = data_attributes_fi3a$Type_and_survival)
+```
+## Fig 3a ACP avec les 5 gènes d'intérêt
+
+
+```{r eval=TRUE, echo=TRUE}
+VISTA =  dinomesomics["ENSG00000107796.12",]  #ENSG00000107738.19
+ID_dinomesomics = colnames(dinomesomics)
+VISTA.f = c()
+Sample_for_vista= c()
+data_attributes_fi3a_ID =as.list (as.character(data_attributes_fi3a$ID))
+c= 0                          
+for (i in 1:284){
+  if (ID_dinomesomics[i] %in% data_attributes_fi3a_ID){
+    c = c+1
+     VISTA.f[i]= VISTA[i]
+     Sample_for_vista[i]=as.character(Attributes5$sample[which(Attributes5$ID == ID_dinomesomics[i])])
+  }
+}
+
+Vista_sample_df  = data.frame("sample" = Sample_for_vista , "VISTA.f"= VISTA.f)
+Vista_sample_df = Vista_sample_df[complete.cases(Vista_sample_df),]
+
+  
+CD8A = data_lv_fig3$ENSG00000153563.15
+CD8A.f = c()
+for (i in 1:113){
+  CD8A.f[i]=CD8A[[i]]
+}
+VEGFR2 = data_lv_fig3$ENSG00000128052.8
+VEGFR2.f = c()
+for (i in 1:113){
+  VEGFR2.f[i]=VEGFR2[[i]]
+}
+
+VEGFR3 = data_lv_fig3$ENSG00000037280.15
+VEGFR3.f = c()
+for (i in 1:113){
+  VEGFR3.f[i]=VEGFR3[[i]]
+}
+
+PDL1 = data_lv_fig3$ENSG00000120217.13
+PDL1.f = c()
+for (i in 1:113){
+  PDL1.f[i]=PDL1[[i]]
+}
+
+
+dat_fig3a_5_genes = data.frame("sample" = data_attributes_fi3a$sample  , "PDL1"= PDL1.f, "VEGFR2"  = VEGFR2.f , "VEGFR3"=VEGFR3.f , "CD8A" = CD8A.f )
+
+dat_fig3a_5_genes = merge(Vista_sample_df,dat_fig3a_5_genes , by="sample")
+rownames(dat_fig3a_5_genes) <-dat_fig3a_5_genes$sample
+dat_fig3a_5_genes <- dat_fig3a_5_genes[,-1]
+
+
+acp_5_genes <- dudi.pca(dat_fig3a_5_genes, center = T , scale = F)
+summary(acp_5_genes)
+acp_5_genes_li <- acp_5_genes$li
+acp_5_genes_li <- setDT(acp_5_genes_li, keep.rownames = TRUE)[]
+colnames(acp_5_genes_li)[1]="sample"
+data_attributes_fi3a= merge(data_attributes_fi3a, acp_5_genes_li , by="sample")
+
+plot(data_attributes_fi3a$Axis1.y , data_attributes_fi3a$Axis2.y , col = data_attributes_fi3a$Type_and_survival)
+
+
+```
+
+
+
+
+
+## Esssai d'après le tableau utilisé dans l'ACP de la fig 1a
+
+
+
+## Fig 3a ACP avec les 5 gènes d'intérêt
+
+
+```{r eval=TRUE, echo=TRUE}
+df_acp_fig1.2 <-setDT(df_acp_fig1.2 , keep.rownames = TRUE)[]
+colnames(df_acp_fig1.2)[1]<- "ID"
+
+df_acp_fig3a <- merge (df_acp_fig1.2 , ID_selected_df , by="ID")
+df_acp_fig3a.ID <- as.character(df_acp_fig3a$ID)
+df_acp_fig3a <- df_acp_fig3a[ ,-1]
+rownames(df_acp_fig3a) <- df_acp_fig3a.ID 
+acp_fig3a_top_panel <- dudi.pca(df_acp_fig3a, center = T , scale = F)
+acp_fig3a_top_panel$li
+summary(acp_fig3a_top_panel)
+data_attributes_fi3a["Axis1.f"]= acp_fig3a_top_panel$li$Axis1
+data_attributes_fi3a["Axis2.f"]= acp_fig3a_top_panel$li$Axis2
+
+plot(data_attributes_fi3a$Axis1.f , data_attributes_fi3a$Axis2.f*-1 , col = data_attributes_fi3a$Type_and_survival  )
+```
+
+# Avec 5 gènes
+
+```{r eval=TRUE, echo=TRUE}
+vista_col_id = which(colnames(df_acp_fig3a)=="ENSG00000107796.12") # Vista
+cd8a_col_id = which(colnames(df_acp_fig3a)=="ENSG00000153563.15") # CD8A
+vegfr2_col_id =  which(colnames(df_acp_fig3a)=="ENSG00000128052.8") # Vegfr2
+vegfr3_col_id = which(colnames(df_acp_fig3a)=="ENSG00000037280.15") # Vergf3
+pdl1_col_id = which(colnames(df_acp_fig3a)=="ENSG00000120217.13") # Vergf3
+
+data_5_genes = data.frame("vista" =df_acp_fig3a$"ENSG00000107796.12", "cd8a" = df_acp_fig3a$"ENSG00000153563.15" , "vegfr2" = df_acp_fig3a$"ENSG00000128052.8", "vegfr3" = df_acp_fig3a$"ENSG00000037280.15" , "pdl1" =df_acp_fig3a$"ENSG00000120217.13")
+acp_fig3a_top_panel_5_genes <- dudi.pca(data_5_genes, center = T , scale = F)
+
+
+data_attributes_fi3a["Axis1.5_genes"]= acp_fig3a_top_panel_5_genes$li$Axis1
+data_attributes_fi3a["Axis2.5_genes"]= acp_fig3a_top_panel_5_genes$li$Axis2
+plot(data_attributes_fi3a$Axis1.5_genes , data_attributes_fi3a$Axis2.5_genes , col = data_attributes_fi3a$Type_and_survival )
+
+summary(acp_fig3a_top_panel_5_genes)
+```
+
+# Test du 30/05
+```{r eval=TRUE, echo=TRUE}
+Keep_sample = as.character(Surv_table$sample[is.na(Surv_table$Group)==F ])
+
+Keep_ID = as.character(metadataID$ID[as.character(metadataID$sample)%in%Keep_sample])
+
+Keep_ID_Sample = data.frame("Samples" = as.character(Keep_sample), "ID" = as.character(Keep_ID))
+Surv_table_complete = Surv_table[complete.cases(Surv_table$Group),]
+Surv_table_complete = merge(Surv_table_complete , Keep_ID_Sample , by="sample")
+
+data_lv_with_surv_table =merge(data_lv ,Keep_ID_Sample , by='ID' )
+data_lv_with_surv_table.ID = as.character(data_lv_with_surv_table$ID )
+data_lv_with_surv_table.sample = as.character(data_lv_with_surv_table$sample)
+# 
+which(colnames(data_lv_with_surv_table)=="sample")
+data_lv_with_surv_table= data_lv_with_surv_table[,-7147]
+data_lv_with_surv_table= data_lv_with_surv_table[,-1]
+data_lv_with_surv_table[] <- lapply(data_lv_with_surv_table[,1:7145], function(x) {
+    if(is.factor(x)) as.numeric(as.character(x)) else x
+})
+#sapply(data_lv_with_surv_table, class)
+rownames(data_lv_with_surv_table) = data_lv_with_surv_table.sample
+acp_data_lv_surv <- dudi.pca(data_lv_with_surv_table, center = T , scale = F)
+acp_data_lv_surv_li <- acp_data_lv_surv$li
+acp_data_lv_surv_li["sample"] = data_lv_with_surv_table.sample
+Surv_table_complete = merge(Surv_table_complete, acp_data_lv_surv_li , by="sample")
+
+plot(Surv_table_complete$Axis1 , Surv_table_complete$Axis2*-1 , col = Surv_table_complete$Group )
+
+
+```
+
+
+## Avec tous les gènes 
+
+```{r eval=TRUE, echo=TRUE}
+dinomesomics_t = t(dinomesomics)
+dinomesomics_t["ID"] = rownames(dinomesomics)
+dinomesomics_with_surv_table =merge(dinomesomics_t,Keep_ID_Sample , by='ID' )
+
+```
+
+
+# Solution fig3a top panel 
+
+## Coordonnées
+
+
+```{r eval=TRUE, echo=TRUE}
+
+head(Keep_ID_Sample ,3)
+head(suptable1 ,3)
+Coordinates_fig3a_top <- merge( Keep_ID_Sample , suptable1 ,by = "Samples")
+
+
+write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
+```
+
+
+## Attributs   
+
+
+
+
+```{r eval=TRUE, echo=TRUE}
+Attributes5 = Attributes5[,-2]
+data_attributes_fi3a = data_attributes_fi3a[,-2]
+write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
 ```
