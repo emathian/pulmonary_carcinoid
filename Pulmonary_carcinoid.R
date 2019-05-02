@@ -65,7 +65,7 @@ plot(Sample_overview$LF1.LNEN, Sample_overview$LF2.LNEN , col = as.factor(Sample
 # MOFA Sample ID
 # ==============
 
-mofa_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID) # Complete case of mofa coordinates
+mofa_lnen_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID) # Complete case of mofa coordinates
 
 
 ###########################
@@ -78,7 +78,7 @@ Attributes_from_overview <- data.frame("Histopathology" = Sample_overview$Histop
                                       "Sex" = Sample_overview$Sex , "Smoking_status" = Sample_overview$Smoking_status , "Professional_Asbestos_exposure" = Sample_overview$Professional_exposure , "Survival_months" = Sample_overview$Survival_months,
                                       "cluster_LNEN" = Sample_overview$cluster_LNEN , "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio )
 Attributes_from_overview <- cbind(Attributes_from_overview , Sample_overview[ , 42:52])
-Attributes_from_overview <- merge(Attributes_from_overview , mofa_sample_id, by="Sample_ID")
+Attributes_from_overview <- merge(Attributes_from_overview , mofa_lnen_sample_id, by="Sample_ID")
   
 # Genes of interest
 # =================
@@ -109,7 +109,7 @@ t_Data_vst_all <-as.data.frame(t( Data_vst_all ))
 t_Data_vst_all <- setDT(t_Data_vst_all , keep.rownames = TRUE)[]
 colnames(t_Data_vst_all)[1] <- "Sample_ID"
 t_Data_vst_all <- as.data.frame(t_Data_vst_all)
-Data_vst_all_with_sample <- merge(t_Data_vst_all , mofa_sample_id , by='Sample_ID')
+Data_vst_all_with_sample <- merge(t_Data_vst_all , mofa_lnen_sample_id , by='Sample_ID')
 # Rmq : Only 158 samples with RNA seq data
 Sample_id_rna_seq = Data_vst_all_with_sample$Sample_ID
 
@@ -134,9 +134,9 @@ for (i in 1:23){
 
 # Mutation Fig3A:
 length(unique(Somatic_mutation$Gene.Symbol))
-mutation_matrix =matrix(ncol = length(unique(Somatic_mutation$Gene.Symbol)) , nrow= length(mofa_sample_id$Sample_ID))
+mutation_matrix =matrix(ncol = length(unique(Somatic_mutation$Gene.Symbol)) , nrow= length(mofa_lnen_sample_id$Sample_ID))
 colnames(mutation_matrix)<- unique(Somatic_mutation$Gene.Symbol)
-rownames(mutation_matrix) <- mofa_sample_id$Sample_ID
+rownames(mutation_matrix) <- mofa_lnen_sample_id$Sample_ID
 
 for (i in 1:dim(Somatic_mutation)[1]){
   if(identical(which(rownames(mutation_matrix)== Somatic_mutation$Sample_ID[i]),  integer(0))  == F){
@@ -164,4 +164,24 @@ fig3A_index_col_mutation_matrix = c(which(colnames(mutation_matrix)== "MEN1"),wh
 mutation_matrix = mutation_matrix[,c(fig3A_index_col_mutation_matrix )]
 
 # Doit-on tous les inclure ?
+
+# Genes Fig5A :
+Embl_ASCL1 =as.character(Ref_gene$V1[Ref_gene$V7 == "ASCL1"])
+Embl_DLL3= as.character(Ref_gene$V1[Ref_gene$V7 == "DLL3"])
+Embl_SLIT1 = as.character(Ref_gene$V1[Ref_gene$V7 == "SLIT1"])
+Embl_ROBO1 = as.character(Ref_gene$V1[Ref_gene$V7 == "ROBO1"])
+Embl_ANGPTL3 = as.character(Ref_gene$V1[Ref_gene$V7 == "ANGPTL3"])
+Embl_ERBB4 = as.character(Ref_gene$V1[Ref_gene$V7 == "ERBB4"])
+Embl_OTP = as.character(Ref_gene$V1[Ref_gene$V7 == "OTP"])
+Embl_NKX2_1 = as.character(Ref_gene$V1[Ref_gene$V7 == "NKX2-1"])
+
+gene_interest_names_fi5A <- c("ASCL1","DLL3","SLIT1" , "ROBO1","ANGPTL3","ERBB4","OTP", "NKX2-1" )
+gene_interest_embl_fig5A <- c(Embl_ASCL1,Embl_DLL3,Embl_SLIT1,Embl_ROBO1,Embl_ANGPTL3,Embl_ERBB4,Embl_OTP,Embl_NKX2_1)
+gene_interest_fig5A <- data.frame("Sample_ID" = Sample_id_rna_seq)
+for (i in 1:8){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig5A[i]))
+  gene_name <- as.character(gene_interest_names_fi5A[i])
+  gene_interest_fig5A[gene_name] <- Data_vst_all_with_sample[,n_col ]
+}
+
 
