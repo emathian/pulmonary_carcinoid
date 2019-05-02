@@ -59,7 +59,14 @@ table(Sample_overview$Histopathology[is.na(Sample_overview$LF1.LNEN_SCLC) ==F])
 # ======
 
 Coords_MOFA_fig1 <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNEN , "Axis2" = Sample_overview$LF2.LNEN)
+Coords_MOFA_fig1 <- Coords_MOFA_fig1[complete.cases(Sample_id_rna_seq),]
 plot(Sample_overview$LF1.LNEN, Sample_overview$LF2.LNEN , col = as.factor(Sample_overview$Histopathology ))
+
+# MOFA Sample ID
+# ==============
+
+mofa_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID) # Complete case of mofa coordinates
+
 
 ###########################
 # Attributes               #
@@ -70,10 +77,9 @@ plot(Sample_overview$LF1.LNEN, Sample_overview$LF2.LNEN , col = as.factor(Sample
 Attributes_from_overview <- data.frame("Histopathology" = Sample_overview$Histopathology , "Stage_UICC" = Sample_overview$Stage_UICC , "Age"= Sample_overview$Age , "Age_class" = Sample_overview$Age_class , 
                                       "Sex" = Sample_overview$Sex , "Smoking_status" = Sample_overview$Smoking_status , "Professional_Asbestos_exposure" = Sample_overview$Professional_exposure , "Survival_months" = Sample_overview$Survival_months,
                                       "cluster_LNEN" = Sample_overview$cluster_LNEN , "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio )
-
-
 Attributes_from_overview <- cbind(Attributes_from_overview , Sample_overview[ , 42:52])
-
+Attributes_from_overview <- merge(Attributes_from_overview , mofa_sample_id, by="Sample_ID")
+  
 # Genes of interest
 # =================
 
@@ -99,12 +105,13 @@ HLA_D <-Ref_gene$V1[c(index_HLA_D )]
 names(HLA_D)<-Ref_gene$V7[c(index_HLA_D )] 
 
 # Clean data frame : 
-Sample_id <- data.frame ( "Sample_ID" =Sample_overview$Sample_ID ) 
 t_Data_vst_all <-as.data.frame(t( Data_vst_all ))
 t_Data_vst_all <- setDT(t_Data_vst_all , keep.rownames = TRUE)[]
 colnames(t_Data_vst_all)[1] <- "Sample_ID"
 t_Data_vst_all <- as.data.frame(t_Data_vst_all)
-Data_vst_all_with_sample <- merge(t_Data_vst_all , Sample_id , by='Sample_ID')
+Data_vst_all_with_sample <- merge(t_Data_vst_all , mofa_sample_id , by='Sample_ID')
+# Rmq : Only 158 samples with RNA seq data
+Sample_id_rna_seq = Data_vst_all_with_sample$Sample_ID
 
 # Name of genes of interest :
 gene_interest_names <- c("LAG3" , "IGSF11" , "VISTA_VSIR" , "PDCD1LG2" , "LGALS9" , "CD274" ,
@@ -116,12 +123,45 @@ for (i in 1:12){
 }
 
 # Data frame :
-gene_interest_fig2E <- data.frame("Sample_ID" = Sample_overview$Sample_ID)
+gene_interest_fig2E <- data.frame("Sample_ID" = Sample_id_rna_seq)
 for (i in 1:23){
   n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl[i]))
   print(as.numeric(n_col))
   gene_name <- as.character(gene_interest_names[i])
   print(gene_name)
-  print(t_Data_vst_all$colname)
-  gene_interest_fig2E[gene_name] <- t_Data_vst_all[,n_col ]
+  gene_interest_fig2E[gene_name] <- Data_vst_all_with_sample[,n_col ]
 }
+
+# Mutation Fig3A:
+length(unique(Somatic_mutation$Gene.Symbol))
+mutation_matrix =matrix(ncol = length(unique(Somatic_mutation$Gene.Symbol)) , nrow= length(mofa_sample_id$Sample_ID))
+colnames(mutation_matrix)<- unique(Somatic_mutation$Gene.Symbol)
+rownames(mutation_matrix) <- mofa_sample_id$Sample_ID
+
+for (i in 1:dim(Somatic_mutation)[1]){
+  if(identical(which(rownames(mutation_matrix)== Somatic_mutation$Sample_ID[i]),  integer(0))  == F){
+    n_row = which(rownames(mutation_matrix)== Somatic_mutation$Sample_ID[i])
+    n_col = which(colnames(mutation_matrix)== Somatic_mutation$Gene.Symbol[i])
+    mutation_matrix[n_row,n_col] = 1
+  }
+}
+
+
+sort( colSums(mutation_matrix, na.rm = TRUE, dims = 1) , decreasing = TRUE  )[1:20]
+
+fig3A_index_col_mutation_matrix = c(which(colnames(mutation_matrix)== "MEN1"),which(colnames(mutation_matrix)== "ARID1A"),
+                                    which(colnames(mutation_matrix)== "ARID2"),   which(colnames(mutation_matrix)== "ATM"),
+                                    which(colnames(mutation_matrix)== "DNAH17"), which(colnames(mutation_matrix)== "DOT1L"),
+                                    which(colnames(mutation_matrix)== "HERC2"),  which(colnames(mutation_matrix)== "JMJD1C"),
+                                    which(colnames(mutation_matrix)== "KDM5C"),which(colnames(mutation_matrix)== "NIPBL"),
+                                    which(colnames(mutation_matrix)== "PALMD"), which(colnames(mutation_matrix)== "PSIP1"),
+                                    which(colnames(mutation_matrix)== "RLIM"), which(colnames(mutation_matrix)== "ROBO1"),
+                                    which(colnames(mutation_matrix)== "SEC31A"), which(colnames(mutation_matrix)== "SELP"),
+                                    which(colnames(mutation_matrix)== "SMARCA1"),which(colnames(mutation_matrix)== "SMARCA2"),
+                                    which(colnames(mutation_matrix)== "TP53"),which(colnames(mutation_matrix)== "WDR26"),
+                                    which(colnames(mutation_matrix)== "BAP1"), which(colnames(mutation_matrix)== "RB1"))
+
+mutation_matrix = mutation_matrix[,c(fig3A_index_col_mutation_matrix )]
+
+# Doit-on tous les inclure ?
+
