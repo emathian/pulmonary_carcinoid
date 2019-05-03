@@ -1,5 +1,5 @@
 ######################## Pulmmonary carcinoid #################
-
+# This repository was script in  Macintosh HD⁩ ▸ ⁨Utilisateurs⁩ ▸ ⁨mathian⁩ ▸ ⁨Bureau⁩ ▸ ⁨INSA_4_2⁩ ▸ ⁨STGE_CIRC⁩ ▸ 
 # Figure 1 : 
 # LNEN MOFA MAP 
 # Attributes to include 
@@ -22,22 +22,22 @@ library(dplyr)
 #######################
 # IMPORTATION OF DATA #
 #######################
-Sample_overview <- read.xlsx("SupplementaryTables_R1_20190318.xlsx", sheet = 1, startRow = 41, colNames = TRUE,
+Sample_overview <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet = 1, startRow = 41, colNames = TRUE,
           rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
           skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
           namedRegion = NULL, na.strings = "NA")
 
-Somatic_mutation  <- read.xlsx("SupplementaryTables_R1_20190318.xlsx", sheet = 4, startRow = 51, colNames = TRUE,
+Somatic_mutation  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet = 4, startRow = 51, colNames = TRUE,
                               rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
                               skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
                               namedRegion = NULL, na.strings = "NA")
 
 
-Data_vst_50 <- read.table("data/VST_nosex_50pc_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
-Data_vst_all <- read.table("data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+Data_vst_50 <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+Data_vst_all <- read.table("../data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
 
-Ref_gene <- read.table("data/VST_nosex_50pc_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
-Ref_gene_all <- read.table("data/VST_nosex_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
+Ref_gene <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
+Ref_gene_all <- read.table("../data/VST_nosex_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 
 
 ###########################
@@ -53,13 +53,13 @@ table(Sample_overview$Histopathology[is.na(Sample_overview$LF1.LNEN) ==F])
 summary(Sample_overview$LF1.LNEN_SCLC)
 sum(is.na(Sample_overview$LF1.LNEN_SCLC) ==F)
 table(Sample_overview$Histopathology[is.na(Sample_overview$LF1.LNEN_SCLC) ==F])
-
+table(Sample_overview$Epic.850K)
 
 # Coords
 # ======
 
 Coords_MOFA_fig1 <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNEN , "Axis2" = Sample_overview$LF2.LNEN)
-Coords_MOFA_fig1 <- Coords_MOFA_fig1[complete.cases(Sample_id_rna_seq),]
+Coords_MOFA_fig1 <- Coords_MOFA_fig1[complete.cases(Coords_MOFA_fig1),]
 plot(Sample_overview$LF1.LNEN, Sample_overview$LF2.LNEN , col = as.factor(Sample_overview$Histopathology ))
 
 # MOFA Sample ID
@@ -74,7 +74,7 @@ mofa_lnen_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID) # Compl
 
 # Clinical attributes
 # ====================
-Attributes_from_overview <- data.frame("Histopathology" = Sample_overview$Histopathology , "Stage_UICC" = Sample_overview$Stage_UICC , "Age"= Sample_overview$Age , "Age_class" = Sample_overview$Age_class , 
+Attributes_from_overview <- data.frame("Sample_ID" = Sample_overview$Sample_ID  ,"Histopathology" = Sample_overview$Histopathology , "Stage_UICC" = Sample_overview$Stage_UICC , "Age"= Sample_overview$Age , "Age_class" = Sample_overview$Age_class , 
                                       "Sex" = Sample_overview$Sex , "Smoking_status" = Sample_overview$Smoking_status , "Professional_Asbestos_exposure" = Sample_overview$Professional_exposure , "Survival_months" = Sample_overview$Survival_months,
                                       "cluster_LNEN" = Sample_overview$cluster_LNEN , "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio )
 Attributes_from_overview <- cbind(Attributes_from_overview , Sample_overview[ , 42:52])
@@ -90,12 +90,12 @@ Embl_lag3 = as.character(Ref_gene$V1[Ref_gene$V7 == "LAG3"])
 Embl_IGSF11 = as.character(Ref_gene$V1[Ref_gene$V7 == "IGSF11" ])
 # VISTA VSIR : https://www.uniprot.org/uniprot/Q9H7M9
 Embl_VISTA = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "C10orf54" ])
-Embl_PDCD1LG2 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PDCD1LG2" ]) # Becarful not in 50
-Embl_LGALS9  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "LGALS9" ]) # Becarful not in 50
-Embl_CD274 =  as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "CD274"]) # Becarful not in 50
+Embl_PDCD1LG2 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PDCD1LG2" ]) # Becarful not in 50pc
+Embl_LGALS9  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "LGALS9" ]) # Becarful not in 50pc
+Embl_CD274 =  as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "CD274"]) # Becarful not in 50pc
 Embl_PDCD1 = as.character(Ref_gene$V1[Ref_gene$V7 == "PDCD1" ])
 Embl_HAVCR2 = as.character(Ref_gene$V1[Ref_gene$V7 == "HAVCR2" ])
-Embl_CD86 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "CD86"]) # Becarful not in 50
+Embl_CD86 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "CD86"]) # Becarful not in 50pc
 Embl_CD80 = as.character(Ref_gene$V1[Ref_gene$V7 == "CD80" ])
 Embl_CTLA4 = as.character(Ref_gene$V1[Ref_gene$V7 == "CTLA4" ])
 
@@ -126,11 +126,13 @@ for (i in 1:12){
 gene_interest_fig2E <- data.frame("Sample_ID" = Sample_id_rna_seq)
 for (i in 1:23){
   n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl[i]))
-  print(as.numeric(n_col))
+  #print(as.numeric(n_col))
   gene_name <- as.character(gene_interest_names[i])
-  print(gene_name)
+  #print(gene_name)
   gene_interest_fig2E[gene_name] <- Data_vst_all_with_sample[,n_col ]
 }
+
+HLA_D_sum = rowSums(gene_interest_fig2E[,13:24], na.rm = TRUE)
 
 # Mutation Fig3A:
 length(unique(Somatic_mutation$Gene.Symbol))
@@ -184,4 +186,65 @@ for (i in 1:8){
   gene_interest_fig5A[gene_name] <- Data_vst_all_with_sample[,n_col ]
 }
 
+# Machine Learning Fig1 :
 
+ML_prediction <- function(data){
+  res_ml = c()
+  c_methyl = 0
+  for (i in 1:dim(data)[1]){
+    val <- data[i,]
+    names(val)<- c("Atypical", "Typical", "LCNEC")
+    if (sum(is.na(val)) ==3){
+       res_ml[i] = NA
+    }
+    else {
+      s_val = (sort(val, decreasing = TRUE))
+      #print(s_val)
+      c_methyl = c_methyl + 1
+      if (s_val[1]/s_val[2] < 1.05){
+        res_ml[i] = "Unclassified"
+      }
+      else{
+        #print(names(s_val[1]))
+        res_ml[i] = names(s_val[1])
+      }
+    }
+  }
+  return(res_ml)
+}
+ML_methyl <- ML_prediction(Sample_overview[,53:55])
+ML_expr <- ML_prediction(Sample_overview[,56:58])
+ML_MKI67 <- ML_prediction(Sample_overview[,59:61])
+ML_Mofa <- ML_prediction(Sample_overview[,62:64])
+
+
+table(ML_Mofa)
+# Cobfusion matrix of ML and Mofa sample :
+
+Histpopathology_LNEN = Sample_overview$Histopathology[is.na(Sample_overview$RNAseq) == F]
+for (i in 1:length(Histpopathology_LNEN )){
+  if ( Histpopathology_LNEN[i]=="LCNEC combined SCLC" ){
+    Histpopathology_LNEN[i] = "LCNEC"
+  }
+  else if (  Histpopathology_LNEN[i]== "LCNEC combined SCLC"){
+    Histpopathology_LNEN[i] = "LCNEC"
+  }
+  else if (Histpopathology_LNEN[i]== "LCNEC combined SqCC"){
+    Histpopathology_LNEN[i] = "LCNEC"
+  }
+  else if (Histpopathology_LNEN[i]== "LCNEC combined ADC"){
+    Histpopathology_LNEN[i] = "LCNEC"
+  }
+}
+
+table( Histpopathology_LNEN)
+# Confusion Matrix
+# -------------------
+Sample_LNEN = Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN) == F]
+HISTO_LNEN_df  = data.frame("Histpopathology_LNEN"= Histpopathology_LNEN, "Sample_ID"  = Sample_LNEN )
+MOFA_ML = data.frame("Pred_MOFA"= ML_Mofa, "Sample_ID"  = Sample_overview$Sample_ID)
+merge_pred_mofa = merge(HISTO_LNEN_df, MOFA_ML, by="Sample_ID")
+
+table(merge_pred_mofa$Histpopathology_LNEN , merge_pred_mofa$Pred_MOFA)
+
+#Methyl <- load("../methylation_final_LM.RData")
