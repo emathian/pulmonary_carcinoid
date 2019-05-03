@@ -49,7 +49,7 @@ head(suptable1,4)
 
 
 
-# Ceration du tableau des coordonnées 
+# Ceration du tableau des coordonnées  Fig 1 a 
 
 
 ```{r eval=TRUE, echo=TRUE}
@@ -140,14 +140,15 @@ Création d'une clée :
 ```{r eval=TRUE, echo=TRUE}
 gene_interet <- data.frame(VISTA,CD8A,VEGFR1, VEGFR2,VEGFR3, VEGFC , PDGFRB,PD1,PDL1, CTLA4 , TIM3 , LAG3 )
 
+
+# Rmq quant au nom des ID
 ID = sampleFilesred
 New_ID = c()
 for (i in 1:length(ID)){
   New_ID[i] =  sub("_count.txt","", ID[i])  
 }
 
-
-
+# Création d'un tableau de référence enter les IDs et le noms des éch
 metadataID = data.frame(ID = New_ID, sample = suptable1$Sample)
 gene_interet = setDT(gene_interet, keep.rownames = TRUE)[]
 colnames(metadataID)[1] <- "ID"
@@ -171,13 +172,7 @@ Attributes2 <- merge(Attributes1, gene_interet2, by="sample")
 Attributes3 <- merge(Attributes2, Subtype_Type_revised , by = "sample")
 str(Attributes3)
 # Convert factor to char
-Attributes3.2 <- Attributes3
-Attributes3.2$sample = as.character(Attributes3$sample)
-Attributes3.2$Asbestos =  as.character(Attributes3$Asbestos)
-Attributes3.2$Sex =  as.character(Attributes3$Sex)
-Attributes3.2$Type =  as.character(Attributes3$Type)
-Attributes3.2$Subtype_FGS=  as.character(Attributes3$Subtype_FGS)
-Attributes3.2$Type_FGS=  as.character(Attributes3$Type_FGS)
+
 #str(Attributes3.2)
 Attributes3$Type = as.character(Attributes3$Type)
 ```
@@ -189,10 +184,6 @@ Attributes3$Type[is.na(Attributes3$Type)] <- "Diffuse_NOS"
 ```
 
 # Remplacement des valeurs manquantes pas 0
-
-```{r eval=TRUE, echo=TRUE}
-Attributes3.2[is.na(Attributes3.2)] <- 0
-```
 
 # Survie en mois
 
@@ -209,40 +200,6 @@ write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='
 write.table(Attributes3, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
 
 ```
-
-
-# Test sur le type de matrices
-```{r eval=TRUE, echo=TRUE}
-#Sample_coord <- read.table("Coordinates_PCA_f1.tsv", header = T)
-
-#Attributes3.sample<-data.frame(matrix(ncol = 32))
-#colnames(Attributes3.sample) <- colnames(Attributes3)
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M23PT") )
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M35PT") )
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M54PT") )
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M42PT") )
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M36PT") )
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M70PT") )
-#Attributes3.sample <- rbind(Attributes3.sample, subset(Attributes3, sample == "M18PT") )
-
-#Attributes3.sample <- Attributes3.sample[-1,]
-#Attributes3.sample<-Attributes3.sample[,1:5]
-#write.table(Attributes3.sample, file='Attributes_PCA_sample.tsv', quote=FALSE, sep='\t', row.names = F)
-
-```
-
-# Donnée rna_Seq
-```{r eval=TRUE, echo=FALSE}
-
-#dinomesomics_t = as.data.frame(t(dinomesomics) )
-#dinomesomics_t = setDT(dinomesomics_t , keep.rownames = TRUE)[]
-#colnames(dinomesomics_t)[1] <- "ID"
-#dinomesomics_t_sample = merge(metadataID,dinomesomics_t, by ='ID')
-#dinomesomics_t_sample = dinomesomics_t_sample[,-1]
-#dinomesomics_t_sample = t(dinomesomics_t_sample)
-#write.table(dinomesomics_t_sample, file='feature_data.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-```
-
 
 
 # Cohorte des 187 échantillons avec les données d'Immunohistochimie
@@ -301,25 +258,15 @@ colnames(IHC_353.1)[2] <- "IARC_ID"
 IHC_353.1["Sample"]  = change_sample_name_IHC_file(IHC_353.1)
 colnames(IHC_354.1)[2] <- "IARC_ID"
 IHC_354.1["Sample"]  = change_sample_name_IHC_file(IHC_354.1)
-#colnames(IHC_411.1)[2] <- "IARC_ID"
-#IHC_411.1["Sample"]  = change_sample_name_IHC_file(IHC_411.1)
-#colnames(IHC_412.1)[2] <- "IARC_ID"
-#IHC_412.1["Sample"]  = change_sample_name_IHC_file(IHC_412.1)
+
+
 ```
 
 
 ```{r eval=TRUE, echo=TRUE}
-#U_333.2 <-length(unique(IHC_333.2$Sample))
-#U_334.2 <-length(unique(IHC_334.2$Sample))
-#U_351.1 <-length(unique(IHC_351.1$Sample))
-#U_352.1 <-length(unique(IHC_352.1$Sample))
-#U_353.1 <-length(unique(IHC_353.1$Sample))
-#U_354.1 <-length(unique(IHC_354.1$Sample))
-#U_411.1 <-length(unique(IHC_411.1$Sample))
-#U_412.1 <-length(unique(IHC_412.1$Sample))
+
 tot_sample <- c(IHC_333.2$Sample , IHC_334.2$Sample, IHC_351.1$Sample, IHC_352.1$Sample,  IHC_353.1$Sample , IHC_354.1$Sample     ) #IHC_411.1$Sample , IHC_412.1$Sample 
 
-#length(unique(tot_sample))
 uniq_tot_sample= unique(tot_sample)[-1]
 ```
 
@@ -434,14 +381,6 @@ IHC_all <- rbind(IHC_353.1_2 ,IHC_all)
 IHC_354.1_2<- data.frame( Sample = IHC_354.1$Sample , VISTA = IHC_354.1$VISTA, PDL1 = IHC_354.1$PDL1 , VEGFR3 = IHC_354.1$VEGFR3M_p , CD8 = IHC_354.1$CD8_p , VEGFR2 = IHC_354.1$VEGFR2)
 IHC_all <- rbind(IHC_354.1_2 ,IHC_all)
 
-#IHC_411.1_2<- data.frame( Sample = IHC_411.1$Sample , VISTA = IHC_411.1$VISTA, PDL1 = IHC_411.1$PDL1 , VEGFR3 = IHC_411.1$VEGFR3M_p , CD8 = IHC_411.1$CD8_p , VEGFR2 = IHC_411.1$VEGFR2)
-#IHC_all <- rbind(IHC_411.1_2 ,IHC_all)
-
-
-#IHC_412.1_2<- data.frame( Sample = IHC_412.1$Sample , VISTA = IHC_412.1$VISTA, PDL1 = IHC_412.1$PDL1 , VEGFR3 = IHC_412.1$VEGFR3M_p , CD8 = IHC_412.1$CD8_p , VEGFR2 = IHC_412.1$VEGFR2)
-#IHC_all <- rbind(IHC_412.1_2 ,IHC_all)
-
-
 tot_sample <- c(IHC_333.2$Sample , IHC_334.2$Sample, IHC_351.1$Sample, IHC_352.1$Sample,  IHC_353.1$Sample , IHC_354.1$Sample     ) #IHC_411.1$Sample , IHC_412.1$Sample 
 #length(unique(tot_sample))
 uniq_tot_sample= unique(tot_sample)[-1]
@@ -502,49 +441,6 @@ colnames(Attributes4)[30] <- "Type_revised"
 ```
 
 
-```{r eval=TRUE, echo=TRUE}
-hist(Attributes4$PDL1)
-sort(Attributes4$PDL1, decreasing = T)
-top_PDL1 = sort(Attributes4$PDL1, decreasing = T)[1:20]
-s =as.character(Attributes4$sample[Attributes4$PDL1 %in% top_PDL1 ])
-```
-```{r eval=TRUE, echo=TRUE}
-
-sort(Attributes4$CD8A, decreasing = T)
-top_CD8A = sort(Attributes4$CD8A, decreasing = T)[1:20]
-ss =as.character(Attributes4$sample[Attributes4$CD8A %in% top_CD8A ])
-
-```
-
-
-```{r eval=TRUE, echo=TRUE}
-top_CD8A = c()
-for (i in 1:284){
-  if (as.character(Attributes4$sample[i])%in% ss){
-    top_CD8A[i]="Y"
-  }
-  else{
-    top_CD8A[i]="N"
-  }
-}
-
-
-top_PDL1 = c()
-for (i in 1:284){
-  if (as.character(Attributes4$sample[i])%in% s){
-    top_PDL1[i]="Y"
-  }
-  else{
-   top_PDL1[i]="N"
-  }
-}
-
-top = data.frame("sample"= Attributes4$sample , "top_PDL1"= top_PDL1 , "top_CD8A"= top_CD8A)
-write.table(top , file='top.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-
-Attributes4.2 <- merge(Attributes4, top, by="sample")
-write.table(Attributes4.2 , file='Attributes_test_stat.tsv', quote=FALSE, sep='\t', row.names = F, col.names = T)
-```
 # Feature_DATA with the largest variance
 
 ```{r eval=TRUE, echo=TRUE}
@@ -629,12 +525,6 @@ colnames(Attributes5)[2] <- "B.Cells"
 colnames(Attributes5)[29] <- "Subtype"
 colnames(Attributes5)[30] <- "Type_revised"
 Attributes5["Type_and_Survival"] = Attributes5$Type
-#Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival>30] = "Epithelioid.long.survival"
-#Attributes5$Type_and_Survival[Attributes5$Type =='Epithelioid' & Attributes5$Survival<10] = "Epithelioid.short.survival"
-#Attributes5 = Attributes5[Attributes5$Type == "Epithelioid" | Attributes5$Type == "Sarcomatoid" , ]
-#Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Epithelioid")),]
-#Attributes5 = Attributes5[-c(which(Attributes5$Type_and_Survival == "Sarcomatoid" & Attributes5$Survival >10 )),]
-
 
 Type_and_surv = c()
 save_ID = c()
@@ -1045,7 +935,6 @@ Attributes5 <- merge(metadataID  , Attributes5 , by="sample")
 # Supression des Type_+_survival non def
 To_delete = which(is.na(Attributes5$Type_and_survival)==T )
 data_attributes_fi3a = Attributes5[-c(To_delete),]
-to_write_data_attributes_fi3a_top = data_attributes_fi3a[ , -2]
 
 # Taille du df 113 ech data_attributes_fi3a
 
@@ -1146,6 +1035,10 @@ acp_5_genes_li <- acp_5_genes$li
 acp_5_genes_li <- setDT(acp_5_genes_li, keep.rownames = TRUE)[]
 colnames(acp_5_genes_li)[1]="sample"
 data_attributes_fi3a= merge(data_attributes_fi3a, acp_5_genes_li , by="sample")
+
+to_write_data_attributes_fi3a_top = data_attributes_fi3a[ , -2]
+
+
 
 plot(data_attributes_fi3a$Axis1.y , data_attributes_fi3a$Axis2.y , col = data_attributes_fi3a$Type_and_survival)
 
@@ -1253,7 +1146,9 @@ dinomesomics_with_surv_table =merge(dinomesomics_t,Keep_ID_Sample , by='ID' )
 head(Keep_ID_Sample ,3)
 head(suptable1 ,3)
 Coordinates_fig3a_top <- merge( Keep_ID_Sample , suptable1 ,by = "Samples")
-
+Coordinates_fig3a_top$Dimension.2 =Coordinates_fig3a_top$Dimension.2*-1
+Coordinates_fig3a_top <- Coordinates_fig3a_top[,-2]
+Coordinates_fig3a_top <- Coordinates_fig3a_top[,1:3]
 
 write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
 ```
@@ -1267,6 +1162,7 @@ write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE
 ```{r eval=TRUE, echo=TRUE}
 Attributes5 = Attributes5[,-2]
 data_attributes_fi3a = data_attributes_fi3a[,-2]
+
 write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
 write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
 ```
