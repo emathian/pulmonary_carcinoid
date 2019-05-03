@@ -201,7 +201,7 @@ ML_prediction <- function(data){
       s_val = (sort(val, decreasing = TRUE))
       #print(s_val)
       c_methyl = c_methyl + 1
-      if (s_val[1]/s_val[2] < 1.05){
+      if (s_val[1]/s_val[2] < 1.5){
         res_ml[i] = "Unclassified"
       }
       else{
@@ -214,37 +214,101 @@ ML_prediction <- function(data){
 }
 ML_methyl <- ML_prediction(Sample_overview[,53:55])
 ML_expr <- ML_prediction(Sample_overview[,56:58])
-ML_MKI67 <- ML_prediction(Sample_overview[,59:61])
+ML_MKI67 <- ML_prediction(Sample_overview[,59:61]) # Fig S11
 ML_Mofa <- ML_prediction(Sample_overview[,62:64])
-
+ML_expr_methyl <- ML_prediction( Sample_overview[,65:67])  # Fig S9
 
 table(ML_Mofa)
 # Cobfusion matrix of ML and Mofa sample :
 
-Histpopathology_LNEN = Sample_overview$Histopathology[is.na(Sample_overview$RNAseq) == F]
-for (i in 1:length(Histpopathology_LNEN )){
-  if ( Histpopathology_LNEN[i]=="LCNEC combined SCLC" ){
-    Histpopathology_LNEN[i] = "LCNEC"
+Histpopathology_4_classes = Sample_overview$Histopathology
+table(Histpopathology_4_classes)
+for (i in 1:length(Histpopathology_4_classes )){
+  if ( Histpopathology_4_classes[i]=="LCNEC combined SCLC" ){
+    Histpopathology_4_classes[i] = "LCNEC"
   }
-  else if (  Histpopathology_LNEN[i]== "LCNEC combined SCLC"){
-    Histpopathology_LNEN[i] = "LCNEC"
+  else if (  Histpopathology_4_classes[i]== "LCNEC combined SCLC"){
+    Histpopathology_4_classes[i] = "LCNEC"
   }
-  else if (Histpopathology_LNEN[i]== "LCNEC combined SqCC"){
-    Histpopathology_LNEN[i] = "LCNEC"
+  else if (Histpopathology_4_classes[i]== "LCNEC combined SqCC"){
+    Histpopathology_4_classes[i] = "LCNEC"
   }
-  else if (Histpopathology_LNEN[i]== "LCNEC combined ADC"){
-    Histpopathology_LNEN[i] = "LCNEC"
+  else if (Histpopathology_4_classes[i]== "LCNEC combined ADC"){
+    Histpopathology_4_classes[i] = "LCNEC"
   }
 }
 
-table( Histpopathology_LNEN)
+table( Histpopathology_4_classes)
 # Confusion Matrix
 # -------------------
-Sample_LNEN = Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN) == F]
-HISTO_LNEN_df  = data.frame("Histpopathology_LNEN"= Histpopathology_LNEN, "Sample_ID"  = Sample_LNEN )
+
+# For MOFA Laten factor
+HISTO_df  = data.frame("Histpopathology_4_classes"= Histpopathology_4_classes, "Sample_ID"  = Sample_overview$Sample_ID)
 MOFA_ML = data.frame("Pred_MOFA"= ML_Mofa, "Sample_ID"  = Sample_overview$Sample_ID)
-merge_pred_mofa = merge(HISTO_LNEN_df, MOFA_ML, by="Sample_ID")
+merge_pred_mofa = merge(HISTO_df, MOFA_ML, by="Sample_ID")
 
-table(merge_pred_mofa$Histpopathology_LNEN , merge_pred_mofa$Pred_MOFA)
-
+tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_mofa$Pred_MOFA)
+prop.table(tab_conf, 2)
 #Methyl <- load("../methylation_final_LM.RData")
+
+
+# For Expr 
+# --------
+
+HISTO_df  = data.frame("Histpopathology_4_classes"= Histpopathology_4_classes, "Sample_ID"  = Sample_overview$Sample_ID)
+EXPR_ML = data.frame("Expr_ML"= ML_expr, "Sample_ID"  = Sample_overview$Sample_ID)
+merge_pred_expr = merge(HISTO_df, EXPR_ML, by="Sample_ID")
+
+tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_expr$Expr_ML)
+prop.table(tab_conf, 1)  # OK 
+
+
+# ML Type Fig
+# ------------
+
+ML_histopatholical_type <- data.frame("ML_methyl" = ML_methyl  ,"ML_expr" = ML_expr , stringsAsFactors=F) 
+Res_type_ml = c()
+
+for (i in 1:dim(ML_histopatholical_type)[1])
+  {
+  # Aucun NA  sur la ligne et les deux types predits sont différents et ne sont pas de la catégorie unclassified -> Précdiction Unclassified
+  if(sum(is.na( ML_histopatholical_type[i,]) == F) == 2 & 
+     ML_histopatholical_type$ML_methyl[i] != ML_histopatholical_type$ML_expr[i] &
+     ML_histopatholical_type$ML_methyl[i] != "Unclassified"  &  
+     ML_histopatholical_type$ML_expr[i] != "Unclassified" )
+  {
+    Res_type_ml[i] = "Unclassified"
+  }
+  # Si 1 NA le type prédit est celui restant
+  else if (sum(is.na( ML_histopatholical_type[i,]) == F) == 1 ) 
+  {
+    Res_type_ml[i] =as.character( ML_histopatholical_type[i, which(is.na(ML_histopatholical_type[i,])==F)] )
+  }
+  # Si Aucun  NA le type prédit est au  un Unclassified -> Type restant si deux unclassied -> Type Un classifies
+  else if (sum(is.na( ML_histopatholical_type[i,]) == F) == 2  )
+    { 
+    if (ML_histopatholical_type$ML_methyl[i] == "Unclassified" &
+        ML_histopatholical_type$ML_expr[i] == "Unclassified")
+      {
+      Res_type_ml[i] = "Unclassified"
+      }
+    else
+    {
+      Res_type_ml[i] =as.character( ML_histopatholical_type[i, which(ML_histopatholical_type[i,]!="Unclassified") ] )
+    }
+  }
+  # Si Aucun NA et deux et Type identiques -> On conserve le mm
+  else if (sum(is.na( ML_histopatholical_type[i,]) == F) == 2 &  
+           ML_histopatholical_type$ML_methyl[i]== ML_histopatholical_type$ML_expr[i] )
+    {
+    Res_type_ml[i] = as.character( ML_histopatholical_type[i, 1 ]  )
+  }
+  # Si deux NA -> NA
+  else if(is.na(ML_histopatholical_type$ML_methyl[i]) == T & is.na(ML_histopatholical_type$ML_expr[i])==T)
+    {
+    Res_type_ml[i] =NA
+  }
+  
+}
+
+Res_type_ml #= as.list(Res_type_ml)
