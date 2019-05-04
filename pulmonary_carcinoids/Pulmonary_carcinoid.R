@@ -410,6 +410,30 @@ for (i in 1:1){
   gene_interest_fig6[gene_interest_names_fig6 ] <- Data_vst_all_with_sample[,n_col ]
 }
 
+
+#############################
+# CHEMOkINES               #
+#############################
+Embl_CCL2=as.character(Ref_gene$V1[Ref_gene$V7 == "CCL2"])
+Embl_CCL7=as.character(Ref_gene$V1[Ref_gene$V7 == "CCL7"])
+Embl_CCL19=as.character(Ref_gene$V1[Ref_gene$V7 == "CCL19"])
+Embl_CCL21=as.character(Ref_gene$V1[Ref_gene$V7 == "CCL21"])
+Embl_CCL22=as.character(Ref_gene$V1[Ref_gene$V7 == "CCL22"])
+Embl_IL8=as.character(Ref_gene$V1[Ref_gene$V7 == "IL8"])
+Embl_CXCL1=as.character(Ref_gene$V1[Ref_gene$V7 == "CXCL1"])
+Embl_CXCL3=as.character(Ref_gene$V1[Ref_gene$V7 == "CXCL3"])
+Embl_CXCL5=as.character(Ref_gene$V1[Ref_gene$V7 == "CXCL5"])
+
+gene_interest_names_chemokines <- c("CCL2","CCL7" , "CCL19",  "CCL21","CCL22", "IL8","CXCL1", "CXCL3","CXCL5")
+gene_interest_embl_chemokines<- c(Embl_CCL2, Embl_CCL7, Embl_CCL19 ,Embl_CCL21, Embl_CCL22, Embl_IL8, Embl_CXCL1, Embl_CXCL3, Embl_CXCL5)
+gene_interest_chemokines <- data.frame("Sample_ID" =Sample_id_rna_seq)
+for (i in 1:9){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_chemokines[i]))
+  gene_name <- as.character(gene_interest_names_chemokines[i])
+  gene_interest_chemokines[gene_interest_names_chemokines ] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
 # Fig 5C
 # Fig S23 -> Methylation
 
@@ -445,7 +469,7 @@ length(HLA_D_mean)
 dim(gene_interest_fig4B)
 dim(gene_interest_fig4D)
 dim(gene_interest_fig6)
-
+dim(gene_interest_chemokines)
 # Merge Genes Expr
 # ----------------
 gene_interest = merge(gene_interest_fig5A ,gene_interest_fig2E , by= "Sample_ID")
@@ -453,6 +477,7 @@ gene_interest = merge(gene_interest , gene_interest_fig4B , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig4D , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig6 , by= "Sample_ID")
 gene_interest = cbind(gene_interest , HLA_D_mean)
+gene_interest = merge(gene_interest ,gene_interest_chemokines, by= "Sample_ID")
 
 
 # Data frame ML
@@ -487,7 +512,7 @@ Coords_MOFA_fig4A <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1
 Coords_MOFA_fig4A <- Coords_MOFA_fig4A[complete.cases(Coords_MOFA_fig4A),]
 Sample_id_fig4A = data.frame("Sample_ID"=Coords_MOFA_fig4A$Sample_ID)
 Attributes_fig4A = merge(Attributes2 , Sample_id_fig4A  , by="Sample_ID")
-write.table(Coords_MOFA_fig4A, file='Coords_MOFA_fig4A.tsv', quote=FALSE, sep='\t', row.names = F, , col.names = F)
+write.table(Coords_MOFA_fig4A, file='Coords_MOFA_fig4A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig4A, file='Attributes_fig4A.tsv', quote=FALSE, sep='\t', row.names = F)
 
 # Fig S6 :
@@ -515,7 +540,7 @@ Coords_PCA_S6B <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA
 Coords_PCA_S6B<- Coords_PCA_S6B[complete.cases(Coords_PCA_S6B),]
 Sample_id_fig6B = data.frame("Sample_ID"=Coords_PCA_S6B$Sample_ID)
 Attributes_fig6B = merge(Attributes2 , Sample_id_fig6B  , by="Sample_ID")
-write.table(Coords_PCA_S6B,  file='Coords_PCA_S6B.tsv', quote=FALSE, sep='\t', row.names = F, , col.names = F)
+write.table(Coords_PCA_S6B,  file='Coords_PCA_S6B.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
 write.table(Attributes_fig6B, file='Attributes_fig6B.tsv', quote=FALSE, sep='\t', row.names = F)
 
 # FIG 6C
@@ -525,7 +550,7 @@ Coords_PCA_S6C <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA
 Coords_PCA_S6C<- Coords_PCA_S6C[complete.cases(Coords_PCA_S6C),]
 Sample_id_fig6C = data.frame("Sample_ID"=Coords_PCA_S6C$Sample_ID)
 Attributes_fig6C = merge(Attributes2 , Sample_id_fig6C  , by="Sample_ID")
-write.table(Coords_PCA_S6C,  file='Coords_PCA_S6C.tsv', quote=FALSE, sep='\t', row.names = F, , col.names = F)
+write.table(Coords_PCA_S6C,  file='Coords_PCA_S6C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig6C, file='Attributes_fig6C.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
