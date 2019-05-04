@@ -1,0 +1,57 @@
+#########################
+# pulmonary carcinoids  #
+#########################
+
+# Available Maps 
+----------------
+
+Title : pulmonary_carcinoids_Mofa_coord_LNEN_fig1_0405
+Obj : Reproduction of fig 1 with mofa coords
+Attribute file : Attributes_fig1A.tsv
+Coords file : Coords_MOFA_fig1.tsv
+
+
+Title : pulmonary_carcinoids_Mofa_coords_LNET_fig4_0405
+Obj : Reproduction of fig 4 with mofa coords
+Attribute file : Attributes_fig4A.tsv
+Coords file : Coords_MOFA_fig4A.tsv
+
+
+Title : pulmonary_carcinoids_Mofa_coords_LNEN_SCLC_figS13A_0405
+Obj : Reproduction of Sfig 13A with mofa coords LNEN + SCLC
+Attribute file : Attributes_fig13A.tsv
+Coords file : Coords_MOFA_S13A.tsv
+
+Title : pulmonary_carcinoids_Mofa_coords_LNET_SCLC_figS13C_0405
+Obj : Reproduction of Sfig 13A with mofa coords LNET + SCLC
+Attribute file : Attributes_fig13C.tsv
+Coords file : Coords_MOFA_S13C.tsv
+
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNEN_SCLC_FigS6A_0405
+Obj : Reproduction of fig S6A with pca transcriptomic coords LNEN + SCLC
+Attribute file : Attributes_fig13C.tsv
+Coords file : Coords_PCA_S6A.tsv
+
+
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNEN_FigS6B_0405
+Obj : Reproduction of fig S6B with pca transcriptomic coords LNEN
+Attribute file : Attributes_fig6B.tsv
+Coords file : Coords_PCA_S6B.tsv
+
+
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNET_SCLC_FigS6C_0405
+Obj : Reproduction of fig S6C with pca transcriptomic coords LNET + SCLC
+Attribute file : Attributes_fig6C.tsv
+Coords file : Coords_PCA_S6C.tsv
+
+
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNET_FigS6D_0405
+Obj : Reproduction of fig S6D with pca transcriptomic coords LNET 
+Attribute file : Attributes_fig6D.tsv
+Coords file : Coords_PCA_S6D.tsv
+
+
+Title : pulmonary_carcinoids_PCA_coords_methylation_LNEN_FigS7A_0405
+Obj : Reproduction of fig S7A with pca transcriptomic coords LNEN 
+Attribute file : Attributes_fig7A.tsv
+Coords file : Coords_PCA_S7A.tsv
