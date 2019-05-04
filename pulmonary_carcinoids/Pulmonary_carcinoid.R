@@ -18,6 +18,23 @@
 library(openxlsx)
 library(data.table)
 library(dplyr)
+ 
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install()
+
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("minfi")
+
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("bumphunter")
+
+library(bumphunter)
+library(minfi)
 
 #######################
 # IMPORTATION OF DATA #
@@ -39,7 +56,7 @@ Data_vst_all <- read.table("../data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", de
 Ref_gene <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 Ref_gene_all <- read.table("../data/VST_nosex_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 
-
+Methylation_data <- load('../methylation_final_LM.RData')
 ###########################
 # Coordinates MOFA fig 1  #
 ###########################
@@ -66,8 +83,7 @@ plot(Sample_overview$LF1.LNEN, Sample_overview$LF2.LNEN , col = as.factor(Sample
 # ==============
 
 mofa_lnen_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID) # Complete case of mofa coordinates
-
-
+All_sample_id = data.frame("Sample_ID"=Sample_overview$Sample_ID) 
 ###########################
 # Attributes               #
 ###########################
@@ -76,9 +92,12 @@ mofa_lnen_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID) # Compl
 # ====================
 Attributes_from_overview <- data.frame("Sample_ID" = Sample_overview$Sample_ID  ,"Histopathology" = Sample_overview$Histopathology , "Stage_UICC" = Sample_overview$Stage_UICC , "Age"= Sample_overview$Age , "Age_class" = Sample_overview$Age_class , 
                                       "Sex" = Sample_overview$Sex , "Smoking_status" = Sample_overview$Smoking_status , "Professional_Asbestos_exposure" = Sample_overview$Professional_exposure , "Survival_months" = Sample_overview$Survival_months,
-                                      "cluster_LNEN" = Sample_overview$cluster_LNEN , "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio )
+                                      "cluster_LNEN" = Sample_overview$cluster_LNEN , "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio  , "Cluster_LNEN" =Sample_overview$cluster_LNEN , "Cluster_LNET" =Sample_overview$cluster_LNET)
+
 Attributes_from_overview <- cbind(Attributes_from_overview , Sample_overview[ , 42:52])
-Attributes_from_overview <- merge(Attributes_from_overview , mofa_lnen_sample_id, by="Sample_ID")
+
+# Later
+##  Attributes_from_overview <- merge(Attributes_from_overview , mofa_lnen_sample_id, by="Sample_ID")
   
 # Genes of interest
 # =================
@@ -109,7 +128,7 @@ t_Data_vst_all <-as.data.frame(t( Data_vst_all ))
 t_Data_vst_all <- setDT(t_Data_vst_all , keep.rownames = TRUE)[]
 colnames(t_Data_vst_all)[1] <- "Sample_ID"
 t_Data_vst_all <- as.data.frame(t_Data_vst_all)
-Data_vst_all_with_sample <- merge(t_Data_vst_all , mofa_lnen_sample_id , by='Sample_ID')
+Data_vst_all_with_sample <- merge(t_Data_vst_all , All_sample_id, by='Sample_ID')
 # Rmq : Only 158 samples with RNA seq data
 Sample_id_rna_seq = Data_vst_all_with_sample$Sample_ID
 
@@ -133,7 +152,7 @@ for (i in 1:23){
 }
 
 HLA_D_sum = rowSums(gene_interest_fig2E[,13:24], na.rm = TRUE)
-
+HLA_D_mean= apply(gene_interest_fig2E[,13:24], 1 , mean)
 # Mutation Fig3A:
 length(unique(Somatic_mutation$Gene.Symbol))
 mutation_matrix =matrix(ncol = length(unique(Somatic_mutation$Gene.Symbol)) , nrow= length(mofa_lnen_sample_id$Sample_ID))
@@ -239,6 +258,7 @@ for (i in 1:length(Histpopathology_4_classes )){
 }
 
 table( Histpopathology_4_classes)
+
 # Confusion Matrix
 # -------------------
 
@@ -258,6 +278,9 @@ prop.table(tab_conf, 2)
 HISTO_df  = data.frame("Histpopathology_4_classes"= Histpopathology_4_classes, "Sample_ID"  = Sample_overview$Sample_ID)
 EXPR_ML = data.frame("Expr_ML"= ML_expr, "Sample_ID"  = Sample_overview$Sample_ID)
 merge_pred_expr = merge(HISTO_df, EXPR_ML, by="Sample_ID")
+
+
+
 
 tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_expr$Expr_ML)
 prop.table(tab_conf, 1)  # OK 
@@ -311,4 +334,145 @@ for (i in 1:dim(ML_histopatholical_type)[1])
   
 }
 
-Res_type_ml #= as.list(Res_type_ml)
+Res_type_ml
+
+# Confusion matrix  fig1B
+# ------------------------
+
+table_conf_f1B = table(merge_pred_mofa$Histpopathology_4_classes ,Res_type_ml)
+prop.table(table_conf_f1B,1)
+
+
+# Figure 4B 
+# ----------
+Embl_CD1A =as.character(Ref_gene$V1[Ref_gene$V7 == "CD1A"])
+Embl_LAMP3 =as.character(Ref_gene$V1[Ref_gene$V7 == "LAMP3"])
+
+gene_interest_names_fi4B <- c("CD1A",  "LAMP3" )
+gene_interest_embl_fig4B <- c(Embl_CD1A , Embl_LAMP3)
+gene_interest_fig4B <- data.frame("Sample_ID" =Sample_id_rna_seq)
+for (i in 1:2){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig4B[i]))
+  gene_name <- as.character(gene_interest_names_fi4B[i])
+  gene_interest_fig4B[gene_interest_names_fi4B ] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
+
+# Retinoid and Xenobiotic
+# -----------------------
+Embl_CYP2C8=as.character(Ref_gene$V1[Ref_gene$V7 == "CYP2C8"])
+Embl_CYP2C9=as.character(Ref_gene$V1[Ref_gene$V7 == "CYP2C9"])
+Embl_CYP2C19=as.character(Ref_gene$V1[Ref_gene$V7 == "CYP2C19"])
+Embl_CYP3A5=as.character(Ref_gene$V1[Ref_gene$V7 == "CYP3A5"])
+Embl_UGT2A3 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2A3"])
+Embl_UGT2B4 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B4"])
+Embl_UGT2B7 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B7"])
+Embl_UGT2B11 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B11"])
+Embl_UGT2B15 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B15"])
+Embl_UGT2B17 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B17"])
+
+gene_interest_names_fi4D <- c("CYP2C8", "CYP2C9", "CYP2C19", "CYP3A5", "UGT2A3","UGT2B4", "UGT2B7", "UGT2B11","UGT2B15", "UGT2B17" )
+gene_interest_embl_fig4D <- c(Embl_CYP2C8,Embl_CYP2C9, Embl_CYP2C19,Embl_CYP3A5, Embl_UGT2A3, Embl_UGT2B4, Embl_UGT2B7, Embl_UGT2B11, Embl_UGT2B15 , Embl_UGT2B17 )
+gene_interest_fig4D <- data.frame("Sample_ID" =Sample_id_rna_seq)
+for (i in 1:10){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig4D[i]))
+  gene_name <- as.character(gene_interest_names_fi4D[i])
+  gene_interest_fig4D[gene_interest_names_fi4D ] <- Data_vst_all_with_sample[,n_col ]
+}
+
+# Gene expression Fig 6
+# ----------------------
+Embl_MKI67 = as.character(Ref_gene$V1[Ref_gene$V7 == "MKI67"])
+gene_interest_names_fig6 <- c("MKI67" )
+gene_interest_embl_fig6 <- c(Embl_MKI67 )
+gene_interest_fig6 <- data.frame("Sample_ID" =Sample_id_rna_seq)
+for (i in 1:1){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig6[i]))
+  gene_name <- as.character(gene_interest_names_fig6[i])
+  gene_interest_fig6[gene_interest_names_fig6 ] <- Data_vst_all_with_sample[,n_col ]
+}
+
+# Fig 5C
+# Fig S23 -> Methylation
+
+# Metylation 
+# ----------
+metadata=pData(funnometa) # metadata
+#Mdata = minfi::getM(funnometa)
+#colnames(Mdata)=sapply(colnames(Mdata),function(i) metadata$Ms_id[which(metadata$barcode==i)])
+#minfi::getMeth(funnometa)
+
+
+#############################
+# MERGE ALL ATTRIBUTES      #
+#############################
+
+dim(Attributes_from_overview)
+dim(mutation_matrix)
+Mutation_df <- as.data.frame(mutation_matrix, rownames = T , colnames = T)
+Mutation_df  <- setDT(Mutation_df  , keep.rownames = TRUE)[]
+colnames(Mutation_df )[1] <- "Sample_ID"
+head(mutation_matrix,3)
+
+length(ML_methyl)
+length(ML_expr)
+length(ML_MKI67)
+length(ML_Mofa )
+length(ML_expr_methyl)
+length(Res_type_ml) # Fig 1A pred
+
+dim(gene_interest_fig5A)
+dim(gene_interest_fig2E)
+length(HLA_D_mean)
+dim(gene_interest_fig4B)
+dim(gene_interest_fig4D)
+dim(gene_interest_fig6)
+
+# Merge Genes Expr
+# ----------------
+gene_interest = merge(gene_interest_fig5A ,gene_interest_fig2E , by= "Sample_ID")
+gene_interest = merge(gene_interest , gene_interest_fig4B , by= "Sample_ID")
+gene_interest = merge(gene_interest , gene_interest_fig4D , by= "Sample_ID")
+gene_interest = merge(gene_interest , gene_interest_fig6 , by= "Sample_ID")
+gene_interest = cbind(gene_interest , HLA_D_mean)
+
+
+# Data frame ML
+# -------------
+
+ML_prediction_df = data.frame("Sample_ID" = Sample_overview$Sample_ID ,"ML_predictions_Methylation_Data" =ML_methyl , "ML_predictions_Expression_Data" = ML_expr , "ML_prediction_MKI67_Data"= ML_MKI67,
+                              "ML_predictions_Mofa_Data"= ML_Mofa, "ML_predictions_Expression_Methylation_Data"= ML_expr_methyl, "ML_predictions_fig1"= Res_type_ml )
+
+# Merging of iffrent attributes :
+# -------------------------------
+
+Attributes2 <- merge(Attributes_from_overview, gene_interest , by='Sample_ID' , all = TRUE )
+Attributes2 <- merge(Attributes2, ML_prediction_df , by='Sample_ID' , all = TRUE )
+Attributes2 <- merge(Attributes2, Mutation_df , by='Sample_ID' , all = TRUE )
+
+#######################
+# WRITE TABLE         #
+#######################
+
+# Fig 1A 
+# _________
+Fig1_LNEN_sample_id = data.frame("Sample_ID"=Coords_MOFA_fig1$Sample_ID)
+Attributes_fig1A = merge(Attributes2 , Fig1_LNEN_sample_id , by="Sample_ID")
+write.table(Coords_MOFA_fig1, file='Coords_MOFA_fig1.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attributes_fig1A, file='Attributes_fig1A.tsv', quote=FALSE, sep='\t', row.names = F)
+
+# Fig 4A :
+# --------
+
+Coords_MOFA_fig4A <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET , "Axis2" = Sample_overview$LF2.LNET)
+Coords_MOFA_fig4A <- Coords_MOFA_fig4A[complete.cases(Coords_MOFA_fig4A),]
+Sample_id_fig4A = data.frame("Sample_ID"=Coords_MOFA_fig4A$Sample_ID)
+Attributes_fig4A = merge(Attributes2 , Sample_id_fig4A  , by="Sample_ID")
+write.table(Coords_MOFA_fig4A, file='Coords_MOFA_fig4A.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attributes_fig4A, file='Attributes_fig4A.tsv', quote=FALSE, sep='\t', row.names = F)
+
+# Fig S6 :
+# --------
+
+
