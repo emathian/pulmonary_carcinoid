@@ -92,7 +92,7 @@ All_sample_id = data.frame("Sample_ID"=Sample_overview$Sample_ID)
 # ====================
 Attributes_from_overview <- data.frame("Sample_ID" = Sample_overview$Sample_ID  ,"Histopathology" = Sample_overview$Histopathology , "Stage_UICC" = Sample_overview$Stage_UICC , "Age"= Sample_overview$Age , "Age_class" = Sample_overview$Age_class , 
                                       "Sex" = Sample_overview$Sex , "Smoking_status" = Sample_overview$Smoking_status , "Professional_Asbestos_exposure" = Sample_overview$Professional_exposure , "Survival_months" = Sample_overview$Survival_months,
-                                      "cluster_LNEN" = Sample_overview$cluster_LNEN , "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio  , "Cluster_LNEN" =Sample_overview$cluster_LNEN , "Cluster_LNET" =Sample_overview$cluster_LNET)
+                                       "Neutrophil.to.Lymphocyte_ratio" = Sample_overview$Neutrophil.to.Lymphocyte_ratio  , "Cluster_LNEN" =Sample_overview$cluster_LNEN , "Cluster_LNET" =Sample_overview$cluster_LNET)
 
 Attributes_from_overview <- cbind(Attributes_from_overview , Sample_overview[ , 42:52])
 
@@ -117,6 +117,8 @@ Embl_HAVCR2 = as.character(Ref_gene$V1[Ref_gene$V7 == "HAVCR2" ])
 Embl_CD86 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "CD86"]) # Becarful not in 50pc
 Embl_CD80 = as.character(Ref_gene$V1[Ref_gene$V7 == "CD80" ])
 Embl_CTLA4 = as.character(Ref_gene$V1[Ref_gene$V7 == "CTLA4" ])
+
+
 
 # HLA-D Sum of 20 genes or 20 attributes : (?)
 index_HLA_D <- c( grep("HLA-D", Ref_gene$V7 ))
@@ -268,15 +270,6 @@ table( Histpopathology_4_classes)
 # -------------------
 
 # For MOFA Laten factor
-HISTO_df  = data.frame("Histpopathology_4_classes"= as.character(Histpopathology_4_classes), "Sample_ID"  = as.character(Sample_overview$Sample_ID), stringsAsFactors = F)
-supra_carcinoid_sample_id = c("LNEN005", "LNEN022", "LNEN012" , "S01522" , "S01513" , "LNEN021")
-for (i in 1:258){
-  if (as.character(HISTO_df$Sample_ID[i] ) %in% supra_carcinoid_sample_id ){
-    HISTO_df$Histpopathology_4_classes[i] = "Supra_carcinoids"
-  }
-}
-HISTO_df$Histpopathology_4_classes[HISTO_df$Sample_ID %in% supra_carcinoid_sample_id] ="Supra_carcinoid"
-table(HISTO_df$Histpopathology_4_classes)
 
 MOFA_ML = data.frame("Pred_MOFA"= ML_Mofa, "Sample_ID"  = Sample_overview$Sample_ID)
 merge_pred_mofa = merge(HISTO_df, MOFA_ML, by="Sample_ID")
@@ -433,6 +426,28 @@ for (i in 1:9){
   gene_interest_chemokines[gene_interest_names_chemokines ] <- Data_vst_all_with_sample[,n_col ]
 }
 
+New_col_name = c()
+for (i in 2:10){
+  New_col_name[i-1] = paste("Chemokine_" , colnames(gene_interest_chemokines)[i], sep="")
+}
+colnames(gene_interest_chemokines)[2:10] <- New_col_name
+
+# Fig S24
+# __________
+
+Embl_NOTCH1=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "NOTCH1"])
+Embl_NOTCH2=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "NOTCH2"])
+Embl_NOTCH3=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "NOTCH3"])
+Embl_NOTCH4=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "NOTCH4"])
+gene_interest_names_notch <- c("NOTCH1", "NOTCH2", "NOTCH3", "NOTCH4")
+gene_interest_embl_notch<- c(Embl_NOTCH1, Embl_NOTCH2, Embl_NOTCH3, Embl_NOTCH4)
+gene_interest_notch<- data.frame("Sample_ID" =Sample_id_rna_seq)
+for (i in 1:4){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_notch[i]))
+  gene_name <- as.character(gene_interest_names_notch[i])
+  gene_interest_notch[gene_interest_names_notch ] <- Data_vst_all_with_sample[,n_col ]
+}
+
 
 # Fig 5C
 # Fig S23 -> Methylation
@@ -470,12 +485,14 @@ dim(gene_interest_fig4B)
 dim(gene_interest_fig4D)
 dim(gene_interest_fig6)
 dim(gene_interest_chemokines)
+dim(gene_interest_notch)
 # Merge Genes Expr
 # ----------------
 gene_interest = merge(gene_interest_fig5A ,gene_interest_fig2E , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig4B , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig4D , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig6 , by= "Sample_ID")
+gene_interest = merge(gene_interest , gene_interest_notch , by= "Sample_ID")
 gene_interest = cbind(gene_interest , HLA_D_mean)
 gene_interest = merge(gene_interest ,gene_interest_chemokines, by= "Sample_ID")
 
@@ -488,6 +505,19 @@ ML_prediction_df = data.frame("Sample_ID" = Sample_overview$Sample_ID ,"ML_predi
 
 # Merging of iffrent attributes :
 # -------------------------------
+
+# Add Supra carcinoid class
+
+HISTO_df  = data.frame("Histpopathology_4_classes"= as.character(Histpopathology_4_classes), "Sample_ID"  = as.character(Sample_overview$Sample_ID), stringsAsFactors = F)
+supra_carcinoid_sample_id = c("LNEN005", "LNEN022", "LNEN012" , "S01522" , "S01513" , "LNEN021")
+for (i in 1:258){
+  if (as.character(HISTO_df$Sample_ID[i] ) %in% supra_carcinoid_sample_id ){
+    HISTO_df$Histpopathology_4_classes[i] = "Supra_carcinoids"
+  }
+}
+HISTO_df$Histpopathology_4_classes[HISTO_df$Sample_ID %in% supra_carcinoid_sample_id] ="Supra_carcinoid"
+table(HISTO_df$Histpopathology_4_classes)
+
 Histpopathology_simplified<- HISTO_df$Histpopathology_4_classes 
 Attributes_from_overview <- cbind(Attributes_from_overview,Histpopathology_simplified  )
 Attributes2 <- merge(Attributes_from_overview, gene_interest , by='Sample_ID' , all = TRUE )
@@ -508,7 +538,7 @@ write.table(Attributes_fig1A, file='Attributes_fig1A.tsv', quote=FALSE, sep='\t'
 # Fig 4A :
 # --------
 
-Coords_MOFA_fig4A <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET , "Axis2" = Sample_overview$LF2.LNET )
+Coords_MOFA_fig4A <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET *-1 , "Axis2" = Sample_overview$LF2.LNET )
 Coords_MOFA_fig4A <- Coords_MOFA_fig4A[complete.cases(Coords_MOFA_fig4A),]
 Sample_id_fig4A = data.frame("Sample_ID"=Coords_MOFA_fig4A$Sample_ID)
 Attributes_fig4A = merge(Attributes2 , Sample_id_fig4A  , by="Sample_ID")
