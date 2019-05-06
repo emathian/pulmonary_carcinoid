@@ -577,16 +577,60 @@ Fig2B_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq, "Genome_instability_a
 
 
 
-# Fig 5C
-# Fig S23 -> Methylation
+
 
 
 # Metylation 
 # ----------
-Methyl <- load("../methylation_final_LM.RData") # Tout court
+Methyl <- load("../methylation_final.RData") #
 metadata=pData(funnometa) # metadata
 Mdata = minfi::getM(funnometa)
 colnames(Mdata)=sapply(colnames(Mdata),function(i) metadata$Ms_id[which(metadata$barcode==i)])
+t_Mdata = t(Mdata )
+
+# Fig S23 -> Methylation
+# ______________________
+
+
+Embl_HNF1A = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "HNF1A"])
+Embl_HNF4A  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "HNF4A"])
+
+gene_interest_names_HNF <- c("HNF1A", "HNF4A")
+gene_interest_embl_HNF<- c(Embl_HNF1A, Embl_HNF4A )
+gene_interest_HNF <- data.frame("Sample_ID" =Sample_id_rna_seq)
+for (i in 1:2){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_HNF[i]))
+  gene_name <- as.character(gene_interest_names_HNF[i])
+  gene_interest_HNF[gene_interest_names_HNF] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
+
+Methylation_ref_LNET  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet = 11, startRow = 43, colNames = TRUE,
+                          rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
+                          skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
+                          namedRegion = NULL, na.strings = "NA")
+
+# Cf :  Supplementary_Table_Fig5A+Fig.S17.csv
+
+hnf1a_cpg =  c("cg09329758","cg01394199","cg25477769","cg16175725","cg13864651", "cg14400528") #  -> CpG HNF1A
+hnf4a_cpg = c( "cg08314996", "cg24084358" , "cg20848979" , "cg21081369" , "cg26232417" , "cg00117294" , "cg20265805" , "cg21559386" , "cg27420224" )
+HNF1A_Methyl_df = data.frame("Sample_ID" = colnames(Mdata) )
+HNF4A_Methyl_df = data.frame("Sample_ID" = colnames(Mdata) )
+for (i in 1:6){
+  n_col = which(colnames(t_Mdata) == as.name(hnf1a_cpg[i]))
+  cpg_name <- as.character(hnf1a_cpg[i])
+  HNF1A_Methyl_df[cpg_name] <- t_Mdata[,n_col ]
+}
+
+for (i in 1:9){
+  n_col = which(colnames(t_Mdata) == as.name(hnf4a_cpg[i]))
+  cpg_name <- as.character(hnf4a_cpg[i])
+  HNF4A_Methyl_df[cpg_name] <- t_Mdata[,n_col ]
+}
+
+HNF1A_Methyl_mean <- apply(HNF1A_Methyl_df[,2:7], 1, mean)
+HNF4A_Methyl_mean <- apply(HNF4A_Methyl_df[,2:10], 1, mean)
 
 
 
@@ -630,6 +674,13 @@ gene_interest = merge(gene_interest ,gene_interest_chemokines, by= "Sample_ID")
 gene_interest = merge(gene_interest ,gene_interest_figS14, by= "Sample_ID")
 gene_interest = merge(gene_interest ,gene_interest_S27, by= "Sample_ID")
 gene_interest = merge(gene_interest , Fig2B_mean_df, by= "Sample_ID")
+gene_interest = merge(gene_interest , gene_interest_HNF, by= "Sample_ID")
+
+
+# Methylation 
+# -----------
+df_HNF_methyl <- data.frame("Sample_ID" = colnames(Mdata) , "HNF1A.Mean.beta.values"= HNF1A_Methyl_mean,  "HNF4A.Mean.beta.values"= HNF4A_Methyl_mean)
+
 
 # Data frame ML
 # -------------
@@ -657,6 +708,7 @@ Attributes_from_overview <- cbind(Attributes_from_overview,Histpopathology_simpl
 Attributes2 <- merge(Attributes_from_overview, gene_interest , by='Sample_ID' , all = TRUE )
 Attributes2 <- merge(Attributes2, ML_prediction_df , by='Sample_ID' , all = TRUE )
 Attributes2 <- merge(Attributes2, Mutation_df , by='Sample_ID' , all = TRUE )
+Attributes2 <- merge(Attributes2, df_HNF_methyl , by='Sample_ID' , all = TRUE )
 
 #######################
 # WRITE TABLE         #

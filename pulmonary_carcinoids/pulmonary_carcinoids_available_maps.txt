@@ -5,63 +5,63 @@
 # Available Maps 
 ----------------
 
-Title : pulmonary_carcinoids_Mofa_coord_LNEN_fig1_0405
+Title : pulmonary_carcinoids_Mofa_coord_LNEN_fig1_0605
 Obj : Reproduction of fig 1 with mofa coords
 Attribute file : Attributes_fig1A.tsv
 Coords file : Coords_MOFA_fig1.tsv
-link : https://tumormap.ucsc.edu/?bookmark=9f2a7b2f13a64e7d3a661e34b81ed36e7d7c0899395fd92f679f3aca2da6619e
+link : https://tumormap.ucsc.edu/?bookmark=f3ab3ed0b06c57cf394c63c3c61f9d601a5aefed888b952c2614d335e9d90eb3
 
 
-Title : pulmonary_carcinoids_Mofa_coords_LNET_fig4_0405
+Title : pulmonary_carcinoids_Mofa_coords_LNET_fig4_0605
 Obj : Reproduction of fig 4 with mofa coords
 Attribute file : Attributes_fig4A.tsv
 Coords file : Coords_MOFA_fig4A.tsv
-link : https://tumormap.ucsc.edu/?bookmark=b53e10314085e28f4b7f1266544fd32145b78f9d84207c6fc40767ed7671f35a
+link : https://tumormap.ucsc.edu/?bookmark=517174123b9ddbdca916f229e0b26491162d4e86864fa14c679df7fd57e7654e
 
 
-Title : pulmonary_carcinoids_Mofa_coords_LNEN_SCLC_figS13A_0405
+Title : pulmonary_carcinoids_Mofa_coords_LNEN_SCLC_figS13A_0605
 Obj : Reproduction of Sfig 13A with mofa coords LNEN + SCLC
 Attribute file : Attributes_fig13A.tsv
 Coords file : Coords_MOFA_S13A.tsv
-link : https://tumormap.ucsc.edu/?bookmark=7431f1fdb37ffcd68c8e044831e9d8c5db849c76a7fb6fc0f2048549d92ed05d
+link : https://tumormap.ucsc.edu/?bookmark=f106f4e4d51b7ae8e20fcab549b43205ff57d08891f8b2f08d300b854d0d7691
 
 
-Title : pulmonary_carcinoids_Mofa_coords_LNET_SCLC_figS13C_0405
+Title : pulmonary_carcinoids_Mofa_coords_LNET_SCLC_figS13C_0605
 Obj : Reproduction of Sfig 13C with mofa coords LNET + SCLC
 Attribute file : Attributes_fig13C.tsv
 Coords file : Coords_MOFA_S13C.tsv
-link :  https://tumormap.ucsc.edu/?bookmark=e59c7b2a3e9a36f2d41060bd7aedc22d8aa1af449d7501c4992564b0d9089fcb
+link :  https://tumormap.ucsc.edu/?bookmark=3e6180e8076deb4e2c6178ba35f05b467887c8ca5ebd2ada2221f714347d58e2
 
 
-Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNEN_SCLC_FigS6A_0405
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNEN_SCLC_FigS6A_0605
 Obj : Reproduction of fig S6A with pca transcriptomic coords LNEN + SCLC
 Attribute file : Attributes_fig13C.tsv
 Coords file : Coords_PCA_S6A.tsv
 link : https://tumormap.ucsc.edu/?bookmark=8b4eb6e09d1fe0ac8cd10d02e560121f50ea6129a3ead9791ce01bf833eccec6
 
 
-Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNEN_FigS6B_0405
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNEN_FigS6B_0605
 Obj : Reproduction of fig S6B with pca transcriptomic coords LNEN
 Attribute file : Attributes_fig6B.tsv
 Coords file : Coords_PCA_S6B.tsv
-link : https://tumormap.ucsc.edu/?bookmark=afd62bb6da4f60703035dcde5805d6610f8a8e6e8d9f723aa7ffde7207ca8c13
+link : https://tumormap.ucsc.edu/?bookmark=564b3d7b9476eb6c5964d39967df839750c65ddf4dba165930a39fe593fd85dd
 
 
-Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNET_SCLC_FigS6C_0405
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNET_SCLC_FigS6C_0605
 Obj : Reproduction of fig S6C with pca transcriptomic coords LNET + SCLC
 Attribute file : Attributes_fig6C.tsv
 Coords file : Coords_PCA_S6C.tsv
-link : https://tumormap.ucsc.edu/?bookmark=23f8494879f474fa9ba16dd43f3d52ed6b794337e57feed6a83796b737aa03cb
+link : https://tumormap.ucsc.edu/?bookmark=c5fed016f16a3f9e30c05150fa95c02cf81b37b9908296a9b1f81c2bacf59db0
 
 
-Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNET_FigS6D_0405
+Title : pulmonary_carcinoids_PCA_coords_Transcriptome_LNET_FigS6D_0605
 Obj : Reproduction of fig S6D with pca transcriptomic coords LNET 
 Attribute file : Attributes_fig6D.tsv
 Coords file : Coords_PCA_S6D.tsv
-link :  https://tumormap.ucsc.edu/?bookmark=fe9a19848dc43df50ce366b350076abbee04e6255f3b9ba90b6b29f68bda7e4a
+link :  https://tumormap.ucsc.edu/?bookmark=dc22407909a9cc4a34766244fd252760d9be0715be5fdb9aa9128bbdc3e84cc7
 
 
-Title : pulmonary_carcinoids_PCA_coords_methylation_LNEN_FigS7A_0405
+Title : pulmonary_carcinoids_PCA_coords_methylation_LNEN_FigS7A_0605
 Obj : Reproduction of fig S7A with pca transcriptomic coords LNEN 
 Attribute file : Attributes_fig7A.tsv
 Coords file : Coords_PCA_S7A.tsv
