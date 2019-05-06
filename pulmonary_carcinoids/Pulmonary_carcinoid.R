@@ -270,25 +270,20 @@ table( Histpopathology_4_classes)
 # -------------------
 
 # For MOFA Laten factor
-
+HISTO_df  = data.frame("Histpopathology_4_classes"= Histpopathology_4_classes, "Sample_ID"  = Sample_overview$Sample_ID)
 MOFA_ML = data.frame("Pred_MOFA"= ML_Mofa, "Sample_ID"  = Sample_overview$Sample_ID)
 merge_pred_mofa = merge(HISTO_df, MOFA_ML, by="Sample_ID")
-
 tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_mofa$Pred_MOFA)
 prop.table(tab_conf, 2)
-#Methyl <- load("../methylation_final_LM.RData")
+
 
 
 # For Expr 
 # --------
 
-HISTO_df  = data.frame("Histpopathology_4_classes"= Histpopathology_4_classes, "Sample_ID"  = Sample_overview$Sample_ID)
+
 EXPR_ML = data.frame("Expr_ML"= ML_expr, "Sample_ID"  = Sample_overview$Sample_ID)
 merge_pred_expr = merge(HISTO_df, EXPR_ML, by="Sample_ID")
-
-
-
-
 tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_expr$Expr_ML)
 prop.table(tab_conf, 1)  # OK 
 
@@ -448,16 +443,149 @@ for (i in 1:4){
   gene_interest_notch[gene_interest_names_notch ] <- Data_vst_all_with_sample[,n_col ]
 }
 
+##############################################################
+# Fig S14  :  LA class I and related immunostimulatory genes #
+##############################################################
+
+Embl_IFNG=as.character(Ref_gene$V1[Ref_gene_all$V7 == "IFNG"])
+
+index_HLA_A <- c( grep("HLA-A", Ref_gene_all$V7 )) ; index_HLA_A
+index_HLA_B <- c( grep("HLA-B", Ref_gene_all$V7 )) ; index_HLA_B
+index_HLA_C <- c( grep("HLA-C", Ref_gene_all$V7 )) ; index_HLA_C
+index_HLA_G <- c( grep("HLA-C", Ref_gene_all$V7 )) ; index_HLA_G
+
+HLA_A <-Ref_gene_all$V1[c(index_HLA_A )] ; HLA_A
+HLA_B <-Ref_gene_all$V1[c(index_HLA_B )] ; HLA_B
+HLA_C <-Ref_gene_all$V1[c(index_HLA_C )] ; HLA_C
+HLA_G <-Ref_gene_all$V1[c(index_HLA_G )] ; HLA_G
+
+names(HLA_A)<-Ref_gene_all$V7[c(index_HLA_A )] ; HLA_A
+names(HLA_B)<-Ref_gene_all$V7[c(index_HLA_B )] ; HLA_B
+names(HLA_C)<-Ref_gene_all$V7[c(index_HLA_C )] ; HLA_C
+names(HLA_G)<-Ref_gene_all$V7[c(index_HLA_G )] ; HLA_G
+
+
+gene_interest_names_S14 <- c( "IFNG" ,names(HLA_A) , names(HLA_B) , names(HLA_C) , names(HLA_G))
+gene_interest_embl_S14 <- c(Embl_IFNG , as.character(HLA_A[[1]]), as.character(HLA_A[[2]]) , as.character(HLA_B[[1]]), as.character(HLA_C[[1]] )  , as.character(HLA_G[[1]])  )
+
+# Data frame :
+gene_interest_figS14 <- data.frame("Sample_ID" = Sample_id_rna_seq)
+for (i in 1:6){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_S14[i]))
+  #print(as.numeric(n_col))
+  gene_name <- as.character(gene_interest_names_S14[i])
+  #print(gene_name)
+  gene_interest_figS14[gene_name] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
+#############################################################################################
+# Fig S27  :  Genes expression associated with good or pooro survival prognosis in custer B #
+#############################################################################################
+
+Embl_LMX1A=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "LMX1A"])
+Embl_ZG16B=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "ZG16B"])
+Embl_GABRA1=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "GABRA1"])
+Embl_IL22RA1= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "IL22RA1"])
+Embl_C1orf87 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "C1orf87"])
+Embl_GHSR= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "GHSR"])
+Embl_BAIAP2L2 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "BAIAP2L2"])
+
+gene_interest_names_S27 <- c("LMX1A",  "ZG16B","GABRA1", "IL22RA1", "C1orf87", "GHSR","BAIAP2L2"  )
+gene_interest_embl_S27<- c(Embl_LMX1A,Embl_ZG16B,Embl_GABRA1,Embl_IL22RA1 , Embl_C1orf87, Embl_GHSR, Embl_BAIAP2L2)
+gene_interest_S27 <- data.frame("Sample_ID" =Sample_id_rna_seq)
+
+for (i in 1:7){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_S27[i]))
+  gene_name <- as.character(gene_interest_names_S27[i])
+  gene_interest_S27[gene_interest_names_S27 ] <- Data_vst_all_with_sample[,n_col ]
+}
+
+###############################################################
+# Fig S2B  :  Genes expression  characterised supra_cacinoids #
+###############################################################
+
+# Evading_growth_suppressor
+# -------------------------
+
+Embl_BAP1 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "BAP1"])
+Embl_PYCARD  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PYCARD"])
+Embl_SIN3A= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "SIN3A"])
+Embl_TP53= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TP53"])
+
+gene_interest_names_Evading_growth_suppressor <- c("BAP1","PYCARD", "SIN3A",  "TP53")
+gene_interest_embl_Evading_growth_suppressor<- c(Embl_BAP1, Embl_PYCARD, Embl_SIN3A,Embl_TP53 )
+gene_interest_Evading_growth_suppressor <- data.frame("Sample_ID" =Sample_id_rna_seq)
+
+for (i in 1:4){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_Evading_growth_suppressor[i]))
+  gene_name <- as.character(gene_interest_names_Evading_growth_suppressor[i])
+  gene_interest_Evading_growth_suppressor[gene_interest_names_Evading_growth_suppressor] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
+gene_mean_Evading_growth_suppressor = apply(gene_interest_Evading_growth_suppressor[,2:5], 1 , mean)
+
+# Activating invasion and matastasis
+# ----------------------------------
+
+Embl_ATXN3 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "ATXN3"])
+Embl_JMJD1C  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "JMJD1C"])
+Embl_PYCARD  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PYCARD"])
+Embl_CDH17= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "CDH17"])
+Embl_LYN= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "LYN"])
+Embl_COBLL1= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "COBLL1"])
+Embl_MYLK= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "MYLK"])
+Embl_TNR= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TNR"])
+
+gene_interest_names_Activating_invasion_metastasis <- c("ATXN3", "JMJD1C", "PYCARD", "CDH17", "LYN", "COBLL1","MYLK" , "TNR")
+gene_interest_embl_Activating_invasion_metastasis<- c(Embl_ATXN3 , Embl_JMJD1C, Embl_PYCARD, Embl_CDH17, Embl_LYN, Embl_COBLL1, Embl_MYLK, Embl_TNR )
+gene_interest_Activating_invasion_metastasis <- data.frame("Sample_ID" =Sample_id_rna_seq)
+
+for (i in 1:8){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_Activating_invasion_metastasis[i]))
+  gene_name <- as.character(gene_interest_names_Activating_invasion_metastasis[i])
+  gene_interest_Activating_invasion_metastasis[gene_interest_names_Activating_invasion_metastasis] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
+gene_mean_Activating_invasion_metastasis = apply(gene_interest_Activating_invasion_metastasis[,2:9], 1 , mean)
+
+
+# Genome instability and mutation
+# -------------------------------
+
+Embl_ATXN3 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "ATXN3"])
+Embl_PRKDC  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PRKDC"])
+Embl_TP53= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TP53"])
+
+gene_interest_names_Genome_instability_mutation <- c("ATXN3", "PRKDC", "TP53")
+gene_interest_embl_Genome_instability_mutation<- c(Embl_ATXN3 ,Embl_PRKDC , Embl_TP53)
+gene_interest_Genome_instability_mutation <- data.frame("Sample_ID" =Sample_id_rna_seq)
+
+for (i in 1:3){
+  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_Genome_instability_mutation[i]))
+  gene_name <- as.character(gene_interest_names_Genome_instability_mutation[i])
+  gene_interest_Genome_instability_mutation[gene_interest_names_Genome_instability_mutation] <- Data_vst_all_with_sample[,n_col ]
+}
+
+
+gene_mean_Genome_instability_mutation = apply(gene_interest_Genome_instability_mutation[,2:4], 1 , mean)
+
+
+
 
 # Fig 5C
 # Fig S23 -> Methylation
 
+
 # Metylation 
 # ----------
+Methyl <- load("../methylation_final_LM.RData") # Tout court
 metadata=pData(funnometa) # metadata
-#Mdata = minfi::getM(funnometa)
-#colnames(Mdata)=sapply(colnames(Mdata),function(i) metadata$Ms_id[which(metadata$barcode==i)])
-#minfi::getMeth(funnometa)
+Mdata = minfi::getM(funnometa)
+colnames(Mdata)=sapply(colnames(Mdata),function(i) metadata$Ms_id[which(metadata$barcode==i)])
+
 
 
 #############################
@@ -486,6 +614,8 @@ dim(gene_interest_fig4D)
 dim(gene_interest_fig6)
 dim(gene_interest_chemokines)
 dim(gene_interest_notch)
+dim(gene_interest_figS14)
+
 # Merge Genes Expr
 # ----------------
 gene_interest = merge(gene_interest_fig5A ,gene_interest_fig2E , by= "Sample_ID")
@@ -495,7 +625,8 @@ gene_interest = merge(gene_interest , gene_interest_fig6 , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_notch , by= "Sample_ID")
 gene_interest = cbind(gene_interest , HLA_D_mean)
 gene_interest = merge(gene_interest ,gene_interest_chemokines, by= "Sample_ID")
-
+gene_interest = merge(gene_interest ,gene_interest_figS14, by= "Sample_ID")
+gene_interest = merge(gene_interest ,gene_interest_S27, by= "Sample_ID")
 
 # Data frame ML
 # -------------
