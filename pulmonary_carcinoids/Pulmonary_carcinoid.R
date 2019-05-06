@@ -572,6 +572,8 @@ for (i in 1:3){
 
 gene_mean_Genome_instability_mutation = apply(gene_interest_Genome_instability_mutation[,2:4], 1 , mean)
 
+Fig2B_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq, "Genome_instability_and_mutation" = gene_mean_Genome_instability_mutation , 
+                           "Activating_invasion_and_metastasis" = gene_mean_Activating_invasion_metastasis ,  "Evading_growth_suppressor" =  gene_mean_Evading_growth_suppressor)
 
 
 
@@ -627,6 +629,7 @@ gene_interest = cbind(gene_interest , HLA_D_mean)
 gene_interest = merge(gene_interest ,gene_interest_chemokines, by= "Sample_ID")
 gene_interest = merge(gene_interest ,gene_interest_figS14, by= "Sample_ID")
 gene_interest = merge(gene_interest ,gene_interest_S27, by= "Sample_ID")
+gene_interest = merge(gene_interest , Fig2B_mean_df, by= "Sample_ID")
 
 # Data frame ML
 # -------------
