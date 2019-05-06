@@ -538,7 +538,7 @@ write.table(Attributes_fig1A, file='Attributes_fig1A.tsv', quote=FALSE, sep='\t'
 # Fig 4A :
 # --------
 
-Coords_MOFA_fig4A <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET *-1 , "Axis2" = Sample_overview$LF2.LNET )
+Coords_MOFA_fig4A <- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET  , "Axis2" = Sample_overview$LF2.LNET *-1 )
 Coords_MOFA_fig4A <- Coords_MOFA_fig4A[complete.cases(Coords_MOFA_fig4A),]
 Sample_id_fig4A = data.frame("Sample_ID"=Coords_MOFA_fig4A$Sample_ID)
 Attributes_fig4A = merge(Attributes2 , Sample_id_fig4A  , by="Sample_ID")
@@ -557,7 +557,7 @@ PCA_RNA_seq  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet = 2, 
                                skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
                                namedRegion = NULL, na.strings = "NA")
 
-Coords_PCA_S6A <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN_SCLC , "Axis2" = PCA_RNA_seq$PC2.LNEN_SCLC)
+Coords_PCA_S6A <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN_SCLC , "Axis2" = as.numeric(PCA_RNA_seq$PC2.LNEN_SCLC)*-1)
 Coords_PCA_S6A<- Coords_PCA_S6A[complete.cases(Coords_PCA_S6A),]
 Sample_id_fig6A = data.frame("Sample_ID"=Coords_PCA_S6A$Sample_ID)
 Attributes_fig6A = merge(Attributes2 , Sample_id_fig6A  , by="Sample_ID")
@@ -566,7 +566,7 @@ write.table(Attributes_fig6A, file='Attributes_fig6A.tsv', quote=FALSE, sep='\t'
 
 # FIG 6B
 # -------
-Coords_PCA_S6B <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN , "Axis2" = PCA_RNA_seq$PC2.LNEN)
+Coords_PCA_S6B <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN , "Axis2" =as.numeric( PCA_RNA_seq$PC2.LNEN)*-1)
 Coords_PCA_S6B<- Coords_PCA_S6B[complete.cases(Coords_PCA_S6B),]
 Sample_id_fig6B = data.frame("Sample_ID"=Coords_PCA_S6B$Sample_ID)
 Attributes_fig6B = merge(Attributes2 , Sample_id_fig6B  , by="Sample_ID")
@@ -576,10 +576,11 @@ write.table(Attributes_fig6B, file='Attributes_fig6B.tsv', quote=FALSE, sep='\t'
 # FIG 6C
 # -------
 
-Coords_PCA_S6C <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNET_SCLC , "Axis2" = PCA_RNA_seq$PC2.LNET_SCLC)
+Coords_PCA_S6C <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNET_SCLC , "Axis2" =as.numeric(PCA_RNA_seq$PC2.LNET_SCLC)*-1)
 Coords_PCA_S6C<- Coords_PCA_S6C[complete.cases(Coords_PCA_S6C),]
 Sample_id_fig6C = data.frame("Sample_ID"=Coords_PCA_S6C$Sample_ID)
 Attributes_fig6C = merge(Attributes2 , Sample_id_fig6C  , by="Sample_ID")
+Attributes_fig6C = Attributes_fig6C[ , -c(107,110)] # Any TP53 and RB1 mutation
 write.table(Coords_PCA_S6C,  file='Coords_PCA_S6C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig6C, file='Attributes_fig6C.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -588,10 +589,11 @@ write.table(Attributes_fig6C, file='Attributes_fig6C.tsv', quote=FALSE, sep='\t'
 # FIG 6D
 # -------
 
-Coords_PCA_S6D <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNET , "Axis2" = PCA_RNA_seq$PC2.LNET)
+Coords_PCA_S6D <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNET , "Axis2" =as.numeric( PCA_RNA_seq$PC2.LNET)*-1)
 Coords_PCA_S6D<- Coords_PCA_S6D[complete.cases(Coords_PCA_S6D),]
 Sample_id_fig6D = data.frame("Sample_ID"=Coords_PCA_S6D$Sample_ID)
 Attributes_fig6D = merge(Attributes2 , Sample_id_fig6D  , by="Sample_ID")
+Attributes_fig6D =Attributes_fig6D[ , -c(107,110)] # Any TP53 and RB1 mutation
 write.table(Coords_PCA_S6D,  file='Coords_PCA_S6D.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig6D, file='Attributes_fig6D.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -605,10 +607,11 @@ PCA_methylation  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet =
 # FIG 7A
 # -------
 
-Coords_PCA_S7A <- data.frame("Sample_ID" = PCA_methylation$Sample_ID , "Axis1" = PCA_methylation$PC1.LNEN, "Axis2" = PCA_methylation$PC2.LNEN)
+Coords_PCA_S7A <- data.frame("Sample_ID" = PCA_methylation$Sample_ID , "Axis1" = PCA_methylation$PC1.LNEN, "Axis2" = as.numeric(PCA_methylation$PC2.LNEN)*-1)
 Coords_PCA_S7A<- Coords_PCA_S7A[complete.cases(Coords_PCA_S7A),]
 Sample_id_fig7A = data.frame("Sample_ID"=Coords_PCA_S7A$Sample_ID)
 Attributes_fig7A = merge(Attributes2 , Sample_id_fig7A  , by="Sample_ID")
+Attributes_fig7A = Attributes_fig7A[,-c(100,101, 103, 106)] # Any mutation for PSIP1, SEC31A , RLIM ant SMARCA2
 write.table(Coords_PCA_S7A,  file='Coords_PCA_S7A.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
 write.table(Attributes_fig7A, file='Attributes_fig7A.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -616,10 +619,11 @@ write.table(Attributes_fig7A, file='Attributes_fig7A.tsv', quote=FALSE, sep='\t'
 # FIG 7B
 # -------
 
-Coords_PCA_S7B <- data.frame("Sample_ID" = PCA_methylation$Sample_ID , "Axis1" = PCA_methylation$PC1.LNET, "Axis2" = PCA_methylation$PC2.LNET)
+Coords_PCA_S7B <- data.frame("Sample_ID" = PCA_methylation$Sample_ID , "Axis1" =as.numeric( PCA_methylation$PC1.LNET, "Axis2" = PCA_methylation$PC2.LNET) *-1)
 Coords_PCA_S7B<- Coords_PCA_S7B[complete.cases(Coords_PCA_S7B),]
 Sample_id_fig7B = data.frame("Sample_ID"=Coords_PCA_S7B$Sample_ID)
 Attributes_fig7B = merge(Attributes2 , Sample_id_fig7B  , by="Sample_ID")
+Attributes_fig7B = Attributes_fig7B[,-c(99,100,101,103,106)]
 write.table(Coords_PCA_S7B,  file='Coords_PCA_S7B.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig7B, file='Attributes_fig7B.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -628,7 +632,7 @@ write.table(Attributes_fig7B, file='Attributes_fig7B.tsv', quote=FALSE, sep='\t'
 
 # Fig S13A:
 # --------
-Coords_MOFA_S13A<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNEN_SCLC, "Axis2" = Sample_overview$LF2.LNEN_SCLC)
+Coords_MOFA_S13A<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNEN_SCLC, "Axis2" = Sample_overview$LF2.LNEN_SCLC * -1)
 Coords_MOFA_S13A <- Coords_MOFA_S13A[complete.cases(Coords_MOFA_S13A),]
 Sample_id_fig13A = data.frame("Sample_ID"=Coords_MOFA_S13A$Sample_ID)
 Attributes_fig13A = merge(Attributes2 , Sample_id_fig13A  , by="Sample_ID")
@@ -638,9 +642,10 @@ write.table(Attributes_fig13A, file='Attributes_fig13A.tsv', quote=FALSE, sep='\
 
 # Fig S13C:
 # --------
-Coords_MOFA_S13B<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET_SCLC, "Axis2" = Sample_overview$LF2.LNET_SCLC)
-Coords_MOFA_S13B <- Coords_MOFA_S13B[complete.cases(Coords_MOFA_S13B),]
-Sample_id_fig13B = data.frame("Sample_ID"=Coords_MOFA_S13B$Sample_ID)
-Attributes_fig13B = merge(Attributes2 , Sample_id_fig13B  , by="Sample_ID")
-write.table(Coords_MOFA_S13B,  file='Coords_MOFA_S13B.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-write.table(Attributes_fig13B, file='Attributes_fig13B.tsv', quote=FALSE, sep='\t', row.names = F)
+Coords_MOFA_S13C<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET_SCLC, "Axis2" = Sample_overview$LF2.LNET_SCLC *-1)
+Coords_MOFA_S13C <- Coords_MOFA_S13C[complete.cases(Coords_MOFA_S13C),]
+Sample_id_fig13C = data.frame("Sample_ID"=Coords_MOFA_S13C$Sample_ID)
+Attributes_fig13C = merge(Attributes2 , Sample_id_fig13C  , by="Sample_ID")
+Attributes_fig13C = Attributes_fig13C[ , -c(107,110)] # Any TP53 and RB1 mutation
+write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
