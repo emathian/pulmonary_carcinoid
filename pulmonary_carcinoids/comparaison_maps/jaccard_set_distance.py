@@ -18,6 +18,16 @@ def distance_matrix(data_coords) :
 	return dist
 
 
+def jaccard_similarity(dist1 , dist2 , k):
+	if dist1.shape[0] == dist2.shape[0] :
+		n = dist1.shape[0]
+		for i in range(n):
+			N1_df = pd.DataFrame(dist1.iloc[i,:], columns=dist1.iloc[ : , 0])
+			N2_df = pd.DataFrame(dist2.iloc[i,:], columns=dist2.iloc[ : , 0])
+			N1_df.sort(axis = 0 , ascending=[1, 0])
+			print(N1_df)
+	else :
+		"Dim error"
 
 
 if __name__ == '__main__': 
