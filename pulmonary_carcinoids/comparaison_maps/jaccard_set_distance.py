@@ -21,12 +21,9 @@ def distance_matrix(data_coords) :
 	return dist
 
 
-def set_difference_view(dist1 , dist2 , k):
+def set_difference(dist1 , dist2 , k):
 	Jsim = pd.DataFrame(index=list(dist1.columns.values))
 	Jsim["J_sim"] = range(len(list(dist1.columns.values)))
-	print(list(dist1.columns.values)[1:10])
-	print(list(dist2.columns.values)[1:10])
-	#print(Jsim.iloc[3,0])
 	if dist1.shape[0] == dist2.shape[0] :
 		n = dist1.shape[0]
 		for i in range(n):
@@ -34,6 +31,7 @@ def set_difference_view(dist1 , dist2 , k):
 			N2_df = pd.DataFrame(dist2.iloc[i,:], index=list(dist2.columns.values))
 			N1_df = N1_df.sort_values(by=list(N1_df.columns.values), ascending= True)
 			N2_df = N2_df.sort_values(by=list(N2_df.columns.values), ascending= True)
+			print(dim(N1_df))
 			kNeighbors_N1 =list(N1_df.index)[:k]
 			kNeighbors_N2 =list(N2_df.index)[:k]
 			linter = len(set(kNeighbors_N1).intersection(set(kNeighbors_N2)))
@@ -41,6 +39,22 @@ def set_difference_view(dist1 , dist2 , k):
 			c_JS = 1- (linter / lunion)
 			Jsim.iloc[i,0] = c_JS
 		return Jsim
+	else :
+		"Dim error"
+	return 0
+
+
+def sequence_difference(dist1 , dist2 , k):
+	Jsim = pd.DataFrame(index=list(dist1.columns.values))
+	Jsim["J_sim"] = range(len(list(dist1.columns.values)))
+	if dist1.shape[0] == dist2.shape[0] :
+		n = dist1.shape[0]
+		for i in range(n):
+			N1_df = pd.DataFrame(dist1.iloc[i,:], index=list(dist1.columns.values))
+			N2_df = pd.DataFrame(dist2.iloc[i,:], index=list(dist2.columns.values))
+			N1_df = N1_df.sort_values(by=list(N1_df.columns.values), ascending= True)
+			N2_df = N2_df.sort_values(by=list(N2_df.columns.values), ascending= True)
+			#pd.merge(left, right, how='inner', on=None)
 	else :
 		"Dim error"
 	return 0
@@ -56,6 +70,6 @@ if __name__ == '__main__':
 	sh = PCA_coords_df.shape
 	D1 = distance_matrix(PCA_coords_df)
 	D2 = distance_matrix(TM_coords_df)
-	print(set_difference_view(D1 , D2 , 10))
+	print(set_difference(D1 , D2 , 10))
 	#print(distance_matrix(PCA_coords_df).iloc[1:10, 1:10])
 	#print(PCA_coords_df.head())
