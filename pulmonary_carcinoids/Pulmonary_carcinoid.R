@@ -19,19 +19,19 @@ library(openxlsx)
 library(data.table)
 library(dplyr)
  
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install()
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install()
 
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("minfi")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("minfi")
 
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("bumphunter")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+ # install.packages("BiocManager")
+#BiocManager::install("bumphunter")
 
 library(bumphunter)
 library(minfi)
@@ -766,7 +766,7 @@ Coords_PCA_S6C <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA
 Coords_PCA_S6C<- Coords_PCA_S6C[complete.cases(Coords_PCA_S6C),]
 Sample_id_fig6C = data.frame("Sample_ID"=Coords_PCA_S6C$Sample_ID)
 Attributes_fig6C = merge(Attributes2 , Sample_id_fig6C  , by="Sample_ID")
-Attributes_fig6C = Attributes_fig6C[ , -c(107,110)] # Any TP53 and RB1 mutation
+Attributes_fig6C = Attributes_fig6C[ , -c(124,127)] # Any TP53 and RB1 mutation
 write.table(Coords_PCA_S6C,  file='Coords_PCA_S6C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig6C, file='Attributes_fig6C.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -779,7 +779,7 @@ Coords_PCA_S6D <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA
 Coords_PCA_S6D<- Coords_PCA_S6D[complete.cases(Coords_PCA_S6D),]
 Sample_id_fig6D = data.frame("Sample_ID"=Coords_PCA_S6D$Sample_ID)
 Attributes_fig6D = merge(Attributes2 , Sample_id_fig6D  , by="Sample_ID")
-Attributes_fig6D =Attributes_fig6D[ , -c(107,110)] # Any TP53 and RB1 mutation
+Attributes_fig6D =Attributes_fig6D[ , -c(124,127)] # Any TP53 and RB1 mutation
 write.table(Coords_PCA_S6D,  file='Coords_PCA_S6D.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig6D, file='Attributes_fig6D.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -797,7 +797,7 @@ Coords_PCA_S7A <- data.frame("Sample_ID" = PCA_methylation$Sample_ID , "Axis1" =
 Coords_PCA_S7A<- Coords_PCA_S7A[complete.cases(Coords_PCA_S7A),]
 Sample_id_fig7A = data.frame("Sample_ID"=Coords_PCA_S7A$Sample_ID)
 Attributes_fig7A = merge(Attributes2 , Sample_id_fig7A  , by="Sample_ID")
-Attributes_fig7A = Attributes_fig7A[,-c(100,101, 103, 106)] # Any mutation for PSIP1, SEC31A , RLIM ant SMARCA2
+#Attributes_fig7A = Attributes_fig7A[,-c(117,120, 118, 123)] # Any mutation for PSIP1, SEC31A , RLIM ant SMARCA2
 write.table(Coords_PCA_S7A,  file='Coords_PCA_S7A.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
 write.table(Attributes_fig7A, file='Attributes_fig7A.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -832,6 +832,50 @@ Coords_MOFA_S13C<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" 
 Coords_MOFA_S13C <- Coords_MOFA_S13C[complete.cases(Coords_MOFA_S13C),]
 Sample_id_fig13C = data.frame("Sample_ID"=Coords_MOFA_S13C$Sample_ID)
 Attributes_fig13C = merge(Attributes2 , Sample_id_fig13C  , by="Sample_ID")
-Attributes_fig13C = Attributes_fig13C[ , -c(107,110)] # Any TP53 and RB1 mutation
+Attributes_fig13C = Attributes_fig13C[ , -c(124,127)] # Any TP53 and RB1 mutation
 write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+#############################
+# FEATURE DATA              #
+#############################
+
+# Methyl + Expr
+# -------------
+
+Sample_ID_expr_methyl = Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes"  & Sample_overview$Epic.850K == "yes"]
+Sample_ID_expr_methyl = data.frame("Sample_ID"= Sample_ID_expr_methyl)
+t_data_vst_50 = t(Data_vst_50)
+t_data_vst_50 = as.data.frame(t_data_vst_50)
+t_data_vst_50 =  setDT(t_data_vst_50 , keep.rownames = TRUE)[]
+colnames(t_data_vst_50)[1] <- "Sample_ID"
+Data_expr_methyl = merge( t_data_vst_50, Sample_ID_expr_methyl, by="Sample_ID" )
+t_Mdata = as.data.frame(t_Mdata )
+t_Mdata =  setDT(t_Mdata , keep.rownames = TRUE)[]
+colnames(t_Mdata)[1] <- "Sample_ID"
+Data_metyl = merge(t_Mdata , Sample_ID_expr_methyl ,by="Sample_ID" )
+Data_expr_methyl = merge(Data_expr_methyl, Data_metyl , by="Sample_ID" )
+t_Data_expr_methyl = t(Data_expr_methyl)
+write.table(t_Data_expr_methyl,  file='t_Data_expr_methyl.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+
+Attributes_methyl_expr = merge(Attributes2 , Sample_ID_expr_methyl  , by="Sample_ID")
+which(colnames(Attributes_methyl_expr) == "Mutation_RLIM")
+which(colnames(Attributes_methyl_expr) == "Mutation_PSIP1")
+which(colnames(Attributes_methyl_expr) == "Mutation_SEC31A")
+which(colnames(Attributes_methyl_expr) == "Mutation_SMARCA2")
+
+Attributes_methyl_expr = Attributes_methyl_expr[,-c(117,118,120,123)]
+write.table(Attributes_methyl_expr, file='Attributes_methyl_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+#  Expr
+# ------
+
+Sample_ID_expr = Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes"  ]
+Sample_ID_expr = data.frame("Sample_ID"= Sample_ID_expr)
+Data_expr = merge( t_data_vst_50, Sample_ID_expr, by="Sample_ID" )
+t_Data_expr = t(Data_expr)
+write.table(t_Data_expr,  file='t_Data_expr.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+Attributes_expr = merge(Attributes2 , Sample_ID_expr  , by="Sample_ID")
+write.table(Attributes_expr, file='Attributes_expr.tsv', quote=FALSE, sep='\t', row.names = F)

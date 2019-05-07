@@ -73,3 +73,16 @@ Obj : Reproduction of fig S7B with pca transcriptomic coords LNET
 Attribute file : Attributes_fig7B.tsv
 Coords file : Coords_PCA_S7B.tsv
 link :  ? Not enough point
+
+
+
+Title : TM_coords_expr_methyl_0705
+Obj : Representation of samples with transcriptome and methlome data using Tumor Map alg - Nb of samples
+Attribute file  : Attributes_methyl_expr.tsv
+Features data : t_Data_expr_methyl.tsv
+
+
+Title : TM_coords_expr_0705
+Obj : Representation of samples with transcriptome and methlome data using Tumor Map alg - Nb of samples
+Attribute file  : Attributes_expr.tsv
+Features data : t_Data_expr.tsv
