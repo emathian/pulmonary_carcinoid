@@ -31,7 +31,6 @@ def set_difference(dist1 , dist2 , k):
 			N2_df = pd.DataFrame(dist2.iloc[i,:], index=list(dist2.columns.values))
 			N1_df = N1_df.sort_values(by=list(N1_df.columns.values), ascending= True)
 			N2_df = N2_df.sort_values(by=list(N2_df.columns.values), ascending= True)
-			print(dim(N1_df))
 			kNeighbors_N1 =list(N1_df.index)[:k]
 			kNeighbors_N2 =list(N2_df.index)[:k]
 			linter = len(set(kNeighbors_N1).intersection(set(kNeighbors_N2)))
@@ -53,8 +52,19 @@ def sequence_difference(dist1 , dist2 , k):
 			N1_df = pd.DataFrame(dist1.iloc[i,:], index=list(dist1.columns.values))
 			N2_df = pd.DataFrame(dist2.iloc[i,:], index=list(dist2.columns.values))
 			N1_df = N1_df.sort_values(by=list(N1_df.columns.values), ascending= True)
+			N1_df["rank_x"] = range(N1_df.shape[0])
 			N2_df = N2_df.sort_values(by=list(N2_df.columns.values), ascending= True)
-			#pd.merge(left, right, how='inner', on=None)
+			N2_df["rank_y"] = range(N2_df.shape[0])
+			N = pd.merge(N1_df, N2_df ,  how='inner', left_index=True, right_index=True)
+			s1 = 0
+			s2 = 0
+			for i in range(k):
+				s1 += (k - N["rank_x"][i]) * abs(N["rank_x"][i] - N["rank_y"][i])   
+				s2 += (k - N["rank_y"][i]) * abs(N["rank_x"][i] - N["rank_y"][i]) 
+			S = 0.5 * s1 + 0.5 * s2
+			#print(S)
+		 	Jsim.iloc[i,0] = S
+		return Jsim
 	else :
 		"Dim error"
 	return 0
@@ -70,6 +80,7 @@ if __name__ == '__main__':
 	sh = PCA_coords_df.shape
 	D1 = distance_matrix(PCA_coords_df)
 	D2 = distance_matrix(TM_coords_df)
-	print(set_difference(D1 , D2 , 10))
-	#print(distance_matrix(PCA_coords_df).iloc[1:10, 1:10])
-	#print(PCA_coords_df.head())
+	#print(set_difference(D1 , D2 , 10))
+	print(sequence_difference(D1 , D2 , 10))
+
+

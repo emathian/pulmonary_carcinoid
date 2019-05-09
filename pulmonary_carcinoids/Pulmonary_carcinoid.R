@@ -33,6 +33,25 @@ library(dplyr)
  # install.packages("BiocManager")
 #BiocManager::install("bumphunter")
 
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("MOFA", version = "3.9")
+
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("MOFAdata", version = "3.9")
+
+devtools::install_github("bioFAM/MOFAdata", build_opts = c("--no-resave-data"))
+devtools::install_github("bioFAM/MOFA", ref ="69ee4284a3", subdir="MOFAtools")
+
+install.packages("reticulate")
+library(reticulate)
+use_python('/Users/mathian/miniconda2/bin/python2.7')
+#source_python("/Users/mathian/Desktop/INSA_4_2/genomique/Eric_tanier_algo/Permutation_Drosophile/code/bonne_alphabet.py")
+#py_install("mofapy", envname = "r-reticulate", method="auto")
+
+
+
 library(bumphunter)
 library(minfi)
 
@@ -56,7 +75,12 @@ Data_vst_all <- read.table("../data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", de
 Ref_gene <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 Ref_gene_all <- read.table("../data/VST_nosex_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 
-Methylation_data <- load('../methylation_final_LM.RData')
+Methylation_data <- load('../methylation_final.RData')
+
+MOFACb <- load('../MOFACb.Rdata')
+MOFACLb <- load('../MOFACLb.Rdata')
+
+
 ###########################
 # Coordinates MOFA fig 1  #
 ###########################
@@ -70,6 +94,7 @@ table(Sample_overview$Histopathology[is.na(Sample_overview$LF1.LNEN) ==F])
 summary(Sample_overview$LF1.LNEN_SCLC)
 sum(is.na(Sample_overview$LF1.LNEN_SCLC) ==F)
 table(Sample_overview$Histopathology[is.na(Sample_overview$LF1.LNEN_SCLC) ==F])
+table(Sample_overview$Histopathology[is.na(Sample_overview$RNAseq) =="yes"])
 table(Sample_overview$Epic.850K)
 
 # Coords
@@ -790,6 +815,11 @@ PCA_methylation  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet =
                           skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
                           namedRegion = NULL, na.strings = "NA")
 
+
+MOFACb  <- MOFACb.Rdata
+
+
+
 # FIG 7A
 # -------
 
@@ -879,3 +909,26 @@ t_Data_expr = t(Data_expr)
 write.table(t_Data_expr,  file='t_Data_expr.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 Attributes_expr = merge(Attributes2 , Sample_ID_expr  , by="Sample_ID")
 write.table(Attributes_expr, file='Attributes_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+
+#################################################
+# IMPUTATION DES DONNNEES   AVEC MOFA           #
+#################################################
+
+devtools::install_github("bioFAM/MOFA", ref ="9b9c5ae5a3", subdir="MOFAtools")
+library(MOFAtools)
+library(reticulate)
+use_python('/Users/mathian/miniconda2/bin/python2.7')
+library(openxlsx)
+
+
+# Charger les Rdata manuellement pk?
+
+
+impute(MOFACLSb)
+ImputedDataMOFACLSb = getImputedData(MOFACLSb)
+write.table(ImputedDataMOFACLSb$Methyl, "ImputedDataMOFACLSb_Methyl.tsv", quote=FALSE, sep='\t', row.names = F , col.names = T)
+write.table(ImputedDataMOFACLSb$RNA, "ImputedDataMOFACLSb_RNA.tsv", quote=FALSE, sep='\t', row.names = F , col.names = T)
+
+MOFACLb = impute(MOFACLb)
+ImputedDataMOFACLb = getImputedData(MOFACLb)
+
