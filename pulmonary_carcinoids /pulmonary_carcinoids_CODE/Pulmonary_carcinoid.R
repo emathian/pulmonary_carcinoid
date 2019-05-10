@@ -722,6 +722,27 @@ Attributes2 <- merge(Attributes_from_overview, gene_interest , by='Sample_ID' , 
 Attributes2 <- merge(Attributes2, ML_prediction_df , by='Sample_ID' , all = TRUE )
 Attributes2 <- merge(Attributes2, Mutation_df , by='Sample_ID' , all = TRUE )
 Attributes2 <- merge(Attributes2, df_HNF_methyl , by='Sample_ID' , all = TRUE )
+which(Attributes2$Sample_ID == "S02322")
+Attributes2 <- rbind(Attributes2  , Attributes2[which(Attributes2$Sample_ID == "S02322"), ],  make.row.names = T)
+which(Attributes2$Sample_ID == "S02322")
+Attributes2$Sample_ID =  as.character(Attributes2$Sample_ID)
+Attributes2[242,1]  <- as.character("S02322.R1")
+Attributes2[259,1]  <- as.character("S02322.R1")
+
+MOFACLb.factors  <- getFactors(MOFACLb)
+MOFACLb.factors["S02322.R1", ]
+MOFACLb.factors["S00016",]
+
+Sample_overview$LF1.LNEN[Sample_overview$Sample_ID == "S00016"]
+Sample_overview$LF2.LNEN[Sample_overview$Sample_ID == "S00016"]
+
+
+MOFACSb.factors  <- getFactors(MOFACSb)
+MOFACSb.factors["S02322.R1", ]
+MOFACSb.factors["S01526",]
+
+Sample_overview$LF1.LNEN_SCLC[Sample_overview$Sample_ID == "S01526"]
+Sample_overview$LF2.LNEN_SCLC[Sample_overview$Sample_ID == "S01526"]
 
 #######################
 # WRITE TABLE         #
@@ -987,6 +1008,54 @@ write.table(Attributes_MOFACb, file='Attributes_MOFACb.tsv', quote=FALSE, sep='\
 
 modif_IDs <- read.table("overview_sample_20180723_R.txt",  sep = "\t", dec="." , header = TRUE,   quote="")
 
+t_ImputedDataMOFACLSb_Methyl =t(ImputedDataMOFACLSb$Methyl)
+dim(t_ImputedDataMOFACLSb_Methyl)
+#modif_IDs_df  =  data.frame("NewIDs"=modif_IDs$Ms_IDs , "FormerIDs"= modif_IDs$Sample)
+t_ImputedDataMOFACLSb_Methyl = as.data.frame(t_ImputedDataMOFACLSb_Methyl)
+t_ImputedDataMOFACLSb_Methyl = setDT(t_ImputedDataMOFACLSb_Methyl , keep.rownames = TRUE)[]
+colnames(t_ImputedDataMOFACLSb_Methyl)[1] <- "Sample_ID"
+#t_ImputedDataMOFACLSb_Methyl[1:10,1]
+for (i in 1:dim(t_ImputedDataMOFACLSb_Methyl)[1]){
+  print("Before If")
+  print(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] )
+  if (t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] != "S02322.R1" & t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] != "S02322.R2"){
+    if (as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]) %in% as.character(setdiff(colnames(MOFACLSb@TrainData$Methyl), Sample_overview$Sample_ID) ) 
+          & identical( grep("X",as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID) [i])  , integer(0))  ){
+      print("In if ")
+      print(as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i])   )
+     # print(as.character(modif_IDs$Ms_IDs[modif_IDs$Sample == t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]]))
+      t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] = as.character(modif_IDs$Ms_IDs[modif_IDs$Sample == t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]])
+     # print( grep("X", t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]) )
+    
+      }
+    else if (identical( grep("X",as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID) [i])  , integer(0)) == F ) { # (grep("X", t_ImputedDataMOFACLSb_Methyl$Sample_ID[i][1]) == 1)==T
+       moins_X = substr(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] , 2,  nchar(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]))
+      print( moins_X )
+      t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] = as.character(modif_IDs$Ms_IDs[modif_IDs$Sample == moins_X ])
+    }
+    else{
+      print("what")
+    }
+  }  
+}
+
+
+setdiff(t_ImputedDataMOFACLSb_Methyl$Sample_ID , Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes" | Sample_overview$Epic.850K == "yes"])
+
+MOFACLSb.correct.IDS = t_ImputedDataMOFACLSb_Methyl$Sample_ID  # :) !!! 
+
+
+t_ImputedDataMOFACLSb_RNA =t(ImputedDataMOFACLSb$RNA)
+dim(t_ImputedDataMOFACLSb_RNA)
+t_ImputedDataMOFACLSb_RNA = as.data.frame(t_ImputedDataMOFACLSb_RNA)
+t_ImputedDataMOFACLSb_RNA = setDT(t_ImputedDataMOFACLSb_RNA , keep.rownames = TRUE)[]
+colnames(t_ImputedDataMOFACLSb_RNA)[1] <- "Sample_ID"
+t_ImputedDataMOFACLSb_RNA[,1] = MOFACLSb.correct.IDS
+setdiff(t_ImputedDataMOFACLSb_RNA$Sample_ID , Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes" | Sample_overview$Epic.850K == "yes"])
+
+t_impute_data  <- merge(t_ImputedDataMOFACLSb_RNA , t_ImputedDataMOFACLSb_Methyl , by="Sample_ID")
+t_impute_data.SampleID <- data.frame("Sample_ID"=t_impute_data$Sample_ID )
+Attribute_MOFACLSb <- merge(Attributes2 ,t_impute_data.SampleID , by="Sample_ID" )
 
 
        
