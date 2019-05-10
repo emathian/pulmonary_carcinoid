@@ -804,10 +804,6 @@ PCA_methylation  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet =
                               namedRegion = NULL, na.strings = "NA")
 
 
-MOFACb  <- MOFACb.Rdata
-
-
-
 # FIG 7A
 # -------
 
@@ -943,21 +939,54 @@ length(colnames(MOFACLSb@TrainData$RNA))
 Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F]
 colnames(MOFACLSb@TrainData$RNA)
 setdiff(colnames(MOFACLSb@TrainData$RNA), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
+setdiff(colnames(MOFACLSb@TrainData$RNA), Sample_overview$Sample_ID)
+
+setdiff(Sample_overview$Sample_ID, colnames(MOFACLSb@TrainData$RNA))
+
+length(Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"])
 
 length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN)==F])
 length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNET)==F])
 length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
 setdiff(colnames(ImputedDataMOFACLb$Methyl), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN)==F])
+setdiff(colnames(ImputedDataMOFACb$Methyl), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNET)==F])
 
+setdiff(colnames(ImputedDataMOFACLSb$Methyl) ,  Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"])
+setdiff(Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"], colnames(ImputedDataMOFACLSb$Methyl))
 
-# Feature woth  LNEN Sample
+# Feature woth  LNEN Samples
 # __________________________
 
 t_ImputedDataMOFACLb_Methyl =t(ImputedDataMOFACLb$Methyl)
 t_ImputedDataMOFACLb_RNA =t(ImputedDataMOFACLb$RNA)
 Feature_data_ImputedDataMOFACLb = merge(t_ImputedDataMOFACLb_Methyl,t_ImputedDataMOFACLb_RNA  , by= 0)
-#write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb', quote=FALSE, sep='\t',  row.names = T , col.names = F)
-MOFACLb_SampleID = data.frame("Sample_ID"= rownames(Feature_data_ImputedDataMOFACLb))
+Feature_data_ImputedDataMOFACLb = t(Feature_data_ImputedDataMOFACLb )
+write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+MOFACLb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACLb$Methyl))
 Attributes_MOFACLb  = merge(Attributes2 , MOFACLb_SampleID , by = "Sample_ID")
+write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+
+# Feature woth  LNET Samples
+# __________________________
+
+
+t_ImputedDataMOFACb_Methyl =t(ImputedDataMOFACb$Methyl)
+t_ImputedDataMOFACb_RNA =t(ImputedDataMOFACb$RNA)
+Feature_data_ImputedDataMOFACb = merge(t_ImputedDataMOFACb_Methyl,t_ImputedDataMOFACb_RNA  , by= 0)
+Feature_data_ImputedDataMOFACb = t(Feature_data_ImputedDataMOFACb)
+write.table(Feature_data_ImputedDataMOFACb ,  file='Feature_data_ImputedDataMOFACb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+MOFACb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACb$Methyl))
+Attributes_MOFACb  = merge(Attributes2 , MOFACb_SampleID , by = "Sample_ID")
+write.table(Attributes_MOFACb, file='Attributes_MOFACb.tsv', quote=FALSE, sep='\t', row.names = F)
+
+#####################################
+#     CORRECT IDs                   #
+#####################################
+
+modif_IDs <- read.table("overview_sample_20180723_R.txt",  sep = "\t", dec="." , header = TRUE,   quote="")
+
+
 
        
