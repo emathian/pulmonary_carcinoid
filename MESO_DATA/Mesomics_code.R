@@ -110,6 +110,7 @@ gene_interet2 <- gene_interet_samples_names[,-1]
 
 # PROFILES
 #---------
+
 max(suptable1$Dimension.1)
 min(suptable1$Dimension.1)
 max(suptable1$Dimension.2)
@@ -134,8 +135,11 @@ for (i in 1:dim(suptable1)[1]){
     profiles[i]<- NA
   }
 }
-table(profiles)
 
+
+plot(suptable1$Dimension.1 , suptable1$Dimension.2 , col= as.factor(profiles))
+
+profile_df <- data.frame("sample" = suptable1$Sample , "Profiles" =profiles )
 #################################
 #   MERGE ATTRIBUTES            #
 #################################
@@ -145,7 +149,7 @@ table(profiles)
 Attributes1 <- merge(TILS, ClinicalAttributes, by="sample")
 
 Attributes2 <- merge(Attributes1, gene_interet2, by="sample")
-Attributes2 <- cbind(profiles, Attributes2)
+Attributes2 <- merge(Attributes2 , profile_df , by="sample")
 Attributes3 <- Attributes2 # FOR SIMPLIFY THE FOLLOWING SCRIPT
 
 # Convert factor to char
@@ -381,7 +385,7 @@ for (i in 1:7145){
   df_acp_fig1.2[,i] <- as.numeric(as.character(df_acp_fig1.2[,i]) )
 }
 str(df_acp_fig1.2)
-acp_fig1 <- dudi.pca( df_acp_fig1.2 ,center = T , scale = F) #
+acp_fig1 <- dudi.pca( df_acp_fig1.2 ,center = T , scale = F , scannf = F , nf=2) #
 s.label(acp_fig1$li, xax = 1, yax = 2)
 acp_fig1_li_df =  as.data.frame(acp_fig1$li)
 acp_fig1_li_df  = setDT(acp_fig1_li_df , keep.rownames = TRUE)[]
@@ -726,7 +730,7 @@ dat_fig3a_5_genes = merge(Vista_sample_df,dat_fig3a_5_genes , by="sample")
 rownames(dat_fig3a_5_genes) <-dat_fig3a_5_genes$sample
 dat_fig3a_5_genes <- dat_fig3a_5_genes[,-1]
 
-acp_5_genes <- dudi.pca(dat_fig3a_5_genes, center = T , scale = F)
+acp_5_genes <- dudi.pca(dat_fig3a_5_genes, center = T , scale = F, scannf = F, nf=2)
 summary(acp_5_genes)
 acp_5_genes_li <- acp_5_genes$li
 acp_5_genes_li <- setDT(acp_5_genes_li, keep.rownames = TRUE)[]
@@ -788,6 +792,13 @@ head(Coordinates2,3)
 head(Attributes4, 3)
 head(data_lv_t_sample, 3)
 head(Attribute_fig3a_b,3)
+head(Coord_fig3_b,3)
+head(Coordinates_fig3a_top,3)
+head(to_write_data_attributes_fi3a_top,3)
+
+dim(to_write_data_attributes_fi3a_top)
+to_write_data_attributes_fi3a_top <- to_write_data_attributes_fi3a_top[,-c(37,38,39,40)]
+head(to_write_data_attributes_fi3a_top,3)
 ############################
 #   WRITE FILES           #
 ###########################
@@ -799,25 +810,25 @@ head(Attribute_fig3a_b,3)
 #____________________________
 
 
-#write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F) # Coordinates2 = coordinates1 with y*-1
-#write.table(Attributes4, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F) # Coordinates2 = coordinates1 with y*-1
+write.table(Attributes4, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
 
 # Fig 1 with Features Data
 #_________________________
 
-#write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
-#write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 
 
 
 # Fig 3 bottom  panel
 #_________________________
-#write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\t', row.names = F)
-#write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
 
 
 # Fig 3 top panel
 #_________________________
 
-#write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
-#write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
