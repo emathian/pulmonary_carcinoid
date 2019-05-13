@@ -727,22 +727,39 @@ Attributes2 <- rbind(Attributes2  , Attributes2[which(Attributes2$Sample_ID == "
 which(Attributes2$Sample_ID == "S02322")
 Attributes2$Sample_ID =  as.character(Attributes2$Sample_ID)
 Attributes2[242,1]  <- as.character("S02322.R1")
-Attributes2[259,1]  <- as.character("S02322.R1")
+Attributes2[259,1]  <- as.character("S02322.R2")
 
+MOFACLSb.factors  <- getFactors(MOFACLSb)
+
+MOFACLSb.factors["S02322.R1", ]
+which(Attributes2$Sample_ID =="S02322.R1" )
+Sample_overview[242, 22:42]
+Sample_overview[242, 1]
+
+
+
+MOFACLSb.factors["S00094", ]  
+Sample_overview[48, 22:42]
+
+
+# Just a example to assure the reliability
 MOFACLb.factors  <- getFactors(MOFACLb)
-MOFACLb.factors["S02322.R1", ]
-MOFACLb.factors["S00016",]
-
-Sample_overview$LF1.LNEN[Sample_overview$Sample_ID == "S00016"]
-Sample_overview$LF2.LNEN[Sample_overview$Sample_ID == "S00016"]
-
-
+MOFACb.factors  <- getFactors(MOFACb)
 MOFACSb.factors  <- getFactors(MOFACSb)
-MOFACSb.factors["S02322.R1", ]
-MOFACSb.factors["S01526",]
+MOFACLb.factors["S00094", ]
+MOFACLSb.factors["S00094", ]
+MOFACb.factors["S00094", ]
+MOFACSb.factors["S00094", ]
+which(Sample_overview$Sample_ID == "S00094")
+Sample_overview[48, 22:42]
+Sample_overview[48, 1]
 
-Sample_overview$LF1.LNEN_SCLC[Sample_overview$Sample_ID == "S01526"]
-Sample_overview$LF2.LNEN_SCLC[Sample_overview$Sample_ID == "S01526"]
+
+MOFACLSb.factors["S01468", ]
+which(Sample_overview$Sample_ID == "S01468")
+Sample_overview[127, 22:42]
+
+
 
 #######################
 # WRITE TABLE         #
@@ -854,6 +871,14 @@ Attributes_fig7B = Attributes_fig7B[,-c(99,100,101,103,106)]
 # Fig S13A:
 # --------
 Coords_MOFA_S13A<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNEN_SCLC, "Axis2" = Sample_overview$LF2.LNEN_SCLC * -1)
+Coords_MOFA_S13A[,1] <- as.character(Coords_MOFA_S13A[,1])
+Coords_MOFA_S13A[242,] 
+Coords_MOFA_S13A <- rbind(Coords_MOFA_S13A , Coords_MOFA_S13A[242,] )
+which(Coords_MOFA_S13A$Sample_ID == "S02322")
+Coords_MOFA_S13A[242, 1] = "S02322.R1"
+Coords_MOFA_S13A[259, 1] = "S02322.R2"
+################ ATTENTION A CHANGER VERIFIER LES COOODS DE LF1.LNEN_SLS
+
 Coords_MOFA_S13A <- Coords_MOFA_S13A[complete.cases(Coords_MOFA_S13A),]
 Sample_id_fig13A = data.frame("Sample_ID"=Coords_MOFA_S13A$Sample_ID)
 Attributes_fig13A = merge(Attributes2 , Sample_id_fig13A  , by="Sample_ID")
@@ -864,12 +889,23 @@ Attributes_fig13A = merge(Attributes2 , Sample_id_fig13A  , by="Sample_ID")
 # Fig S13C:
 # --------
 Coords_MOFA_S13C<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET_SCLC, "Axis2" = Sample_overview$LF2.LNET_SCLC *-1)
+Coords_MOFA_S13C[,1] <- as.character(Coords_MOFA_S13C[,1])
+Coords_MOFA_S13C[242,] # S02322
+Coords_MOFA_S13C <- rbind(Coords_MOFA_S13C , Coords_MOFA_S13C[242,] )
+which(Coords_MOFA_S13C$Sample_ID == "S02322")
+Coords_MOFA_S13C[242, 1] = "S02322.R1"
+
+Coords_MOFA_S13C[259, 1] = "S02322.R2"
+MOFACSb.factors["S02322_A",]
+MOFACSb.factors["S02322_B",]
+Coords_MOFA_S13C[242, 2:3]  = MOFACSb.factors["S02322_A",][1:2]
+Coords_MOFA_S13C[259, 2:3]  = MOFACSb.factors["S02322_B",][1:2]
 Coords_MOFA_S13C <- Coords_MOFA_S13C[complete.cases(Coords_MOFA_S13C),]
 Sample_id_fig13C = data.frame("Sample_ID"=Coords_MOFA_S13C$Sample_ID)
 Attributes_fig13C = merge(Attributes2 , Sample_id_fig13C  , by="Sample_ID")
 Attributes_fig13C = Attributes_fig13C[ , -c(124,127)] # Any TP53 and RB1 mutation
-#write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-#write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 #############################

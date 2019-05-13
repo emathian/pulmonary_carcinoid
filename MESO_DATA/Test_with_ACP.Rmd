@@ -54,7 +54,6 @@ head(suptable1,4)
 
 ```{r eval=TRUE, echo=TRUE}
 Coordinates <- data.frame( sample = suptable1$Samples , x = suptable1$Dimension.1 , y = suptable1$Dimension.2)
-
 Coordinates2 <- Coordinates 
 Coordinates2$y <- Coordinates2$y * -1
 ```
@@ -389,7 +388,9 @@ uniq_tot_sample= unique(tot_sample)[-1]
 ## Moyenne par échantillon
 
 ```{r eval=TRUE, echo=TRUE}
-IHC_moy_df <- data.frame(sample =uniq_tot_sample  ,  VEGFR2.IHC = rep(0,length(uniq_tot_sample)), VEGFR3M.IHC = rep(0,length(uniq_tot_sample)), PDL1.IHC = rep(0,length(uniq_tot_sample)), CD8.IHC = rep(0,length(uniq_tot_sample)), VISTA.IHC = rep(0,length(uniq_tot_sample)))
+IHC_moy_df <- data.frame(sample =uniq_tot_sample  ,  VEGFR2.IHC = rep(0,length(uniq_tot_sample)), VEGFR3M.IHC = rep(0,length(uniq_tot_sample)), PDL1.IHC = rep(0,length(uniq_tot_sample)), CD8.IHC = rep(0,length(uniq_tot_sample)), VISTA.IHC = rep(0,length(uniq_tot_sample)), stringsAsFactors = F)
+
+
 
 IHC_moy_sample <- function(data, res_df){
   for (i in 1:length(uniq_tot_sample)){
@@ -609,8 +610,6 @@ plot(Attributes5$Axis1 , Attributes5$Axis2 , col= as.factor(Attributes5$Type_and
 
 #metadata$Survival == SurvBuenoTCGAred[,1]
 
-
-
 ```
 
 # ACP avec 5 marqueurs
@@ -815,7 +814,7 @@ rownames(replication_acp)=Replication_data$X
 
 replication_acp = replication_acp[complete.cases(replication_acp),]
 
-acp_rep <- dudi.pca(replication_acp , center = T  , scale = F)
+acp_rep <- dudi.pca(replication_acp , center = T  , scale = F, scannf = FALSE, nf = 2)
 acp_rep_li = as.data.frame(acp_rep$li)
 acp_rep_li = setDT(acp_rep_li, keep.rownames = TRUE)[]
 colnames(acp_rep_li)[1] <- "X"
