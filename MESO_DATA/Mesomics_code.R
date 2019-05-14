@@ -817,7 +817,7 @@ write.table(Attributes4, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', ro
 #_________________________
 
 write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
-write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = T, col.names = F)
 
 
 

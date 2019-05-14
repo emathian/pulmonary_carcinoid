@@ -63,7 +63,7 @@ Data_vst_all <- read.table("../data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", de
 Ref_gene <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 Ref_gene_all <- read.table("../data/VST_nosex_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 
-Methylation_data <- load('../methylation_final.RData')
+Methylation_data <- load("../methylation_final.RData")
 
 MOFACb <- load('../MOFACb.Rdata')
 MOFACLb <- load('../MOFACLb.Rdata')
@@ -754,7 +754,7 @@ which(Sample_overview$Sample_ID == "S00094")
 Sample_overview[48, 22:42]
 Sample_overview[48, 1]
 
-
+plot(MOFACLSb.factors[,1], MOFACLSb.factors[,2])
 MOFACLSb.factors["S01468", ]
 which(Sample_overview$Sample_ID == "S01468")
 Sample_overview[127, 22:42]
