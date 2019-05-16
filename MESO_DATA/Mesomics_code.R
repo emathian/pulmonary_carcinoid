@@ -12,6 +12,7 @@ library(DESeq2)
 library(data.table)
 library(dplyr)
 library(ade4)
+library(umap)
 
 #########################
 # IMPORT DATA           #

@@ -48,8 +48,8 @@ p2 <- plot_ly(economics, x = ~date, y = ~uempmed) %>%
 # Fonction for set difference visualisation 
 # __________________________________________
 
-ku_stack = c(unique(Set_diff$k))
-ku_stack =c(6,20,30,50,100, 110 , 130 , 120 ,150, 180 ,200,250)
+ku_stack = c(unique(Set_diff$k)) ; ku_stack
+ku_stack =c(6,20,30,50,100, 110 ,  120, 130  ,150, 180 ,200,250)
 
 #ku_stack =c(10,20,50,100)
 while (length(ku_stack)!=0) { # after k_list size
@@ -96,7 +96,8 @@ while (length(ku_stack)!=0) { # after k_list size
   
   
   ku_stack <- ku_stack[-c(1:4)]
-  p <- subplot(p1, p2, p3, p4)
+  p <- subplot(p1, p2, p3, p4)%>%
+    layout(title = "Set difference view",  margin = 0.04)
   
   print(p)
 }
@@ -125,7 +126,7 @@ max(Seq_diff$seq_diff)
 summary(Seq_diff$seq_diff)[2]
 summary(Seq_diff$seq_diff)[3]
 ku_stack = c(unique(Seq_diff$k)) ; ku_stack
-ku_stack =c(6,20,30,50,100, 110 , 130 , 120 ,150, 180 ,200,250)
+ku_stack =c(6,20,30,50,100, 110  , 120 , 130 ,150, 180 ,200,250)
 
 
 
@@ -141,7 +142,7 @@ while (length(ku_stack)!=0) { # after k_list size
   n_node = length(which(Seq_diff$k ==1))
   
   seq_diff_k1st = Seq_diff[(n_node*ku_stack[1] - n_node  + 1):(n_node *ku_stack[1]),]
-  print(head(seq_diff_k1st))
+  
   Seq_diff_k1st_tm <- merge(seq_diff_k1st, TM_coords ,by="sample" )
   colnames(Seq_diff_k1st_tm)[2] = "SEQ_DIFFERENCE"
   Title1 = as.character(paste("k = ", as.character(ku_stack[1])))
@@ -179,7 +180,8 @@ while (length(ku_stack)!=0) { # after k_list size
   #p4_seq<- colorbar(p4_seq, limits = c(binf,bsup) )
   
   ku_stack <- ku_stack[-c(1:4)]
-  p_seq <- subplot(p1_seq, p2_seq, p3_seq, p4_seq)
+  p_seq <- subplot(p1_seq, p2_seq, p3_seq, p4_seq)%>%
+    layout(title = "sequence difference view",  margin = 0.04)
   
   print(p_seq)
 
@@ -250,4 +252,76 @@ while (length(ku_stack)!=0) { # after k_list size
   print(p_seq)
   
 }
+
+
+
+
+
+
+# CP  N
+# ------
+
+# V2 
+CP_all <- read.table("CP_MesosomicsV2.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+ku_stack = unique(CP_all$K) ; ku_stack
+
+#CP_all <- read.table("CP_Mesosomics.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_N <- data.frame("sample" = CP_all$sample ,"CPN"= CP_all$CPN ,"K"= CP_all$K)
+CP_N$CPN <- as.numeric(CP_N$CPN)
+
+#ku_stack =c(20,50,80,100 ,120,150,200,230)
+
+
+binf <- min(CP_N$CPN)
+bsup <- max(CP_N$CPN)
+
+#ku_stack =c(10,20,50,100)
+while (length(ku_stack)!=0) { # after k_list size
+  
+  CP_N_k1st = CP_N[min(which(CP_N$K == ku_stack[1])):max(which(CP_N$K == ku_stack[1])),]
+  
+  CP_N_k1st_tm <- merge(CP_N_k1st, TM_coords ,by="sample" )
+  colnames(CP_N_k1st_tm)[2] = "CP_N"
+  Title1 = as.character(paste("k = ", as.character(ku_stack[1])))
+  p1_seq<- plot_ly(CP_N_k1st_tm, x = ~x, y = ~y , type="scatter", mode = "markers", 
+                   marker=list( size=10 , opacity=1), color = ~CP_N, text = ~paste('Sample: ', sample))%>%
+    layout(annotations=  list(x = 0.2 , y = 1.05, text = Title1, showarrow = F, xref='paper', yref='paper'),  showlegend =FALSE )
+  #p1_seq<- colorbar(p1_seq, limits = c(binf , bsup) )
+  
+  CP_N_k2nd = CP_N[min(which(CP_N$K == ku_stack[2])):max(which(CP_N$K == ku_stack[2])),]
+  CP_N_k2nd_tm <- merge(CP_N_k2nd, TM_coords ,by="sample" )
+  colnames(CP_N_k2nd_tm)[2] = "CP_N"
+  Title2 = as.character(paste("k = ", as.character(ku_stack[2])))
+  p2_seq<- plot_ly(CP_N_k2nd_tm, x = ~x, y = ~y , type="scatter", mode = "markers", 
+                   marker=list( size=10 , opacity=1), color = ~CP_N, text = ~paste('Sample: ', sample))%>%
+    layout(annotations=  list(x = 0.2 , y = 1.05, text = Title2, showarrow = F, xref='paper', yref='paper'),  showlegend =FALSE )
+  #p2_seq<- colorbar(p2_seq, limits = c(binf, bsup) )
+  
+  CP_N_k3rd = CP_N[min(which(CP_N$K == ku_stack[3])):max(which(CP_N$K == ku_stack[3])),]
+  CP_N_k3rd_tm <- merge(CP_N_k3rd, TM_coords ,by="sample" )
+  colnames(CP_N_k3rd_tm)[2] = "CP_N"
+  Title3 = as.character(paste("k = ", as.character(ku_stack[3])))
+  p3_seq<- plot_ly(CP_N_k3rd_tm, x = ~x, y = ~y , type="scatter", mode = "markers", 
+                   marker=list( size=10 , opacity=1), color = ~CP_N, text = ~paste('Sample: ', sample))%>%
+    layout(annotations=  list(x = 0.2 , y = 1.05, text = Title3, showarrow = F, xref='paper', yref='paper'),  showlegend =FALSE )
+  # p3_seq <- colorbar(p3_seq, limits = c(binf, bsup ) )
+  
+  
+  CP_N_k4th = CP_N[min(which(CP_N$K == ku_stack[4])):max(which(CP_N$K == ku_stack[4])),]
+  CP_N_k4th_tm <- merge(CP_N_k4th, TM_coords ,by="sample" )
+  colnames(CP_N_k4th_tm)[2] = "CP_N"
+  Title4 = as.character(paste("k = ", as.character(ku_stack[4])))
+  p4_seq<- plot_ly(CP_N_k4th_tm, x = ~x, y = ~y , type="scatter", mode = "markers", 
+                   marker=list( size=10 , opacity=1), color = ~CP_N, text = ~paste('Sample: ', sample))%>%
+    layout(annotations=  list(x = 0.2 , y = 1.05, text = Title4, showarrow = F, xref='paper', yref='paper'),  showlegend =FALSE)
+  #p4_seq<- colorbar(p4_seq, limits = c(binf,bsup) )
+  
+  ku_stack <- ku_stack[-c(1:4)]
+  p_seq <- subplot(p1_seq, p2_seq, p3_seq, p4_seq)%>%
+    layout(title = "centrality preservation (n)",  margin = 0.04)
+  
+  print(p_seq)
+  
+}
+
 
