@@ -116,9 +116,9 @@ def centrality_preservation(dist1 , dist2 , K , filename):
 				CPN.iloc[i,0]	= CPN_j
 
 			for l in range(CP2.shape[0]):
-				print('level k', k)
+				#print('level k', k)
 				line = str(CP2.index.values[l]) + '\t' + str(CP2.iloc[l,0]) + '\t' + str(CPN.iloc[l,0]) +'\t'+  str(k) + '\n'
-				print('Line ', line)
+				#print('Line ', line)
 				centrality_preservation_file.write(line)
 	
 	return CP2 , CPN
@@ -150,7 +150,7 @@ def sequence_difference(dist1 , dist2 , k):
 				s1 += (k - N["rank_x"][i]) * abs(N["rank_x"][i] - N["rank_y"][i])   
 				s2 += (k - N["rank_y"][i]) * abs(N["rank_x"][i] - N["rank_y"][i]) 
 			S = 0.5 * s1 + 0.5 * s2
-			print(S)
+		
 		 	seq_diff.append(S)
 	else :
 		"Dim error"
@@ -190,8 +190,8 @@ if __name__ == '__main__':
 	TM_coords_df= pd.read_csv("Meso_tm_coords_v2.tab", sep="\t")
 	d1 =  distance_matrix(PCA_coords_df)
 	d2 = distance_matrix(TM_coords_df)
-	seq_diff = sequence_difference(d1,d2, 30)
-	#centrality_preservation(d1,d2, [20, 50, 80 ,100 , 120, 150 , 200 , 230 , 250], 'CP_Mesosomics.txt')
+	#seq_diff = sequence_difference(d1,d2, 120)
+	centrality_preservation(d1,d2, [60 , 170,  260 ,280], 'CP_MesosomicsV2.txt')
 
 	#main(PCA_coords_df, TM_coords_df, PCA_coords_df.shape[0] , "set_diff_meso" , "seq_diff_meso" ) #PCA_coords_df.shape[0]
 	#D1_PCA = distance_matrix(PCA_coords_df)
