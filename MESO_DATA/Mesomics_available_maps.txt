@@ -28,3 +28,20 @@ Obj : Reproduction  of figure 3a bottom panel with PCA coordinates
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : to_write_data_attributes_fi3a_top.tsv
 Coordinate file : Coordinates_fig3a_top.tsv
+
+
+
+Title : mesomics_umap_MD_02_1605
+Obj : umap
+link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
+Attributes file  : to_write_data_attributes_fi3a_top.tsv
+Coordinate file : Meso_MD02_df_coord.tsv
+
+
+
+
+Title : mesomics_umap_MD_09_1605
+Obj : umap
+link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
+Attributes file  : to_write_data_attributes_fi3a_top.tsv
+Coordinate file : Meso_MD09_df_coord.tsv
