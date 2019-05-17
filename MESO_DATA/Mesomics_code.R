@@ -833,3 +833,89 @@ write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t
 
 write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+
+
+#################################
+#             UMAP              #
+#################################
+
+umap.defaults
+
+data_lv_sample <- t(data_lv_t_sample)  
+
+data_lv.L <- data.frame('sample'= data_lv_sample[,1] )
+Type_df <-data.frame( 'sample'= Attributes4$sample , 'Type'=Attributes4$Type )
+data_lv.L <- merge(data_lv.L , Type_df , by = "sample")
+data_lv.L <- data_lv.L[order(data_lv.L$sample),] 
+  
+
+data_lv.D <-as.data.frame( data_lv_sample )
+data_lv.D <- data_lv.D[order(data_lv.D$sample),]
+data_lv.D <- data_lv.D[,-1] 
+data_lv.D <- apply(data_lv.D, 2, as.numeric)
+test1.umap = umap(data_lv.D)
+
+coord_PCA1 <- merge(Coordinates2, Type_df , by = "sample")
+
+par(mfrow=c(1,2))
+plot(test1.umap$layout[,1] ,test1.umap$layout[,2], col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+
+# Test Min Dist 
+# -------------
+
+min_dist_c = c(0.002,0.2,0.4,0.6,0.8,0.9)
+for (i in 1:length(min_dist_c)){
+  Meso.umap = umap(data_lv.D, random_state = 123, min_dist = min_dist_c[i])
+  #par(mfrow=c(1,2))
+  plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("min_dist =" ,as.character(min_dist_c[i]) ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+ # plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+}
+
+
+# Test N Neighbors
+# -----------------
+
+n_neighbors_c = c(2,10,20,30,50,80,100,120,130,150,160,170,200,230,250,260)
+for (i in 1:length(n_neighbors_c )){
+  Meso.umap = umap(data_lv.D, random_state = 123, n_neighbors =  n_neighbors_c[i] )
+  #par(mfrow=c(1,2))
+  plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("n_neighbors =" ,as.character(n_neighbors_c[i]) ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+  #plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+}
+
+
+# Test with N neighbors and min dist
+# -----------------------------------
+
+min_dist_c = c(0.2,0.4,0.6,0.8,0.9)
+n_neighbors_c = c(10,20,50,80,100,120,170,200,230,260)
+
+for (i in 1:length(min_dist_c)){
+  for (j in 1:length(n_neighbors_c )){
+    Meso.umap = umap(data_lv.D, random_state = 123, n_neighbors =  n_neighbors_c[j], min_dist = min_dist_c[i] )
+   # par(mfrow=c(1,2))
+    plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("n_neighbors =" ,as.character(n_neighbors_c[j]), "min_dist = " ,  min_dist_c[i] ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+   # plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+
+    }
+}
+
+
+# Write for TumorMap analysis
+#----------------------------
+
+
+Meso_MD02.umap = umap(data_lv.D, random_state = 123, min_dist =0.2 )
+Meso_MD02_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD02.umap$layout[,1] , "y"=Meso_MD02.umap$layout[,2] )
+write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+
+Meso_MD09.umap = umap(data_lv.D, random_state = 123, min_dist =0.9 )
+Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$layout[,1] , "y"=Meso_MD09.umap$layout[,2] )
+write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+
+
+
+
