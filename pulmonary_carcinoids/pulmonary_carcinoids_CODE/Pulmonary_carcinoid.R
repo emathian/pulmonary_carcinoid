@@ -904,8 +904,8 @@ Coords_MOFA_S13C <- Coords_MOFA_S13C[complete.cases(Coords_MOFA_S13C),]
 Sample_id_fig13C = data.frame("Sample_ID"=Coords_MOFA_S13C$Sample_ID)
 Attributes_fig13C = merge(Attributes2 , Sample_id_fig13C  , by="Sample_ID")
 Attributes_fig13C = Attributes_fig13C[ , -c(124,127)] # Any TP53 and RB1 mutation
-write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+#write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 #############################
@@ -964,9 +964,18 @@ library(openxlsx)
 
 # Charger les Rdata manuellement pk?
 
+# Checking for MOFAb
+pFMOFACb <- plotFactorScatter(MOFACb,factors = 1:2)
+pFMOFACb$data[1:10,]
+LNET_Coords <- data.frame("Sample" = Sample_overview$Sample_ID ,"LF1.LNET"= Sample_overview$LF1.LNET, "LF2.LNET"= Sample_overview$LF2.LNET)
+Sample_overview$LF1.LNET[1:10]
+
+
+
 
 MOFACLSb = impute(MOFACLSb)
 ImputedDataMOFACLSb = getImputedData(MOFACLSb)
+
 #write.table(ImputedDataMOFACLSb$Methyl, "ImputedDataMOFACLSb_Methyl.tsv", quote=FALSE, sep='\t', row.names = F , col.names = T)
 #write.table(ImputedDataMOFACLSb$RNA, "ImputedDataMOFACLSb_RNA.tsv", quote=FALSE, sep='\t', row.names = F , col.names = T)
 
@@ -987,29 +996,32 @@ ImputedDataMOFACSb = getImputedData(MOFACSb)
 ###################################################
 
 
+#"""
+#sample_mofa= unique (c(colnames(MOFACLSb@TrainData$Methyl), colnames(MOFACLSb@TrainData$RNA))) 
+#setdiff(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F], sample_mofa )#
+#length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
 
-sample_mofa= unique (c(colnames(MOFACLSb@TrainData$Methyl), colnames(MOFACLSb@TrainData$RNA))) 
-setdiff(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F], sample_mofa )
-length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
+#length(colnames(MOFACLSb@TrainData$RNA))
+#Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F]
+#colnames(MOFACLSb@TrainData$RNA)
+#setdiff(colnames(MOFACLSb@TrainData$RNA), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
+#setdiff(colnames(MOFACLSb@TrainData$RNA), Sample_overview$Sample_ID)
 
-length(colnames(MOFACLSb@TrainData$RNA))
-Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F]
-colnames(MOFACLSb@TrainData$RNA)
-setdiff(colnames(MOFACLSb@TrainData$RNA), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
-setdiff(colnames(MOFACLSb@TrainData$RNA), Sample_overview$Sample_ID)
+#setdiff(Sample_overview$Sample_ID, colnames(MOFACLSb@TrainData$RNA))
 
-setdiff(Sample_overview$Sample_ID, colnames(MOFACLSb@TrainData$RNA))
+#length(Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"])
 
-length(Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"])
+#length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN)==F])
+#length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNET)==F])
+#length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
+#setdiff(colnames(ImputedDataMOFACLb$Methyl), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN)==F])
+#setdiff(colnames(ImputedDataMOFACb$Methyl), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNET)==F])
 
-length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN)==F])
-length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNET)==F])
-length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==F])
-setdiff(colnames(ImputedDataMOFACLb$Methyl), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN)==F])
-setdiff(colnames(ImputedDataMOFACb$Methyl), Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNET)==F])
+#setdiff(colnames(ImputedDataMOFACLSb$Methyl) ,  Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"])
+#setdiff(Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"], colnames(ImputedDataMOFACLSb$Methyl))
+#"""
 
-setdiff(colnames(ImputedDataMOFACLSb$Methyl) ,  Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"])
-setdiff(Sample_overview$Sample_ID[Sample_overview$RNAseq== "yes" | Sample_overview$Epic.850K == "yes"], colnames(ImputedDataMOFACLSb$Methyl))
+
 
 # Feature woth  LNEN Samples
 # __________________________
@@ -1018,10 +1030,10 @@ t_ImputedDataMOFACLb_Methyl =t(ImputedDataMOFACLb$Methyl)
 t_ImputedDataMOFACLb_RNA =t(ImputedDataMOFACLb$RNA)
 Feature_data_ImputedDataMOFACLb = merge(t_ImputedDataMOFACLb_Methyl,t_ImputedDataMOFACLb_RNA  , by= 0)
 Feature_data_ImputedDataMOFACLb = t(Feature_data_ImputedDataMOFACLb )
-write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+#write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 MOFACLb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACLb$Methyl))
 Attributes_MOFACLb  = merge(Attributes2 , MOFACLb_SampleID , by = "Sample_ID")
-write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 
@@ -1033,10 +1045,10 @@ t_ImputedDataMOFACb_Methyl =t(ImputedDataMOFACb$Methyl)
 t_ImputedDataMOFACb_RNA =t(ImputedDataMOFACb$RNA)
 Feature_data_ImputedDataMOFACb = merge(t_ImputedDataMOFACb_Methyl,t_ImputedDataMOFACb_RNA  , by= 0)
 Feature_data_ImputedDataMOFACb = t(Feature_data_ImputedDataMOFACb)
-write.table(Feature_data_ImputedDataMOFACb ,  file='Feature_data_ImputedDataMOFACb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+#write.table(Feature_data_ImputedDataMOFACb ,  file='Feature_data_ImputedDataMOFACb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 MOFACb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACb$Methyl))
 Attributes_MOFACb  = merge(Attributes2 , MOFACb_SampleID , by = "Sample_ID")
-write.table(Attributes_MOFACb, file='Attributes_MOFACb.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Attributes_MOFACb, file='Attributes_MOFACb.tsv', quote=FALSE, sep='\t', row.names = F)
 
 #####################################
 #     CORRECT IDs                   #
@@ -1050,12 +1062,16 @@ dim(t_ImputedDataMOFACLSb_Methyl)
 t_ImputedDataMOFACLSb_Methyl = as.data.frame(t_ImputedDataMOFACLSb_Methyl)
 t_ImputedDataMOFACLSb_Methyl = setDT(t_ImputedDataMOFACLSb_Methyl , keep.rownames = TRUE)[]
 colnames(t_ImputedDataMOFACLSb_Methyl)[1] <- "Sample_ID"
+
+
+Former_IDs_MOFACLSb = t_ImputedDataMOFACLSb_Methyl$Sample_ID
 #t_ImputedDataMOFACLSb_Methyl[1:10,1]
+
 for (i in 1:dim(t_ImputedDataMOFACLSb_Methyl)[1]){
   print("Before If")
   print(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] )
   if (t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] != "S02322.R1" & t_ImputedDataMOFACLSb_Methyl$Sample_ID[i] != "S02322.R2"){
-    if (as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]) %in% as.character(setdiff(colnames(MOFACLSb@TrainData$Methyl), Sample_overview$Sample_ID) ) 
+    if (as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i]) %in% as.character(setdiff(t_ImputedDataMOFACLSb_Methyl$Sample_ID, Sample_overview$Sample_ID) ) 
           & identical( grep("X",as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID) [i])  , integer(0))  ){
       print("In if ")
       print(as.character(t_ImputedDataMOFACLSb_Methyl$Sample_ID[i])   )
@@ -1077,9 +1093,8 @@ for (i in 1:dim(t_ImputedDataMOFACLSb_Methyl)[1]){
 
 
 setdiff(t_ImputedDataMOFACLSb_Methyl$Sample_ID , Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes" | Sample_overview$Epic.850K == "yes"])
-
 MOFACLSb.correct.IDS = t_ImputedDataMOFACLSb_Methyl$Sample_ID  # :) !!! 
-
+Former_New_IDs = data.frame("Former_IDs" = Former_IDs_MOFACLSb, "New_IDs" = MOFACLSb.correct.IDS)
 
 t_ImputedDataMOFACLSb_RNA =t(ImputedDataMOFACLSb$RNA)
 dim(t_ImputedDataMOFACLSb_RNA)
@@ -1094,4 +1109,75 @@ t_impute_data.SampleID <- data.frame("Sample_ID"=t_impute_data$Sample_ID )
 Attribute_MOFACLSb <- merge(Attributes2 ,t_impute_data.SampleID , by="Sample_ID" )
 
 
-       
+##########################################
+#     Prise en compte de l'importance des facteurs -> ie si un facteur représente moins de 2% de la variabilité
+#     Notamment pour la méthylation alors les éch n'ayant que des données de méthylation pour cet axe seront mis 
+#     à NA.
+###########################################
+
+Calculate_var_MOFACLSb= calculateVarianceExplained(MOFACLSb)
+Var_per_factor = as.data.frame(Calculate_var_MOFACLSb[["R2PerFactor"]])
+which(Var_per_factor$Methyl<0.02)
+# LF2
+
+SampleID_LF1_LF2= as.character(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) ==T & is.na(Sample_overview$LF2.LNEN_SCLC) ==T ])
+length(SampleID_LF1_LF2 )
+
+Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) == F   &  is.na(Sample_overview$LF2.LNEN_SCLC) == T  ] # 25
+
+setdiff( Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) == F   &  is.na(Sample_overview$LF2.LNEN_SCLC) == T  ] # 25
+         , SampleID_LF1_LF2 )
+
+
+plotFactorScatter(MOFACSb,factors = 1:2)
+plotFactorScatter(MOFACLb,factors = 1:2)
+
+
+plotFactorScatter(MOFACLSb,factors = 1:2)
+pMOFACLSb <- plotFactorScatter(MOFACLSb,factors = 1:2)
+MOFACLSb_coord <-as.data.frame(pMOFACLSb$data[,c(1,2)]) 
+plot(MOFACLSb_coord$x, MOFACLSb_coord$y*-1)
+MOFACLSb_coord <- setDT(MOFACLSb_coord , keep.rownames = TRUE)[]
+colnames(MOFACLSb_coord)[1] <- "Former_IDs"
+setdiff(MOFACLSb_coord$Former_IDs, Former_New_IDs$Former_IDs)
+MOFACLSb_coord_all <- merge( MOFACLSb_coord ,Former_New_IDs , by =  "Former_IDs" )
+MOFACLSb_coord_all$New_IDs[is.na(MOFACLSb_coord_all$y)==T]
+SampleID_LF1_LF2
+
+
+sum(is.na(MOFACLSb_coord$y))
+ynew= c()
+c=0
+for (i in 1:dim(MOFACLSb_coord_all)[1]){
+  if(as.character(MOFACLSb_coord_all$New_IDs[i]) %in%  SampleID_LF1_LF2){
+    ynew[i] <- NA
+    c = c+1
+  }
+  else{
+    ynew[i] <- MOFACLSb_coord_all$y[i]
+  }
+}
+c
+
+MOFACLSb_coord_all <- cbind(MOFACLSb_coord_all, ynew)
+
+
+sum(is.na(MOFACLSb_coord$y));  sum(is.na(MOFACLSb_coord_all$y)) # ;)
+
+MOFACLSb_coord.CC <- MOFACLSb_coord[(complete.cases(MOFACLSb_coord )),]
+plot(MOFACLSb_coord$x, MOFACLSb_coord$y)
+plot(MOFACLSb_coord.CC$x, MOFACLSb_coord.CC$y*-1)
+
+setdiff(MOFACLSb_coord.CC$New_IDs , Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) ==F & is.na(Sample_overview$LF2.LNEN_SCLC) ==F ])
+
+
+length(SampleID_RNA_NO_METHYL_Yes )
+sum(is.na(Sample_overview$LF1.LNEN_SCLC)) 
+Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)]
+
+
+plot(MOFACLSb_coord$x , MOFACLSb_coord$y)
+
+length(Sample_overview$Sample_ID[is.na(Sample_overview$LF2.LNEN_SCLC)==T ])
+length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==T ])
+length(Sample_overview$Sample_ID[Sample_overview$Epic.850K == "yes"& Sample_overview$RNAseq == "no"])
