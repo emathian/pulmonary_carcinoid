@@ -32,16 +32,41 @@ Coordinate file : Coordinates_fig3a_top.tsv
 
 
 Title : mesomics_umap_MD_02_1605
-Obj : umap
+Obj : umap layout on mesomics data from fig1 samples with min-dist = 0.2 
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
-Attributes file  : to_write_data_attributes_fi3a_top.tsv
+Attributes file  : Attributes_4_with_IHC.tsv
 Coordinate file : Meso_MD02_df_coord.tsv
 
 
 
 
 Title : mesomics_umap_MD_09_1605
-Obj : umap
+Obj : umap layout on mesomics data from fig1 samples with min-dist = 0.9
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : to_write_data_attributes_fi3a_top.tsv
 Coordinate file : Meso_MD09_df_coord.tsv
+
+
+Title : mesomics_umap_NN_20_1905
+Obj : umap layout on mesomics data from fig1 samples with n_neighbors = 20
+link : # https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
+Attributes file  : Attributes_4_with_IHC.tsv
+Coordinate file : Meso_NN20_df_coord.tsv
+
+
+Title : mesomics_umap_NN_230_1905
+Obj : umap layout on mesomics data from fig1 samples with n_neighbors = 230
+link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
+Attributes file  : Attributes_4_with_IHC.tsv
+Coordinate file : Meso_NN230_df_coord.tsv
+
+
+Title : mesomics_umap_NN150_MD05_1905
+Obj : umap layout on mesomics data from fig1 samples with n_neighbors = 230
+link : # https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
+Attributes file  : Attributes_4_with_IHC.tsv
+Coordinate file : Meso_NN150_MD_05_df_coord.tsv
+
+
+
+
