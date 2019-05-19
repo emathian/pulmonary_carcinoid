@@ -907,15 +907,25 @@ for (i in 1:length(min_dist_c)){
 # Write for TumorMap analysis
 #----------------------------
 
+# Min dist 
 
 Meso_MD02.umap = umap(data_lv.D, random_state = 123, min_dist =0.2 )
 Meso_MD02_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD02.umap$layout[,1] , "y"=Meso_MD02.umap$layout[,2] )
-write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+#write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
 Meso_MD09.umap = umap(data_lv.D, random_state = 123, min_dist =0.9 )
 Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$layout[,1] , "y"=Meso_MD09.umap$layout[,2] )
-write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+#write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
+# Nearest nighbors
+
+Meso_MD02.umap = umap(data_lv.D, random_state = 123, min_dist =0.2 )
+Meso_MD02_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD02.umap$layout[,1] , "y"=Meso_MD02.umap$layout[,2] )
+#write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+
+Meso_MD09.umap = umap(data_lv.D, random_state = 123, min_dist =0.9 )
+Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$layout[,1] , "y"=Meso_MD09.umap$layout[,2] )
+#write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
 
 
