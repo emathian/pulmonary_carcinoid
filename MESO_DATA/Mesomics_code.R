@@ -919,13 +919,39 @@ Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$
 
 # Nearest nighbors
 
-Meso_MD02.umap = umap(data_lv.D, random_state = 123, min_dist =0.2 )
-Meso_MD02_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD02.umap$layout[,1] , "y"=Meso_MD02.umap$layout[,2] )
-#write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+Meso_NN20.umap = umap(data_lv.D, random_state = 123, n_neighbors =20 )
+Meso_NN20_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN20.umap$layout[,1] , "y"=Meso_NN20.umap$layout[,2] )
+write.table(Meso_NN20_df_coord, file='Meso_NN20_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
-Meso_MD09.umap = umap(data_lv.D, random_state = 123, min_dist =0.9 )
-Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$layout[,1] , "y"=Meso_MD09.umap$layout[,2] )
-#write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+Meso_NN180.umap = umap(data_lv.D, random_state = 123, n_neighbors =180 )
+Meso_NN180_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN180.umap$layout[,1] , "y"=Meso_NN180.umap$layout[,2] )
+write.table(Meso_NN180_df_coord, file='Meso_NN180_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+
+Meso_NN230.umap = umap(data_lv.D, random_state = 123, n_neighbors =230 )
+Meso_NN230_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN230.umap$layout[,1] , "y"=Meso_NN230.umap$layout[,2] )
+write.table(Meso_NN230_df_coord, file='Meso_NN230_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+
+# Nearest nighbors and Min dist
+
+Meso_NN150_MD_05.umap = umap(data_lv.D, random_state = 123, n_neighbors =150 , min_dist =0.5 )
+Meso_NN150_MD_05_df_coord = data.frame("sample"= data_lv.L$sample , "x"= Meso_NN150_MD_05.umap$layout[,1] , "y"=   Meso_NN150_MD_05.umap$layout[,2] )
+write.table(Meso_NN150_MD_05_df_coord , file='Meso_NN150_MD_05_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+
+###################################
+# Distance in n Dim               #
+##################################@
+
+
+library(stats)
+library(graphics)
+
+Dist <- dist(data_lv_sample, diag = TRUE, upper = TRUE)
+m <- as.matrix(Dist)
+rownames(m) <- as.character(data_lv_sample[,1])
+colnames(m) <- as.character(data_lv_sample[,1])  
+write.table(m, file='Distance_mesomics.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
+
+
 
 
 
