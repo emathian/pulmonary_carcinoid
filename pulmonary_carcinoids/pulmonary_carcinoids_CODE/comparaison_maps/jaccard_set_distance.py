@@ -159,6 +159,34 @@ def sequence_difference(dist1 , dist2 , k):
 
 	return Jsim
 
+
+def knn_high_dim(data_feature, filename ,k) :
+	name_dist_file =  creation_fichier(filename)[0]      
+	dist_file = open(name_dist_file  ,'a')
+	header_dist = str(list(data_feature.index.values )) + '\n'
+	dist_file.write(header_dist)
+	# Euclidian distance in n dim 
+	n = data_feature.shape[0] # sammple
+	m = data_feature.shape[1] # gene
+	d =  np.zeros((n, n))
+	for i in range(n):
+		for j in range(n):
+			if i == j:
+				d[i,j] = 0
+			else :
+				if d[i,j] != 0 :
+					d[j,i] = d[i,j]
+				else :
+					s = 0
+					for k in range(m):
+						s+= (data_feature.iloc[i,k] - data_feature.iloc[j,k])**2
+					d[i,j] = math.sqrt(s)
+		dist_file.write(str(d[i,]) + '\n')
+	dist = pd.DataFrame(d, columns=data_feature.index.values, index=data_feature.index.values )
+	#dist = dist.reindex(sorted(dist.columns), axis=1)
+	print(dist.head())
+	return dist	
+
 def main(df1, df2, k , filename_set_diff, filename_seq_diff):
 	if k <= df1.shape[0] and df1.shape == df2.shape :
 		dist1 = distance_matrix(df1)
@@ -186,17 +214,34 @@ def main(df1, df2, k , filename_set_diff, filename_seq_diff):
 
 
 if __name__ == '__main__': 
-	PCA_coords_df = pd.read_csv("Meso_pca_coords.tab", sep="\t")
-	TM_coords_df= pd.read_csv("Meso_tm_coords_v2.tab", sep="\t")
-	d1 =  distance_matrix(PCA_coords_df)
-	d2 = distance_matrix(TM_coords_df)
+	#PCA_coords_df = pd.read_csv("Meso_pca_coords.tab", sep="\t")
+	#TM_coords_df= pd.read_csv("Meso_tm_coords_v2.tab", sep="\t")
+	#d1 =  distance_matrix(PCA_coords_df)
+	#d2 = distance_matrix(TM_coords_df)
 	#seq_diff = sequence_difference(d1,d2, 120)
-	centrality_preservation(d1,d2, [60 , 170,  260 ,280], 'CP_MesosomicsV2.txt')
+	#centrality_preservation(d1,d2, [60 , 170,  260 ,280], 'CP_MesosomicsV2.txt')
 
 	#main(PCA_coords_df, TM_coords_df, PCA_coords_df.shape[0] , "set_diff_meso" , "seq_diff_meso" ) #PCA_coords_df.shape[0]
 	#D1_PCA = distance_matrix(PCA_coords_df)
 	#D2_TM = distance_matrix(TM_coords_df)
 	#set_diff_10 = set_difference(D1_PCA , D2_TM , 10)
 	#print(set_diff_10)
+
+
+	#  NN 
+	Feature_data_df = pd.read_csv("feature_data_with_lv_2.tsv", sep="\t")
+	Feature_data_df = Feature_data_df.transpose() 
+	Feature_data_df.columns = Feature_data_df.iloc[0,]
+	Feature_data_df= Feature_data_df.drop(Feature_data_df.index[0])
+	Feature_data_df.to_csv('Feature_data_t.csv')
+
+
+
+	#Feature_data_df= Feature_data_df.iloc[1:20,1:20]
+	#knn_high_dim(Feature_data_df, 'dist_meso_data.txt',5)
+	#print(Feature_data_df.head())
+	#print(Feature_data_df.columns.values)
+	#print(Feature_data_df.index.values)
+
 
 
