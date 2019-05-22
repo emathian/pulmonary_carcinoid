@@ -479,38 +479,25 @@ plot_set_diff(Set_diff_R_UMAP_MD02, UMAP_coords_MD02 , c(5,10,15,20,50,150,200,2
 
 library(ggplot2)
 
-boxplot(Set_diff_PCA_TM$set_diff[Set_diff_PCA_TM$k==20], Set_diff_R_PCA$set_diff[Set_diff_R_PCA$k==20],
-        Set_diff_R_TM$set_diff[Set_diff_R_TM$k==20], Set_diff_R_UMAP_NN150_MD_05$set_diff[Set_diff_R_UMAP_NN150_MD_05$k==20],
-        Set_diff_R_UMAP_NN20$set_diff[Set_diff_R_UMAP_NN20$k==20])
+#boxplot(Set_diff_PCA_TM$set_diff[Set_diff_PCA_TM$k==20], Set_diff_R_PCA$set_diff[Set_diff_R_PCA$k==20],
+#        Set_diff_R_TM$set_diff[Set_diff_R_TM$k==20], Set_diff_R_UMAP_NN150_MD_05$set_diff[Set_diff_R_UMAP_NN150_MD_05$k==20],
+#        Set_diff_R_UMAP_NN20$set_diff[Set_diff_R_UMAP_NN20$k==20])
 
 dist_set <- function(K , list_data_frame ){
-    
-  for (i in 1:length(K)){
-    par(mfrow= c(1,K[i]))
-    c = 0
-    for (j in 1:length(list_data_frame )){
-      print(K[i])
-    
-      if (j==1){
+  name_list_data_frame <- as.character(list_data_frame)
+  par(mfrow= c(length(list_data_frame),length(K))) 
+  c = 1
+   for (j in 1:length(list_data_frame )){
+    for (i in 1:length(K)) {
         c_data_frame = as.data.frame(list_data_frame[j])
-        str(c_data_frame)
-        print(c_data_frame$set_diff[c_data_frame$k==K[i]])
-        plot(c_data_frame$set_diff[c_data_frame$k==K[i]], col = c)
-        
-        c =c+1
+        plot(c_data_frame$set_diff[c_data_frame$k==K[i]], col = c, main = paste("k = ", K[i] , as.character(list_data_frame[j])),  xlab="Index", ylab="set diff value")
       }
-      else{
-        c_data_frame = as.name(list_data_frame[j])
-        print(c_data_frame)
-        lines(c_data_frame$set_diff[c_data_frame$k==K[i]], col = c)
-        c = c + 1
-      }
-    }
+    c =c+1
   }  
 }
 
-list_df_set= c(Set_diff_PCA_TM, Set_diff_R_PCA, Set_diff_R_TM, Set_diff_R_UMAP_NN150_MD_05, 
-              Set_diff_R_UMAP_NN230, Set_diff_R_UMAP_NN20,Set_diff_R_UMAP_MD09,Set_diff_R_UMAP_MD02)
+list_df_set= list(Set_diff_PCA_TM, Set_diff_R_PCA, Set_diff_R_TM, Set_diff_R_UMAP_NN150_MD_05)
+#, Set_diff_R_UMAP_NN230, Set_diff_R_UMAP_NN20,Set_diff_R_UMAP_MD09,Set_diff_R_UMAP_MD02
 
 dist_set(c(20,40,60,100),list_df_set)
 
