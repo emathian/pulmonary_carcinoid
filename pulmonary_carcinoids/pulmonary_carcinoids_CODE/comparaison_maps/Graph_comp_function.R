@@ -236,6 +236,52 @@ dist_set <- function(K , list_data_frame , Name ){
 
 
 
+
+
+CP_mean_by_k  <-function (list_CP_diff , Name){
+  par(mfrow=c(1,2))
+  c= 1 
+  c_data_frame = as.data.frame(list_CP_diff[1])
+  CP_diff_mean_df = data.frame("k" =unique(c_data_frame$K ))
+  for (i in 1:length(list_CP_diff)){
+    c_data_frame = as.data.frame(list_CP_diff[i])
+    diff_CP2_CPN = abs(c_data_frame$CP2 - c_data_frame$CPN )
+    c_data_frame = cbind(c_data_frame ,diff_CP2_CPN )
+    colnames(c_data_frame)[dim(c_data_frame)[2]] <- "Abs_diff"
+    Mean_by_k =tapply(c_data_frame$Abs_diff ,c_data_frame$K, mean)
+    CP_diff_mean_df <- cbind(CP_diff_mean_df ,Mean_by_k )
+    colnames(CP_diff_mean_df)[dim(CP_diff_mean_df)[2]] <- Name[i]
+    
+  }
+  print(dim(CP_diff_mean_df))
+  Col = c()
+  C=1
+  for (i in 2:dim(CP_diff_mean_df)[2]){
+    
+    Col = c(Col,C)
+    if (i ==2 ){
+      plot(CP_diff_mean_df$k, CP_diff_mean_df[,i] , col=C  , type ='l' )
+      C =C+1
+      Col = c(Col,C)
+    }
+    else{
+      lines(CP_diff_mean_df$k, CP_diff_mean_df[,i] , col=C )
+      C =C+1
+      Col = c(Col,C)
+    }
+    
+  }
+  print(unique(Col))
+  plot.new()
+  legend("bottomleft", 
+         legend = Name, 
+         col = c(unique(Col)),
+         pch = 15)
+}
+
+
+
+
 Set_diff_mean_by_k  <-function (list_set_diff , Name){
   par(mfrow=c(1,2))
   c= 1 
