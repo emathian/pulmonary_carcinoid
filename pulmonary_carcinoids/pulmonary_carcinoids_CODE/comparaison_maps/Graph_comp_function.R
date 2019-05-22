@@ -279,4 +279,42 @@ Set_diff_mean_by_k  <-function (list_set_diff , Name){
 }
 
 
+Seq_diff_mean_by_k  <-function (list_Seq_diff , Name){
+  par(mfrow=c(1,2))
+  c= 1 
+  c_data_frame = as.data.frame(list_Seq_diff[1])
+  Seq_diff_mean_df = data.frame("k" =unique(c_data_frame$k ))
+  for (i in 1:length(list_Seq_diff)){
+    c_data_frame = as.data.frame(list_Seq_diff[i])
+    Mean_by_k =tapply(c_data_frame$seq_diff ,c_data_frame$k, mean)
+    Seq_diff_mean_df <- cbind(Seq_diff_mean_df,Mean_by_k )
+    colnames(Seq_diff_mean_df)[dim(Seq_diff_mean_df)[2]] <- Name[i]
+    # print(head(Seq_diff_mean_df))
+    
+  }
+  Col = c()
+  C=1
+  for (i in 2:dim(Seq_diff_mean_df)[2]){
+    
+    Col = c(Col,C)
+    if (i ==2 ){
+      plot(Seq_diff_mean_df$k, Seq_diff_mean_df[,i] , col=C  , type ='l' )
+      C =C+1
+      Col = c(Col,C)
+    }
+    else{
+      lines(Seq_diff_mean_df$k, Seq_diff_mean_df[,i] , col=C )
+      C =C+1
+      Col = c(Col,C)
+    }
+    
+  }
+  print(unique(Col))
+  plot.new()
+  legend("bottomleft", 
+         legend = Name, 
+         col = c(unique(Col)),
+         pch = 15)
+}
+
 
