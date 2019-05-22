@@ -160,7 +160,46 @@ def sequence_difference(dist1 , dist2 , k):
 	return Jsim
 
 
+
+def main_f(df1, df2, k , filename_set_diff, filename_seq_diff , dist): # If dist are ever calculated then dist =T 
+	if dist == False :
+		dist1 = distance_matrix(df1)
+		dist2 = distance_matrix(df2)
+	else :
+		dist1 = df1
+		dist2 = df2	
+		print("dist1.shape",dist1.shape)	
+		print("dist2.shape",dist2.shape)
+		print("k",k)	
+		print("df1.shape[0]",df1.shape[0])	
+	if k <= df1.shape[0] and dist1.shape == dist2.shape :
+		name_set_diff_file =  creation_fichier(filename_set_diff)[0]      
+		set_diff_file = open(name_set_diff_file  ,'a')
+		name_sequence_diff_file = creation_fichier(filename_seq_diff)[0]  #
+		seq_diff_file = open(name_sequence_diff_file  ,'a')
+		header_set = "sample" + '\t' + "set_diff" + '\t'  + 'k' + '\n'
+		set_diff_file.write(header_set)
+		header_seq = "sample" + '\t' + "seq_diff" + '\t'  + 'k' + '\n'
+		seq_diff_file.write(header_seq)
+
+		print("A file named set_diff.txt have been created")
+		for i in range(1, k+1):
+			c_set_diff = set_difference(dist1 , dist2 , i)
+			c_seq_diff = sequence_difference(dist1 , dist2 , i)
+			for l in range(c_set_diff.shape[0]) : 
+				line_c_set_diff =str(c_set_diff.index[l]) + '\t' + str(c_set_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
+				line_c_seq_diff =str(c_seq_diff.index[l]) + '\t' + str(c_seq_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
+				set_diff_file.write(line_c_set_diff)
+				seq_diff_file.write(line_c_seq_diff)
+
+	else:
+		print("Warning ! ")
+
+"""
 def knn_high_dim(data_feature, filename ,k) :
+	####################
+	#  TOO LONG
+	####################
 	name_dist_file =  creation_fichier(filename)[0]      
 	dist_file = open(name_dist_file  ,'a')
 	header_dist = str(list(data_feature.index.values )) + '\n'
@@ -187,37 +226,54 @@ def knn_high_dim(data_feature, filename ,k) :
 	print(dist.head())
 	return dist	
 
-def main(df1, df2, k , filename_set_diff, filename_seq_diff):
-	if k <= df1.shape[0] and df1.shape == df2.shape :
-		dist1 = distance_matrix(df1)
-		dist2 = distance_matrix(df2)
-		name_set_diff_file =  creation_fichier(filename_set_diff)[0]      
-		set_diff_file = open(name_set_diff_file  ,'a')
-		name_sequence_diff_file = creation_fichier(filename_seq_diff)[0]  #
-		seq_diff_file = open(name_sequence_diff_file  ,'a')
-		header_set = "sample" + '\t' + "set_diff" + '\t'  + 'k' + '\n'
-		set_diff_file.write(header_set)
-		header_seq = "sample" + '\t' + "seq_diff" + '\t'  + 'k' + '\n'
-		seq_diff_file.write(header_seq)
+"""
 
-		print("A file named set_diff.txt have been created")
-		for i in range(1, k+1):
-			c_set_diff = set_difference(dist1 , dist2 , i)
-			c_seq_diff = sequence_difference(dist1 , dist2 , i)
-			for l in range(c_set_diff.shape[0]) : 
-				line_c_set_diff =str(c_set_diff.index[l]) + '\t' + str(c_set_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
-				line_c_seq_diff =str(c_seq_diff.index[l]) + '\t' + str(c_seq_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
-				set_diff_file.write(line_c_set_diff)
-				seq_diff_file.write(line_c_seq_diff)
+
 
 
 
 
 if __name__ == '__main__': 
-	#PCA_coords_df = pd.read_csv("Meso_pca_coords.tab", sep="\t")
-	#TM_coords_df= pd.read_csv("Meso_tm_coords_v2.tab", sep="\t")
-	#d1 =  distance_matrix(PCA_coords_df)
-	#d2 = distance_matrix(TM_coords_df)
+	PCA_coords_df = pd.read_csv("Meso_pca_coords.tab", sep="\t")
+	TM_coords_df= pd.read_csv("Meso_tm_coords_v2.tab", sep="\t")
+	UMAP_coords_NN150_MD05_df= pd.read_csv("umap_coords_nn150_md05.tab", sep="\t")
+	UMAP_coords_NN230_df= pd.read_csv("umap_coords_nn230.tab", sep="\t")
+	UMAP_coords_NN20_df= pd.read_csv("umap_coords_nn20.tab", sep="\t")
+	UMAP_coords_MD09_df= pd.read_csv("umap_coords_md09.tab", sep="\t")
+	UMAP_coords_MD02_df= pd.read_csv("umap_coord_md_02.tab", sep="\t")
+
+
+
+
+
+
+	d1 =  distance_matrix(PCA_coords_df)
+	d2 = distance_matrix(TM_coords_df)
+	dUMAP_coords_NN150_MD05 = distance_matrix(UMAP_coords_NN150_MD05_df)
+	dUMAP_coords_NN230 = distance_matrix( UMAP_coords_NN230_df)  
+	dUMAP_coords_NN20 = distance_matrix( UMAP_coords_NN20_df) 
+	dUMAP_coords_MD09 = distance_matrix(UMAP_coords_MD09_df)
+	dUMAP_coords_MD02 = distance_matrix( UMAP_coords_MD02_df)
+
+	Dist_mesomics =  pd.read_csv("Distance_mesomics.txt", sep="\t")
+	Dist_mesomics =  Dist_mesomics.reindex(sorted(Dist_mesomics.columns), axis=1)
+	#print("Line 0", Dist_mesomics.iloc[0,])
+	print("IN MAIN")
+	#M = main_f(d3, Dist_mesomics, PCA_coords_df.shape[0] , "set_diff_meso_UMAP_NN150_MD05_real" , "seq_diff_NN150_MD05_real", True )
+	#cp1 = centrality_preservation(dUMAP_coords_NN150_MD05 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_NN150_MD05_real")
+	#print("1")
+	#cp2 = centrality_preservation(dUMAP_coords_NN230 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_NN230_real")
+	#print("2")
+	#cp3 = centrality_preservation(dUMAP_coords_NN20 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_NN20_real")
+	#print("3")
+	#cp4 = centrality_preservation(dUMAP_coords_MD09 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_MD09_real")
+	#print("4")
+	#cp5 = centrality_preservation(dUMAP_coords_MD02 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_MD02_real")
+	#print("5")
+	cp6 = centrality_preservation(d2 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_TM_real")
+
+
+	print("file 3 has been generated")
 	#seq_diff = sequence_difference(d1,d2, 120)
 	#centrality_preservation(d1,d2, [60 , 170,  260 ,280], 'CP_MesosomicsV2.txt')
 
@@ -226,22 +282,4 @@ if __name__ == '__main__':
 	#D2_TM = distance_matrix(TM_coords_df)
 	#set_diff_10 = set_difference(D1_PCA , D2_TM , 10)
 	#print(set_diff_10)
-
-
-	#  NN 
-	Feature_data_df = pd.read_csv("feature_data_with_lv_2.tsv", sep="\t")
-	Feature_data_df = Feature_data_df.transpose() 
-	Feature_data_df.columns = Feature_data_df.iloc[0,]
-	Feature_data_df= Feature_data_df.drop(Feature_data_df.index[0])
-	Feature_data_df.to_csv('Feature_data_t.csv')
-
-
-
-	#Feature_data_df= Feature_data_df.iloc[1:20,1:20]
-	#knn_high_dim(Feature_data_df, 'dist_meso_data.txt',5)
-	#print(Feature_data_df.head())
-	#print(Feature_data_df.columns.values)
-	#print(Feature_data_df.index.values)
-
-
 
