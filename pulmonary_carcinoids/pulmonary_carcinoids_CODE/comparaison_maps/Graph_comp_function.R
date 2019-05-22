@@ -260,7 +260,7 @@ CP_mean_by_k  <-function (list_CP_diff , Name){
     
     Col = c(Col,C)
     if (i ==2 ){
-      plot(CP_diff_mean_df$k, CP_diff_mean_df[,i] , col=C  , type ='l' )
+      plot(CP_diff_mean_df$k, CP_diff_mean_df[,i] , col=C , type="l"  , xlab = "k", ylab="mean(|CP2-CPN|)", main= 'centrality preservarion' )
       C =C+1
       Col = c(Col,C)
     }
@@ -273,10 +273,7 @@ CP_mean_by_k  <-function (list_CP_diff , Name){
   }
   print(unique(Col))
   plot.new()
-  legend("bottomleft", 
-         legend = Name, 
-         col = c(unique(Col)),
-         pch = 15)
+  legend("bottomleft",  legend = Name, col = c(unique(Col)), pch = 15)
 }
 
 
@@ -301,7 +298,7 @@ Set_diff_mean_by_k  <-function (list_set_diff , Name){
     
     Col = c(Col,C)
     if (i ==2 ){
-      plot(Set_diff_mean_df$k, Set_diff_mean_df[,i] , col=C  , type ='l' )
+      plot(Set_diff_mean_df$k, Set_diff_mean_df[,i] , col=C  , xlab="k",ylab = "Mean Set Difference ", main="Means Set Difference view by level k ", type ='l' )
       C =C+1
       Col = c(Col,C)
     }
@@ -344,7 +341,7 @@ Seq_diff_mean_by_k  <-function (list_Seq_diff , Name){
     
     Col = c(Col,C)
     if (i ==2 ){
-      plot(Seq_diff_mean_df$k, Seq_diff_mean_df[,i] , col=C  , type ='l' )
+      plot(Seq_diff_mean_df$k, Seq_diff_mean_df[,i] , col=C  , xlab = "k" , ylab = "Mean Seq Diff", main = "Mean of Sequences difference view by level k", type ='l' )
       C =C+1
       Col = c(Col,C)
     }
@@ -357,10 +354,7 @@ Seq_diff_mean_by_k  <-function (list_Seq_diff , Name){
   }
   print(unique(Col))
   plot.new()
-  legend("bottomleft", 
-         legend = Name, 
-         col = c(unique(Col)),
-         pch = 15)
+  legend("bottomleft",  legend = Name,  col = c(unique(Col)), pch = 15)
 }
 
 
