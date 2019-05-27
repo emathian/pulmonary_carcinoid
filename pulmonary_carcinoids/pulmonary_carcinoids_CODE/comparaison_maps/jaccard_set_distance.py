@@ -234,6 +234,7 @@ def knn_high_dim(data_feature, filename ,k) :
 
 
 if __name__ == '__main__': 
+	print('ok')
 	PCA_coords_df = pd.read_csv("Meso_pca_coords.tab", sep="\t")
 	TM_coords_df= pd.read_csv("Meso_tm_coords_v2.tab", sep="\t")
 	UMAP_coords_NN150_MD05_df= pd.read_csv("umap_coords_nn150_md05.tab", sep="\t")
@@ -257,20 +258,28 @@ if __name__ == '__main__':
 
 	Dist_mesomics =  pd.read_csv("Distance_mesomics.txt", sep="\t")
 	Dist_mesomics =  Dist_mesomics.reindex(sorted(Dist_mesomics.columns), axis=1)
+	print(range(1,285,10))
 	#print("Line 0", Dist_mesomics.iloc[0,])
 	print("IN MAIN")
-	#M = main_f(d3, Dist_mesomics, PCA_coords_df.shape[0] , "set_diff_meso_UMAP_NN150_MD05_real" , "seq_diff_NN150_MD05_real", True )
-	#cp1 = centrality_preservation(dUMAP_coords_NN150_MD05 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_NN150_MD05_real")
+	#M = main_f(d1, Dist_mesomics, PCA_coords_df.shape[0] , "set_diff_PCA_real" , "seq_diff_PCA_real", True )
+	print("Set_seq")
+	#cp1 = centrality_preservation(dUMAP_coords_NN150_MD05 ,  Dist_mesomics , range(241,285,10),"CP_meso_UMAP_NN150_MD05_real_Next")
 	#print("1")
-	#cp2 = centrality_preservation(dUMAP_coords_NN230 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_NN230_real")
+	#cp2 = centrality_preservation(dUMAP_coords_NN230 ,  Dist_mesomics , range(1,285,10),"CP_meso_UMAP_NN230_real")
 	#print("2")
-	#cp3 = centrality_preservation(dUMAP_coords_NN20 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_NN20_real")
+	#cp3 = centrality_preservation(dUMAP_coords_NN20 ,  Dist_mesomics , range(1,285,10),"CP_meso_UMAP_NN20_real")
 	#print("3")
-	#cp4 = centrality_preservation(dUMAP_coords_MD09 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_MD09_real")
+	#cp4 = centrality_preservation(dUMAP_coords_MD09 ,  Dist_mesomics , range(1,285,10),"CP_meso_UMAP_MD09_real")
 	#print("4")
-	#cp5 = centrality_preservation(dUMAP_coords_MD02 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_UMAP_MD02_real")
+	#cp5 = centrality_preservation(dUMAP_coords_MD02 ,  Dist_mesomics , range(1,285,10),"CP_meso_UMAP_MD02_real")
 	#print("5")
-	cp6 = centrality_preservation(d2 ,  Dist_mesomics , [60 , 170,  260 ,280],"CP_meso_TM_real")
+	#cp6 = centrality_preservation(d2 ,  Dist_mesomics , range(1,285,10),"CP_meso_TM_real")
+	#print("6")
+	cp7 = centrality_preservation(d1 ,  Dist_mesomics , range(1,285,10),"CP_PCA_real")
+	print("7")
+	cp8 = centrality_preservation(d1 ,  d2 , range(1,285,10),"CP_PCA_TM")
+	print("8")
+
 
 
 	print("file 3 has been generated")
