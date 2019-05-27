@@ -39,7 +39,9 @@ library(reticulate)
 use_python('/Users/mathian/miniconda2/bin/python2.7')
 #source_python("/Users/mathian/Desktop/INSA_4_2/genomique/Eric_tanier_algo/Permutation_Drosophile/code/bonne_alphabet.py")
 #py_install("mofapy", envname = "r-reticulate", method="auto")
-
+library(umap)
+library(caret)
+library(cluster)
 library(bumphunter)
 library(minfi)
 
@@ -1181,3 +1183,113 @@ plot(MOFACLSb_coord$x , MOFACLSb_coord$y)
 length(Sample_overview$Sample_ID[is.na(Sample_overview$LF2.LNEN_SCLC)==T ])
 length(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC)==T ])
 length(Sample_overview$Sample_ID[Sample_overview$Epic.850K == "yes"& Sample_overview$RNAseq == "no"])
+
+
+
+##########################################
+#           UMAP                         #
+##########################################
+
+library(umap)
+library(caret)
+library(cluster)
+library('reticulate')
+use_python('/opt/local/bin/python3.6')
+# https://jlmelville.github.io/uwot/metric-learning.html
+
+devtools::install_github("jlmelville/snedata")
+devtools::install_github("jlmelville/vizier")
+
+
+
+
+
+
+HISTO_df$Sample_ID = as.character(HISTO_df$Sample_ID)
+setdiff(HISTO_df$Sample_ID , t_data_vst_50$Sample_ID)
+setdiff(t_data_vst_50$Sample_ID , HISTO_df$Sample_ID )
+HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_B")
+HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_A")
+which(HISTO_df$Sample_ID == "S02322")
+HISTO_df = HISTO_df[-which(HISTO_df$Sample_ID == "S02322"),]
+t_data_vst_50_type = merge(t_data_vst_50, HISTO_df)
+
+write.table(t_data_vst_50_type, file='t_data_vst_50_type.tsv', quote=FALSE, sep='\t', row.names = F)
+t_data_vst_50_type$Histpopathology_4_classes = as.factor(t_data_vst_50_type$Histpopathology_4_classes)
+
+
+# With cluster
+#--------------
+
+Cluster_LNET_df = data.frame('Sample_ID'= Sample_overview$Sample_ID[which(Sample_overview$RNAseq=="yes")], "Cluster_LNET"=Sample_overview$cluster_LNET[which(Sample_overview$RNAseq=="yes")] )
+
+
+#Cluster_LNEN_df = data.frame('Sample_ID'= Sample_overview$Sample_ID[which(Sample_overview$RNAseq=="yes")], "Cluster_LNEN"=Sample_overview$cluster_LNEN[which(Sample_overview$RNAseq=="yes")] )
+Cluster_LNET_df$Cluster_LNET = as.character(Cluster_LNET_df$Cluster_LNET)
+Cluster_LNET_df$Sample_ID = as.character(Cluster_LNET_df$Sample_ID)
+for (i in 1:dim(Cluster_LNET_df)[1]){
+  if (is.na(Cluster_LNET_df$Cluster_LNET[i]) & is.na(as.character(Sample_overview$cluster_LNEN[which(Sample_overview$Sample_ID == as.character(Cluster_LNET_df$Sample_ID[i]) )])) ==FALSE  & as.character(Sample_overview$cluster_LNEN[which(Sample_overview$Sample_ID == as.character(Cluster_LNET_df$Sample_ID[i]) )]) == "LCNEC" ){# & Sample_overview$cluster_LNEN[Sample_overview$Sample_ID == as.character(Cluster_LNET_df$Sample_ID[i]) ] == "LCNEC"){
+    print('ok')
+    print(which(Sample_overview$Sample_ID == as.character(Cluster_LNET_df$Sample_ID[i]) ))
+    print('Okk' )
+    Cluster_LNET_df$Cluster_LNET[i]= "LCNEC"
+  }
+}
+
+Cluster_LNET_df[nrow(Cluster_LNET_df) + 1,] = list("S02322_B",'No')
+Cluster_LNET_df[nrow(Cluster_LNET_df) + 1,] = list("S02322_A","No")
+which(Cluster_LNET_df$Sample_ID == "S02322")
+Cluster_LNET_df = Cluster_LNET_df[-which(Cluster_LNET_df$Sample_ID == "S02322"),]
+
+for (i in 1:dim(Cluster_LNET_df)[1]){
+  if (is.na(Cluster_LNET_df$Cluster_LNET[i])){
+    Cluster_LNET_df$Cluster_LNET[i] = "No"
+  }
+}
+t_data_vst_50_cluster = merge(t_data_vst_50,Cluster_LNET_df, by='Sample_ID')
+write.table(t_data_vst_50_cluster, file='t_data_vst_50_cluster.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+
+Cluster_LNEN_df$Cluster_LNEN[Cluste_LNEN_df$Sample_ID=="S02322"]
+Cluste_LNEN_df[nrow(Cluste_LNEN_df) + 1,] = list("SCLC","S02322_B")
+Cluste_LNEN_df[nrow(Cluste_LNEN_df) + 1,] = list("SCLC","S02322_A")
+
+
+trainIndex <- createDataPartition(HISTO_df$Histpopathology_4_classes, p = .8, list = FALSE, times = 1)
+t_data_vst_50_typeTrain <- t_data_vst_50_type[ trainIndex,]
+t_data_vst_50_typeTest <- t_data_vst_50_type[-trainIndex,]
+
+
+umap1 <- umap(as.matrix(t_data_vst_50_type[,2:6399]), method="umap-learn")
+type_umap <- umap(as.matrix(t_data_vst_50_type[,2:6399]), y = t_data_vst_50_type$Histpopathology_4_classes, n, ret_model = TRUE)
+
+par(mfrow=c(1,2))
+plot(umap1$layout[,1],umap1$layout[,2], col= t_data_vst_50_type$Histpopathology_4_classes)
+plot.new()
+legend("topright", legend=levels(t_data_vst_50_type$Histpopathology_4_classes), col=1:6, pch=1)
+plot(type_umap$layout[,1],type_umap$layout[,2], col= t_data_vst_50_type$Histpopathology_4_classes)
+plot.new()
+legend("topright", legend=levels(t_data_vst_50_type$Histpopathology_4_classes), col=1:6, pch=1)
+
+Nearest_Neighbors <- seq(1,284,by=10)
+Min_dist <- seq(0,1,by=0.1)
+for(i in 1:length(Nearest_Neighbors)){
+  for(j in 1:length(Min_dist)){
+    for (k in 1:5){
+      trainIndex <- createDataPartition(HISTO_df$Histpopathology_4_classes, p = .8, list = FALSE,  times = 1)
+      t_data_vst_50_typeTrain <- t_data_vst_50_type[ trainIndex,]
+      t_data_vst_50_typeTest <- t_data_vst_50_type[-trainIndex,]
+      umap_c <- umap(as.matrix(t_data_vst_50_type[,2:6399]),  min_dist = min_dist_c[j], n_neighbors =  n_neighbors_c[i] ,ret_model = TRUE)
+      par(mfrow=c(1,2))
+      plot(umap_c$layout[,1],umap1$layout[,2], col= t_data_vst_50_type$Histpopathology_4_classes)
+      plot.new()
+      legend("topright", legend=levels(t_data_vst_50_type$Histpopathology_4_classes), col=1:6, pch=1)
+    }
+  }
+}
+
+library(umap)
+iris.data = iris[, grep("Sepal|Petal", colnames(iris))]
+iris.umap_learn = umap(iris.data, method="umap-learn")
+
