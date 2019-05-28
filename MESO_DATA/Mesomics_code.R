@@ -12,7 +12,6 @@ library(DESeq2)
 library(data.table)
 library(dplyr)
 library(ade4)
-library(umap)
 
 #########################
 # IMPORT DATA           #
@@ -33,6 +32,14 @@ Coordinates2$y <- Coordinates2$y * -1
 ######################
 #   CORRECT IDs     #
 ####################
+
+# Type
+metadata$Type = as.character(metadata$Type)
+for (i in 1:dim(metadata)[1]){
+  if (metadata$Type[i]=='Diffuse Malignant Mesothelioma - Nos'){
+    metadata$Type[i]= "Diffuse_NOS"
+  }
+}
 
 Diff  = setdiff(groupsBuenoTCGAred$Sample , suptable1$Samples)
 
@@ -804,6 +811,15 @@ head(to_write_data_attributes_fi3a_top,3)
 #   WRITE FILES           #
 ###########################
 
+Attributes4$Type = as.character(Attributes4$Type)
+for (i in 1:dim(Attributes4)[1]){
+  if (Attributes4$Type[i]=='Diffuse Malignant Mesothelioma - Nos'){
+    Attributes4$Type[i]= "Diffuse_NOS"
+  }
+}
+
+
+
 # Coordinates
 # ____________
 
@@ -921,21 +937,21 @@ Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$
 
 Meso_NN20.umap = umap(data_lv.D, random_state = 123, n_neighbors =20 )
 Meso_NN20_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN20.umap$layout[,1] , "y"=Meso_NN20.umap$layout[,2] )
-write.table(Meso_NN20_df_coord, file='Meso_NN20_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+#write.table(Meso_NN20_df_coord, file='Meso_NN20_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
 Meso_NN180.umap = umap(data_lv.D, random_state = 123, n_neighbors =180 )
 Meso_NN180_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN180.umap$layout[,1] , "y"=Meso_NN180.umap$layout[,2] )
-write.table(Meso_NN180_df_coord, file='Meso_NN180_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+#write.table(Meso_NN180_df_coord, file='Meso_NN180_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
 Meso_NN230.umap = umap(data_lv.D, random_state = 123, n_neighbors =230 )
 Meso_NN230_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN230.umap$layout[,1] , "y"=Meso_NN230.umap$layout[,2] )
-write.table(Meso_NN230_df_coord, file='Meso_NN230_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+#write.table(Meso_NN230_df_coord, file='Meso_NN230_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
 # Nearest nighbors and Min dist
 
 Meso_NN150_MD_05.umap = umap(data_lv.D, random_state = 123, n_neighbors =150 , min_dist =0.5 )
 Meso_NN150_MD_05_df_coord = data.frame("sample"= data_lv.L$sample , "x"= Meso_NN150_MD_05.umap$layout[,1] , "y"=   Meso_NN150_MD_05.umap$layout[,2] )
-write.table(Meso_NN150_MD_05_df_coord , file='Meso_NN150_MD_05_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+#write.table(Meso_NN150_MD_05_df_coord , file='Meso_NN150_MD_05_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
 
 ###################################
 # Distance in n Dim               #
@@ -949,7 +965,9 @@ Dist <- dist(data_lv_sample, diag = TRUE, upper = TRUE)
 m <- as.matrix(Dist)
 rownames(m) <- as.character(data_lv_sample[,1])
 colnames(m) <- as.character(data_lv_sample[,1])  
-write.table(m, file='Distance_mesomics.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
+#write.table(m, file='Distance_mesomics.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
+
+
 
 
 
