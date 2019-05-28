@@ -1202,9 +1202,6 @@ devtools::install_github("jlmelville/vizier")
 
 
 
-
-
-
 HISTO_df$Sample_ID = as.character(HISTO_df$Sample_ID)
 setdiff(HISTO_df$Sample_ID , t_data_vst_50$Sample_ID)
 setdiff(t_data_vst_50$Sample_ID , HISTO_df$Sample_ID )
@@ -1212,7 +1209,15 @@ HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_B")
 HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_A")
 which(HISTO_df$Sample_ID == "S02322")
 HISTO_df = HISTO_df[-which(HISTO_df$Sample_ID == "S02322"),]
-t_data_vst_50_type = merge(t_data_vst_50, HISTO_df)
+t_data_vst_50_type = merge(t_data_vst_50, HISTO_df, by="Sample_ID")
+
+
+t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="SCLC")]
+t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
+t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
+
+write.table(t_data_vst_50_type, file='t_data_vst_50_type_3class.tsv', quote=FALSE, sep='\t', row.names = F)
+
 
 write.table(t_data_vst_50_type, file='t_data_vst_50_type.tsv', quote=FALSE, sep='\t', row.names = F)
 t_data_vst_50_type$Histpopathology_4_classes = as.factor(t_data_vst_50_type$Histpopathology_4_classes)
@@ -1289,7 +1294,77 @@ for(i in 1:length(Nearest_Neighbors)){
   }
 }
 
-library(umap)
-iris.data = iris[, grep("Sepal|Petal", colnames(iris))]
-iris.umap_learn = umap(iris.data, method="umap-learn")
+
+# Distances 
+#----------
+
+Dist <- dist(t_data_vst_50_type[,2:6399], diag = TRUE, upper = TRUE)
+m <- as.matrix(Dist)
+rownames(m) <- as.character(t_data_vst_50_type[1:152,1]$Sample_ID)
+colnames(m) <- as.character(t_data_vst_50_type[1:152,1]$Sample_ID)  
+write.table(m, file='Distance_pulmo.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
+
+
+MOFA_expr_coord <- read.table("pulmo_coords_fig6B_expr_LNEN.tab",sep = "\t", dec="." , header = TRUE,   quote="")
+MOFA_expr_coord <-MOFA_expr_coord[order(MOFA_expr_coord$Sample_ID),]
+write.table(MOFA_expr_coord , file='MOFA_Expr_coord_sort.txt', quote=FALSE, sep='\t', row.names = F , col.names = T)  
+
+# Neighborhood Analysis
+#----------------------
+
+# Supervised and Unsupervised analysis
+
+library(plotly)
+source("Graph_comp_function.R")
+
+UMAP_supervised_coords  <- read.table("Supervised_Coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_supervised_coords = data.frame("sample"= UMAP_unsupervised_coords[,1], "x"= UMAP_unsupervised_coords[,2],"y"=UMAP_unsupervised_coords[,3])
+
+UMAP_Unsupervised_coords  <- read.table("Unsupervised_Coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_Unupervised_coords = data.frame("sample"= UMAP_Unsupervised_coords[,2], "x"= UMAP_Unsupervised_coords[,3],"y"=UMAP_Unsupervised_coords[,4])
+
+Sample_ID_UMAP_analysis <- data.frame("sample"= UMAP_Unupervised_coords$sample)
+Mofa_expr_coords  <- read.table("pulmo_coords_fig6B_expr_LNEN.tab", sep = "\t", dec="." , header = TRUE,   quote="")
+Mofa_expr_coords = data.frame("sample"=Mofa_expr_coords[,1], "x"= Mofa_expr_coords[,2],"y"=Mofa_expr_coords[,3])
+Mofa_expr_coords= merge(Mofa_expr_coords, Sample_ID_UMAP_analysis, by='sample' )
+
+CP_supervised_coords_R<- read.table("CP_pulmo_R_unsupervised.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_Unsupervised_coords_R<- read.table("CP_pulmo_R_supervised.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_R_MOFA_expr<- read.table("CP_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+ku_stack =c(11,21,31,51, 71,91,111,141)
+plot_centrality_preservation(CP_supervised_coords_R, UMAP_supervised_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R & Supervised UMAP" )
+plot_centrality_preservation(CP_supervised_coords_R,UMAP_supervised_coords, ku_stack  , "N", "CPN drawn on the 2D projection : R & Supervised UMAP" )
+
+
+plot_centrality_preservation(CP_Unsupervised_coords_R, UMAP_Unsupervised_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R & Unsupervised UMAP" )
+plot_centrality_preservation(CP_Unsupervised_coords_R,UMAP_Unsupervised_coords, ku_stack  , "N", "CPN drawn on the 2D projection : R & Unsupervised UMAP" )
+
+
+
+list_CP_df = list(CP_supervised_coords_R,CP_R_MOFA_expr, CP_Unsupervised_coords_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
+Name = c('R_UMAP_supervised',"R_MOFA_expr",'R_UMAP_Unsupervised' )#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
+CP_mean_by_k(list_CP_df,Name)
+
+
+
+# Set
+#------
+
+Set_diff_R_UMAP_S <- read.table("set_diff_pulmo_super_R.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Set_diff_R_UMAP_US <- read.table("set_diff_pulmo_unsuper_R.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Set_diff_R_MOFA <- read.table("set_diff_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+
+plot_set_diff(Set_diff_R_UMAP_S, UMAP_supervised_coords , c(5,10,15,20,30,40,50,150) , "Set diff R UMAP_Supervised")
+plot_set_diff(Set_diff_R_UMAP_US,UMAP_Unupervised_coords, c(5,10,15,20,30,40,50,150) , "Set diff R UMAP_Unsupervised")
+plot_set_diff(Set_diff_R_MOFA, Mofa_expr_coords , c(5,10,15,20,30,40,50,150), "Set diff R Mofa")
+
+
+# Seq
+#------
+Seq_diff_R_MOFA <- read.table("seq_diff_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Seq_diff_R_UMAP_S <-read.table("seq_diff_pulmo_super_R.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Seq_diff_R_UMAP_US <- read.table("seq_diff_pulmo_unsuper_R.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
 
