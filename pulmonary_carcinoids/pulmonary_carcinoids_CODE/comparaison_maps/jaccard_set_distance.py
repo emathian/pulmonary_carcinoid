@@ -40,6 +40,7 @@ def distance_matrix(data_coords) :
 			d[i,j] = math.sqrt((c_x1-c_x2)**2  + (c_y1 - c_y2)**2)
 	dist = pd.DataFrame(d, columns=data_coords.iloc[ : , 0], index=data_coords.iloc[  : , 0])
 	dist = dist.reindex(sorted(dist.columns), axis=1)
+	dist = dist.reindex(sorted(dist.columns), axis=0)
 
 	return dist
 
@@ -79,6 +80,7 @@ def centrality_preservation(dist1 , dist2 , K , filename):
 		CPN = pd.DataFrame(index=list(dist2.columns.values))
 		CPN["cp"] = range(len(list(dist2.columns.values)))
 		if dist1.shape[0] == dist2.shape[0] :
+			print("OK")
 			n = dist1.shape[0]
 			
 			# Data frame of neighboors
@@ -120,7 +122,8 @@ def centrality_preservation(dist1 , dist2 , K , filename):
 				line = str(CP2.index.values[l]) + '\t' + str(CP2.iloc[l,0]) + '\t' + str(CPN.iloc[l,0]) +'\t'+  str(k) + '\n'
 				#print('Line ', line)
 				centrality_preservation_file.write(line)
-	
+			else:
+				print("Warning, dim error :( !")	
 	return CP2 , CPN
 
 	
@@ -150,8 +153,7 @@ def sequence_difference(dist1 , dist2 , k):
 				s1 += (k - N["rank_x"][i]) * abs(N["rank_x"][i] - N["rank_y"][i])   
 				s2 += (k - N["rank_y"][i]) * abs(N["rank_x"][i] - N["rank_y"][i]) 
 			S = 0.5 * s1 + 0.5 * s2
-		
-		 	seq_diff.append(S)
+			seq_diff.append(S)
 	else :
 		"Dim error"
 
