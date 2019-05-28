@@ -115,17 +115,21 @@ plot_centrality_preservation <- function(CP,  Coords_df ,ku_stack, projection , 
   if (projection == "2"){
     CP_2 <- data.frame("sample" = CP$sample ,"CP2"= CP$CP2 ,"K"= CP$K)
     CP_2$CP2 <- as.numeric(CP_2$CP2)
+    print(CP_2$CP2[1:10])
     while (length(ku_stack)!=0) { # after k_list size
     
       CP_2_k1st = CP_2[min(which(CP_2$K == ku_stack[1])):max(which(CP_2$K == ku_stack[1])),]
+      print(122)
       CP_2_k1st_tm <- merge(CP_2_k1st, Coords_df ,by="sample" )
+      print(124)
       colnames(CP_2_k1st_tm)[2] = "CP_2"
       Title1 = as.character(paste("k = ", as.character(ku_stack[1])))
+      print(126)
       p1_seq<- plot_ly(CP_2_k1st_tm, x = ~x, y = ~y , type="scatter", mode = "markers", 
                      marker=list( size=10 , opacity=1), color = ~CP_2, text = ~paste('Sample: ', sample))%>%
       layout(annotations=  list(x = 0.2 , y = 1.05, text = Title1, showarrow = F, xref='paper', yref='paper'),  showlegend =FALSE )
       #p1_seq<- colorbar(p1_seq, limits = c(binf , bsup) )
-    
+      print(132)
       CP_2_k2nd = CP_2[min(which(CP_2$K == ku_stack[2])):max(which(CP_2$K == ku_stack[2])),]
       CP_2_k2nd_tm <- merge(CP_2_k2nd, Coords_df ,by="sample" )
       colnames(CP_2_k2nd_tm)[2] = "CP_2"
@@ -244,9 +248,12 @@ CP_mean_by_k  <-function (list_CP_diff , Name){
   c_data_frame = as.data.frame(list_CP_diff[1])
   CP_diff_mean_df = data.frame("k" =unique(c_data_frame$K ))
   for (i in 1:length(list_CP_diff)){
+    print(Name[i])
     c_data_frame = as.data.frame(list_CP_diff[i])
+    print("here1")
     diff_CP2_CPN = abs(c_data_frame$CP2 - c_data_frame$CPN )
     c_data_frame = cbind(c_data_frame ,diff_CP2_CPN )
+    print("here2")
     colnames(c_data_frame)[dim(c_data_frame)[2]] <- "Abs_diff"
     Mean_by_k =tapply(c_data_frame$Abs_diff ,c_data_frame$K, mean)
     CP_diff_mean_df <- cbind(CP_diff_mean_df ,Mean_by_k )
@@ -274,6 +281,9 @@ CP_mean_by_k  <-function (list_CP_diff , Name){
   print(unique(Col))
   plot.new()
   legend("bottomleft",  legend = Name, col = c(unique(Col)), pch = 15)
+  
+  return
+  
 }
 
 
