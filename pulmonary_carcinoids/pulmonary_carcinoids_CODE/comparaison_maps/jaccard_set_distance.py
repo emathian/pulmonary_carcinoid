@@ -122,8 +122,8 @@ def centrality_preservation(dist1 , dist2 , K , filename):
 				line = str(CP2.index.values[l]) + '\t' + str(CP2.iloc[l,0]) + '\t' + str(CPN.iloc[l,0]) +'\t'+  str(k) + '\n'
 				#print('Line ', line)
 				centrality_preservation_file.write(line)
-			else:
-				print("Warning, dim error :( !")	
+		else:
+			print("Warning, dim error :( !")	
 	return CP2 , CPN
 
 	
@@ -174,7 +174,7 @@ def main_f(df1, df2, k , filename_set_diff, filename_seq_diff , dist): # If dist
 		print("dist2.shape",dist2.shape)
 		print("k",k)	
 		print("df1.shape[0]",df1.shape[0])	
-	if k <= df1.shape[0] and dist1.shape == dist2.shape :
+	if  dist1.shape == dist2.shape :
 		name_set_diff_file =  creation_fichier(filename_set_diff)[0]      
 		set_diff_file = open(name_set_diff_file  ,'a')
 		name_sequence_diff_file = creation_fichier(filename_seq_diff)[0]  #
@@ -185,15 +185,24 @@ def main_f(df1, df2, k , filename_set_diff, filename_seq_diff , dist): # If dist
 		seq_diff_file.write(header_seq)
 
 		print("A file named set_diff.txt have been created")
-		for i in range(1, k+1):
-			c_set_diff = set_difference(dist1 , dist2 , i)
-			c_seq_diff = sequence_difference(dist1 , dist2 , i)
-			for l in range(c_set_diff.shape[0]) : 
-				line_c_set_diff =str(c_set_diff.index[l]) + '\t' + str(c_set_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
-				line_c_seq_diff =str(c_seq_diff.index[l]) + '\t' + str(c_seq_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
-				set_diff_file.write(line_c_set_diff)
-				seq_diff_file.write(line_c_seq_diff)
-
+		if isinstance(k, int)==True: 
+			for i in range(1, k+1):
+				c_set_diff = set_difference(dist1 , dist2 , i)
+				c_seq_diff = sequence_difference(dist1 , dist2 , i)
+				for l in range(c_set_diff.shape[0]) : 
+					line_c_set_diff =str(c_set_diff.index[l]) + '\t' + str(c_set_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
+					line_c_seq_diff =str(c_seq_diff.index[l]) + '\t' + str(c_seq_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
+					set_diff_file.write(line_c_set_diff)
+					seq_diff_file.write(line_c_seq_diff)
+		else:
+			for i in k:
+				c_set_diff = set_difference(dist1 , dist2 , i)
+				c_seq_diff = sequence_difference(dist1 , dist2 , i)
+				for l in range(c_set_diff.shape[0]) : 
+					line_c_set_diff =str(c_set_diff.index[l]) + '\t' + str(c_set_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
+					line_c_seq_diff =str(c_seq_diff.index[l]) + '\t' + str(c_seq_diff.iloc[l,0]) + '\t'  +str(i) + '\n'
+					set_diff_file.write(line_c_set_diff)
+					seq_diff_file.write(line_c_seq_diff)
 	else:
 		print("Warning ! ")
 
