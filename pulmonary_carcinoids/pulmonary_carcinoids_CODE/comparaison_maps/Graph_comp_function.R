@@ -242,7 +242,8 @@ dist_set <- function(K , list_data_frame , Name ){
 
 
 
-CP_mean_by_k  <-function (list_CP_diff , Name){
+CP_mean_by_k  <-function (list_CP_diff , Name , list_col){
+
   par(mfrow=c(1,2))
   c= 1 
   c_data_frame = as.data.frame(list_CP_diff[1])
@@ -250,17 +251,18 @@ CP_mean_by_k  <-function (list_CP_diff , Name){
   for (i in 1:length(list_CP_diff)){
     print(Name[i])
     c_data_frame = as.data.frame(list_CP_diff[i])
-    print("here1")
+    #print("here1")
     diff_CP2_CPN = abs(c_data_frame$CP2 - c_data_frame$CPN )
     c_data_frame = cbind(c_data_frame ,diff_CP2_CPN )
-    print("here2")
+    #print("here2")
     colnames(c_data_frame)[dim(c_data_frame)[2]] <- "Abs_diff"
     Mean_by_k =tapply(c_data_frame$Abs_diff ,c_data_frame$K, mean)
     CP_diff_mean_df <- cbind(CP_diff_mean_df ,Mean_by_k )
     colnames(CP_diff_mean_df)[dim(CP_diff_mean_df)[2]] <- Name[i]
     
   }
-  print(dim(CP_diff_mean_df))
+  if (length(list_col) == 0){
+  #print(dim(CP_diff_mean_df))
   Col = c()
   C=1
   for (i in 2:dim(CP_diff_mean_df)[2]){
@@ -282,8 +284,34 @@ CP_mean_by_k  <-function (list_CP_diff , Name){
   plot.new()
   legend("bottomleft",  legend = Name, col = c(unique(Col)), pch = 15)
   
-  return
-  
+  }
+  else{
+    #print(dim(CP_diff_mean_df))
+    initial_list_col = list_col
+    Col = c()
+    C=1
+    for (i in 2:dim(CP_diff_mean_df)[2]){
+      
+      Col = c(Col,C)
+      if (i ==2 ){
+        plot(CP_diff_mean_df$k, CP_diff_mean_df[,i] , col=list_col[1] , type="l"  , xlab = "k", ylab="mean(|CP2-CPN|)", main= 'centrality preservarion' )
+        C =C+1
+        Col = c(Col,C)
+        list_col = list_col[-1]
+      }
+      else{
+        lines(CP_diff_mean_df$k, CP_diff_mean_df[,i] , col=list_col[1] )
+        C =C+1
+        Col = c(Col,C)
+        list_col = list_col[-1]
+      }
+      
+    }
+    print(unique(Col))
+    plot.new()
+    legend("bottomleft",  legend = Name, col = c(initial_list_col), pch = 15)
+    
+  }
 }
 
 
@@ -332,7 +360,9 @@ Set_diff_mean_by_k  <-function (list_set_diff , Name){
 }
 
 
-Seq_diff_mean_by_k  <-function (list_Seq_diff , Name){
+Seq_diff_mean_by_k  <-function (list_Seq_diff , Name, scale_log , list_col){
+  if (length(list_col)==0){
+  if (scale_log ==FALSE){
   par(mfrow=c(1,2))
   c= 1 
   c_data_frame = as.data.frame(list_Seq_diff[1])
@@ -351,12 +381,12 @@ Seq_diff_mean_by_k  <-function (list_Seq_diff , Name){
     
     Col = c(Col,C)
     if (i ==2 ){
-      plot(Seq_diff_mean_df$k, Seq_diff_mean_df[,i] , col=C  , xlab = "k" , ylab = "Mean Seq Diff", main = "Mean of Sequences difference view by level k", type ='l' )
+      plot(Seq_diff_mean_df$k, (Seq_diff_mean_df[,i] ), col=C  , xlab = "k" , ylab = "Mean Seq Diff", main = "Mean of Sequences difference view by level k", type ='l' )
       C =C+1
       Col = c(Col,C)
     }
     else{
-      lines(Seq_diff_mean_df$k, Seq_diff_mean_df[,i] , col=C )
+      lines(Seq_diff_mean_df$k, (Seq_diff_mean_df[,i] ), col=C )
       C =C+1
       Col = c(Col,C)
     }
@@ -365,6 +395,128 @@ Seq_diff_mean_by_k  <-function (list_Seq_diff , Name){
   print(unique(Col))
   plot.new()
   legend("bottomleft",  legend = Name,  col = c(unique(Col)), pch = 15)
+  }
+  
+  
+  else{
+    par(mfrow=c(1,2))
+    c= 1 
+    c_data_frame = as.data.frame(list_Seq_diff[1])
+    Seq_diff_mean_df = data.frame("k" =unique(c_data_frame$k ))
+    for (i in 1:length(list_Seq_diff)){
+      c_data_frame = as.data.frame(list_Seq_diff[i])
+      Mean_by_k =tapply(c_data_frame$seq_diff ,c_data_frame$k, mean)
+      Seq_diff_mean_df <- cbind(Seq_diff_mean_df,Mean_by_k )
+      colnames(Seq_diff_mean_df)[dim(Seq_diff_mean_df)[2]] <- Name[i]
+      # print(head(Seq_diff_mean_df))
+      
+    }
+    Col = c()
+    C=1
+    for (i in 2:dim(Seq_diff_mean_df)[2]){
+      
+      Col = c(Col,C)
+      if (i ==2 ){
+        plot(Seq_diff_mean_df$k, log(Seq_diff_mean_df[,i] ), col=C  , xlab = "k" , ylab = "Mean Seq Diff", main = "Mean of Sequences difference view by level k", type ='l' )
+        C =C+1
+        Col = c(Col,C)
+      }
+      else{
+        lines(Seq_diff_mean_df$k, log(Seq_diff_mean_df[,i] ), col=C )
+        C =C+1
+        Col = c(Col,C)
+      }
+      
+    }
+    print(unique(Col))
+    plot.new()
+    legend("bottomleft",  legend = Name,  col = c(unique(Col)), pch = 15)
+  }
+  }
+  
+  else{
+    if (scale_log ==FALSE){
+      par(mfrow=c(1,2))
+      c= 1 
+      c_data_frame = as.data.frame(list_Seq_diff[1])
+      Seq_diff_mean_df = data.frame("k" =unique(c_data_frame$k ))
+      for (i in 1:length(list_Seq_diff)){
+        c_data_frame = as.data.frame(list_Seq_diff[i])
+        Mean_by_k =tapply(c_data_frame$seq_diff ,c_data_frame$k, mean)
+        Seq_diff_mean_df <- cbind(Seq_diff_mean_df,Mean_by_k )
+        colnames(Seq_diff_mean_df)[dim(Seq_diff_mean_df)[2]] <- Name[i]
+        # print(head(Seq_diff_mean_df))
+        
+      }
+      initial_list_col = list_col
+      Col = c()
+      C=1
+      for (i in 2:dim(Seq_diff_mean_df)[2]){
+        
+        Col = c(Col,C)
+        if (i ==2 ){
+          plot(Seq_diff_mean_df$k, (Seq_diff_mean_df[,i] ), col=list_col[1]  , xlab = "k" , ylab = "Mean Seq Diff", main = "Mean of Sequences difference view by level k", type ='l' )
+          C =C+1
+          Col = c(Col,C)
+          list_col = list_col[-1] 
+        }
+        else{
+          lines(Seq_diff_mean_df$k, (Seq_diff_mean_df[,i] ), col=list_col[1] )
+          C =C+1
+          Col = c(Col,C)
+          list_col = list_col[-1] 
+        }
+        
+      }
+      print(unique(Col))
+      plot.new()
+      legend("bottomleft",  legend = Name,  col = c(initial_list_col), pch = 15)
+    }
+    
+    
+    else{
+      par(mfrow=c(1,2))
+      c= 1 
+      c_data_frame = as.data.frame(list_Seq_diff[1])
+      Seq_diff_mean_df = data.frame("k" =unique(c_data_frame$k ))
+      for (i in 1:length(list_Seq_diff)){
+        c_data_frame = as.data.frame(list_Seq_diff[i])
+        Mean_by_k =tapply(c_data_frame$seq_diff ,c_data_frame$k, mean)
+        Seq_diff_mean_df <- cbind(Seq_diff_mean_df,Mean_by_k )
+        colnames(Seq_diff_mean_df)[dim(Seq_diff_mean_df)[2]] <- Name[i]
+        # print(head(Seq_diff_mean_df))
+        
+      }
+      Col = c()
+      C=1
+      initial_list_col = list_col
+      for (i in 2:dim(Seq_diff_mean_df)[2]){
+        
+        Col = c(Col,C)
+        if (i ==2 ){
+          plot(Seq_diff_mean_df$k, log(Seq_diff_mean_df[,i] ), col=list_col[1]  , xlab = "k" , ylab = "Mean Seq Diff", main = "Mean of Sequences difference view by level k", type ='l' )
+          C =C+1
+          Col = c(Col,C)
+          list_col= list_col[-1]
+        }
+        else{
+          lines(Seq_diff_mean_df$k, log(Seq_diff_mean_df[,i] ), col=list_col[1] )
+          C =C+1
+          Col = c(Col,C)
+          list_col= list_col[-1]
+        }
+        
+      }
+      print(unique(Col))
+      plot.new()
+      legend("bottomleft",  legend = Name,  col = c(initial_list_col), pch = 15)
+    }
+  }
+  
+  
+  
+  
+  
 }
 
 
