@@ -58,9 +58,10 @@ Somatic_mutation  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet 
                                skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
                                namedRegion = NULL, na.strings = "NA")
 
-
+Data_vst_50_TCACLCNEC <- read.table("../expr/VST_nosex_50pc_TCACLCNEC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
 Data_vst_50 <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
 Data_vst_all <- read.table("../data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+
 
 Ref_gene <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
 Ref_gene_all <- read.table("../data/VST_nosex_TCACLCNECSCLC_annot.txt",  sep = " ", dec="." , header =FALSE,   quote="")
@@ -797,14 +798,21 @@ PCA_RNA_seq  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet = 2, 
                           namedRegion = NULL, na.strings = "NA")
 
 Coords_PCA_S6A <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN_SCLC , "Axis2" = as.numeric(PCA_RNA_seq$PC2.LNEN_SCLC)*-1)
+which(Coords_PCA_S6A$Sample_ID=="S02322")
+Coords_PCA_S6A$Sample_ID <- as.character(Coords_PCA_S6A$Sample_ID)
+Coords_PCA_S6A$Sample_ID[194]<- "S02322.R1"
+Coords_PCA_S6A$Sample_ID[195]<- "S02322.R1"
 Coords_PCA_S6A<- Coords_PCA_S6A[complete.cases(Coords_PCA_S6A),]
 Sample_id_fig6A = data.frame("Sample_ID"=Coords_PCA_S6A$Sample_ID)
 Attributes_fig6A = merge(Attributes2 , Sample_id_fig6A  , by="Sample_ID")
-#write.table(Coords_PCA_S6A,  file='Coords_PCA_S6A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-#write.table(Attributes_fig6A, file='Attributes_fig6A.tsv', quote=FALSE, sep='\t', row.names = F)
+
+write.table(Coords_PCA_S6A,  file='Coords_PCA_S6A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(Attributes_fig6A, file='Attributes_fig6A.tsv', quote=FALSE, sep='\t', row.names = F)
 
 # FIG 6B
 # -------
+
+
 Coords_PCA_S6B <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN , "Axis2" =as.numeric( PCA_RNA_seq$PC2.LNEN)*-1)
 Coords_PCA_S6B<- Coords_PCA_S6B[complete.cases(Coords_PCA_S6B),]
 Sample_id_fig6B = data.frame("Sample_ID"=Coords_PCA_S6B$Sample_ID)
@@ -1209,8 +1217,12 @@ HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_B")
 HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_A")
 which(HISTO_df$Sample_ID == "S02322")
 HISTO_df = HISTO_df[-which(HISTO_df$Sample_ID == "S02322"),]
-t_data_vst_50_type = merge(t_data_vst_50, HISTO_df, by="Sample_ID")
 
+t_data_vst_50_type = merge(t_data_vst_50, HISTO_df, by="Sample_ID")
+Jupyter_sample_1 = data.frame("Sample_ID"=t_data_vst_50_type$Sample_ID)
+ML_pred_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"ML_pred" = Attributes_fig1A$ML_predictions_fig1)
+ML_pred_fig1_df <- merge(ML_pred_fig1_df ,Jupyter_sample_1 , by='Sample_ID' )
+write.table(ML_pred_fig1_df, file='ML_pred_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
 
 t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="SCLC")]
 t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
@@ -1221,6 +1233,43 @@ write.table(t_data_vst_50_type, file='t_data_vst_50_type_3class.tsv', quote=FALS
 
 write.table(t_data_vst_50_type, file='t_data_vst_50_type.tsv', quote=FALSE, sep='\t', row.names = F)
 t_data_vst_50_type$Histpopathology_4_classes = as.factor(t_data_vst_50_type$Histpopathology_4_classes)
+
+
+# 5 classes 
+#----------
+
+
+HISTO_df$Sample_ID = as.character(HISTO_df$Sample_ID)
+setdiff(HISTO_df$Sample_ID , t_data_vst_50$Sample_ID)
+setdiff(t_data_vst_50$Sample_ID , HISTO_df$Sample_ID )
+
+
+t_data_vst_50_type_5 = merge(t_data_vst_50, Attributes5$Type, by="Sample_ID")
+t_data_vst_50_type_5=t_data_vst_50_type_5[-which(t_data_vst_50_type_5$Histpopathology_4_classes=="SCLC")]
+#t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
+#t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
+write.table(t_data_vst_50_type_5, file='t_data_vst_50_type_5class.tsv', quote=FALSE, sep='\t', row.names = F)
+
+Jupyter_sample_5 <- data.frame('Sample_ID' = t_data_vst_50_type_5$Sample_ID)
+ML_pred_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"ML_pred" = Attributes_fig1A$ML_predictions_fig1)
+ML_pred_fig1_df <- merge(ML_pred_fig1_df ,Jupyter_sample_5 , by='Sample_ID' ) 
+write.table(ML_pred_fig1_df, file='ML_pred_fig1_5class_df.tsv', quote=FALSE, sep='\t', row.names = F)
+
+setdiff(Coords_MOFA_fig1$Sample_ID,Jupyter_sample_5$Sample_ID)
+setdiff(Jupyter_sample_5$Sample_ID, Coords_MOFA_fig1$Sample_ID)
+
+
+Mofa_expr_coords_5_classes = merge(Coords_MOFA_fig1,Jupyter_sample_5, by="Sample_ID")
+write.table(Mofa_expr_coords_5_classes, file='Mofa_expr_coords_5_classes.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+Attributes_UMAP_analysis <- merge(Attributes_fig1A, Mofa_expr_coords_5_classes , by="Sample_ID")
+Spatial_analysis_attribute <- data.frame("OTP"= Attributes_UMAP_analysis[,31],  "ANGPTL3" =Attributes_UMAP_analysis[,29], "Dendritic_cell" =Attributes_UMAP_analysis$Dendritic.cells  )
+write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute_5_classes.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+
+
+
+
 
 
 # With cluster
@@ -1302,12 +1351,15 @@ Dist <- dist(t_data_vst_50_type[,2:6399], diag = TRUE, upper = TRUE)
 m <- as.matrix(Dist)
 rownames(m) <- as.character(t_data_vst_50_type[1:152,1]$Sample_ID)
 colnames(m) <- as.character(t_data_vst_50_type[1:152,1]$Sample_ID)  
-write.table(m, file='Distance_pulmo.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
+#write.table(m, file='Distance_pulmo.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
 
 
 MOFA_expr_coord <- read.table("pulmo_coords_fig6B_expr_LNEN.tab",sep = "\t", dec="." , header = TRUE,   quote="")
 MOFA_expr_coord <-MOFA_expr_coord[order(MOFA_expr_coord$Sample_ID),]
-write.table(MOFA_expr_coord , file='MOFA_Expr_coord_sort.txt', quote=FALSE, sep='\t', row.names = F , col.names = T)  
+#write.table(MOFA_expr_coord , file='MOFA_Expr_coord_sort.txt', quote=FALSE, sep='\t', row.names = F , col.names = T)  
+
+
+
 
 # Neighborhood Analysis
 #----------------------
@@ -1318,7 +1370,7 @@ library(plotly)
 source("Graph_comp_function.R")
 
 UMAP_supervised_coords  <- read.table("Supervised_Coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
-UMAP_supervised_coords = data.frame("sample"= UMAP_unsupervised_coords[,1], "x"= UMAP_unsupervised_coords[,2],"y"=UMAP_unsupervised_coords[,3])
+UMAP_supervised_coords = data.frame("sample"= UMAP_supervised_coords[,2], "x"= UMAP_supervised_coords[,3],"y"=UMAP_supervised_coords[,4])
 
 UMAP_Unsupervised_coords  <- read.table("Unsupervised_Coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
 UMAP_Unupervised_coords = data.frame("sample"= UMAP_Unsupervised_coords[,2], "x"= UMAP_Unsupervised_coords[,3],"y"=UMAP_Unsupervised_coords[,4])
@@ -1327,6 +1379,12 @@ Sample_ID_UMAP_analysis <- data.frame("sample"= UMAP_Unupervised_coords$sample)
 Mofa_expr_coords  <- read.table("pulmo_coords_fig6B_expr_LNEN.tab", sep = "\t", dec="." , header = TRUE,   quote="")
 Mofa_expr_coords = data.frame("sample"=Mofa_expr_coords[,1], "x"= Mofa_expr_coords[,2],"y"=Mofa_expr_coords[,3])
 Mofa_expr_coords= merge(Mofa_expr_coords, Sample_ID_UMAP_analysis, by='sample' )
+
+colnames(Mofa_expr_coords)[1] <- "Sample_ID"
+Attributes_UMAP_analysis <- merge(Attributes_fig1A, Mofa_expr_coords , by="Sample_ID")
+Spatial_analysis_attribute <- data.frame("OTP"= Attributes_UMAP_analysis[,31],  "ANGPTL3" =Attributes_UMAP_analysis[,29], "Dendritic_cell" =Attributes_UMAP_analysis$Dendritic.cells  )
+write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+colnames(Mofa_expr_coords)[1] <- "sample"
 
 CP_supervised_coords_R<- read.table("CP_pulmo_R_unsupervised.txt", sep = "\t", dec="." , header = TRUE,   quote="")
 CP_Unsupervised_coords_R<- read.table("CP_pulmo_R_supervised.txt", sep = "\t", dec="." , header = TRUE,   quote="")
@@ -1344,7 +1402,7 @@ plot_centrality_preservation(CP_Unsupervised_coords_R,UMAP_Unsupervised_coords, 
 
 list_CP_df = list(CP_supervised_coords_R,CP_R_MOFA_expr, CP_Unsupervised_coords_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
 Name = c('R_UMAP_supervised',"R_MOFA_expr",'R_UMAP_Unsupervised' )#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
-CP_mean_by_k(list_CP_df,Name)
+CP_mean_by_k(list_CP_df,Name, c("red", "black", "green"))
 
 
 
@@ -1360,11 +1418,268 @@ plot_set_diff(Set_diff_R_UMAP_S, UMAP_supervised_coords , c(5,10,15,20,30,40,50,
 plot_set_diff(Set_diff_R_UMAP_US,UMAP_Unupervised_coords, c(5,10,15,20,30,40,50,150) , "Set diff R UMAP_Unsupervised")
 plot_set_diff(Set_diff_R_MOFA, Mofa_expr_coords , c(5,10,15,20,30,40,50,150), "Set diff R Mofa")
 
+list_df_set= list(Set_diff_R_MOFA,Set_diff_R_UMAP_S, Set_diff_R_UMAP_US)
+Name = c("R_PCA_expr","R_UMAP_Supervised", "R_UMAP_Unsupervised")
+dist_set(c(5,10,50,100),list_df_set, Name )
+
+Set_diff_mean_by_k(list_df_set, Name, "clack")
+
 
 # Seq
 #------
 Seq_diff_R_MOFA <- read.table("seq_diff_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
 Seq_diff_R_UMAP_S <-read.table("seq_diff_pulmo_super_R.txt", sep = "\t", dec="." , header = TRUE,   quote="")
 Seq_diff_R_UMAP_US <- read.table("seq_diff_pulmo_unsuper_R.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+
+list_df_seq= list(Seq_diff_R_MOFA  , Seq_diff_R_UMAP_S ,  Seq_diff_R_UMAP_US ) 
+Name= c("R_UMAP_MOFA_expr","R_UMAP_Supervised", "R_UMAP_Unsupervised") 
+Seq_diff_mean_by_k(list_df_seq,Name)
+
+
+# Min Dist Unsupervised analysis
+
+UMAP_md_0_coords  <- read.table("umap_md_0_coord.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_0_coords  <-  data.frame("sample"= UMAP_md_0_coords[,2], "x"=UMAP_md_0_coords[,3],"y"=UMAP_md_0_coords[,4])
+
+UMAP_md_05_coords  <- read.table("umap_md_05_coord.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_05_coords  <-  data.frame("sample"= UMAP_md_05_coords[,2], "x"=UMAP_md_05_coords[,3],"y"=UMAP_md_05_coords[,4])
+
+UMAP_md_1_coords  <- read.table("umap_md_1_coord.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_1_coords  <-  data.frame("sample"= UMAP_md_1_coords[,2], "x"=UMAP_md_1_coords[,3],"y"=UMAP_md_1_coords[,4])
+
+Sample_ID_UMAP_analysis <- data.frame("sample"= UMAP_md_1_coords$sample)
+Mofa_expr_coords  <- read.table("pulmo_coords_fig6B_expr_LNEN.tab", sep = "\t", dec="." , header = TRUE,   quote="")
+Mofa_expr_coords = data.frame("sample"=Mofa_expr_coords[,1], "x"= Mofa_expr_coords[,2],"y"=Mofa_expr_coords[,3])
+Mofa_expr_coords= merge(Mofa_expr_coords, Sample_ID_UMAP_analysis, by='sample' )
+
+CP_umap_md_0_R<- read.table("CP_pulmo_R_UMAP_MD0.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_05_R<- read.table("CP_pulmo_R_UMAP_MD05.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_1_R<- read.table("CP_pulmo_R_UMAP_MD1.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_R_MOFA_expr<- read.table("CP_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+ku_stack =c(11,21,31,51, 71,91,111,141)
+plot_centrality_preservation(CP_umap_md_0_R, UMAP_md_0_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R &  UMAP md 0" )
+plot_centrality_preservation(CP_umap_md_0_R, UMAP_md_0_coords, ku_stack  , "N", "CPN drawn on the 2D projection : R &  UMAP md 0" )
+
+plot_centrality_preservation(CP_umap_md_05_R, UMAP_md_05_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R &  UMAP md 0.5" )
+plot_centrality_preservation(CP_umap_md_05_R, UMAP_md_05_coords, ku_stack  , "N", "CPN drawn on the 2D projection : R &  UMAP md 0.5" )
+
+
+plot_centrality_preservation(CP_umap_md_1_R, UMAP_md_1_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R &  UMAP md 1" )
+plot_centrality_preservation(CP_umap_md_1_R, UMAP_md_1_coords, ku_stack  , "N", "CPN drawn on the 2D projection : R &  UMAP md 1" )
+
+list_CP_df = list(CP_umap_md_1_R, CP_umap_md_0_R, CP_umap_md_05_R, CP_R_MOFA_expr)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
+Name = c('R_UMAP_md_1','R_UMAP_md_0',"R_UMAP_md_05", 'R_PCA_expr' )#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
+CP_mean_by_k(list_CP_df,Name , c("red", "green", "blue", 'black') )
+
+
+
+# Set
+#------
+
+Set_diff_R_UMAP_MD0 <- read.table("set_diff_pulmo_R_UMAP_MD0.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Set_diff_R_UMAP_MD05 <- read.table("set_diff_pulmo_R_UMAP_MD05.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Set_diff_R_UMAP_MD1 <- read.table("set_diff_pulmo_R_UMAP_MD1.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Set_diff_R_MOFA <- read.table("set_diff_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+
+plot_set_diff(Set_diff_R_UMAP_MD0,UMAP_md_0_coords , c(5,10,15,20,30,40,50,150) , "Set diff R UMAP MD=0")
+plot_set_diff(Set_diff_R_UMAP_MD05,UMAP_md_05_coords, c(5,10,15,20,30,40,50,150) , "Set diff R UMAP MD=05")
+plot_set_diff(Set_diff_R_UMAP_MD1, UMAP_md_1_coords , c(5,10,15,20,30,40,50,150), "Set diff R UMAP MD=1")
+
+list_df_set= list( Set_diff_R_MOFA, Set_diff_R_UMAP_MD1, Set_diff_R_UMAP_MD0,Set_diff_R_UMAP_MD05 )
+Name = c( "R_PCA_MOFA", "R_UMAP_MD1","R_UMAP_MD0","R_UMAP_MD05")
+dist_set(c(5,10,50,100),list_df_set, Name )
+
+Set_diff_mean_by_k(list_df_set, Name)
+
+
+# Seq
+#------
+Seq_diff_R_UMAP_MD0 <- read.table("seq_diff_pulmo_R_UMAP_MD0.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Seq_diff_R_UMAP_MD05 <-read.table("seq_diff_pulmo_R_UMAP_MD05.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Seq_diff_R_UMAP_MD1 <- read.table("seq_diff_pulmo_R_UMAP_MD1.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+Seq_diff_R_MOFA <- read.table("seq_diff_pulmo_R_MOFA.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+list_df_seq= list( Seq_diff_R_UMAP_MD0  ,Seq_diff_R_MOFA,   Seq_diff_R_UMAP_MD1 ,Seq_diff_R_UMAP_MD05  ) 
+Name= c("R_UMAP_MD0","R_PCA_Expr","R_UMAP_MD1","R_UMAP_MD05") 
+Seq_diff_mean_by_k(list_df_seq,Name, FALSE, c("green", "black", "red", "blue"))
+Seq_diff_mean_by_k(list_df_seq,Name, TRUE, c("green", "black", "red", "blue"))
+
+
+# MIN DIST + N_NEIGHBORS
+# ====================== 
+
+# Coords 
+# _______
+
+#UMAP_md_0_nn_2  <- read.table("umap_MD_0_NN2_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+#UMAP_md_0_nn_2 = data.frame("sample"= UMAP_md_0_nn_2[,2], "x"= UMAP_md_0_nn_2[,3],"y"=UMAP_md_0_nn_2[,4])
+UMAP_md_0_nn_10  <- read.table("umap_MD_0_NN10_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_0_nn_10 = data.frame("sample"= UMAP_md_0_nn_10[,2], "x"= UMAP_md_0_nn_10[,3],"y"=UMAP_md_0_nn_10[,4])
+
+UMAP_md_0_nn_50  <- read.table("umap_MD_0_NN50_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_0_nn_50 = data.frame("sample"= UMAP_md_0_nn_50[,2], "x"= UMAP_md_0_nn_50[,3],"y"=UMAP_md_0_nn_50[,4])
+
+UMAP_md_0_nn_100  <- read.table("umap_MD_0_NN100_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_0_nn_100 = data.frame("sample"= UMAP_md_0_nn_100[,2], "x"= UMAP_md_0_nn_100[,3],"y"=UMAP_md_0_nn_100[,4])
+
+
+
+UMAP_md_05_nn_10  <- read.table("umap_MD_05_NN10_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_05_nn_10 = data.frame("sample"= UMAP_md_05_nn_10[,2], "x"= UMAP_md_05_nn_10[,3],"y"=UMAP_md_05_nn_10[,4])
+
+UMAP_md_05_nn_50  <- read.table("umap_MD_05_NN50_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_05_nn_50 = data.frame("sample"= UMAP_md_05_nn_50[,2], "x"= UMAP_md_05_nn_50[,3],"y"=UMAP_md_05_nn_50[,4])
+
+UMAP_md_05_nn_100  <- read.table("umap_MD_05_NN100_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_05_nn_100 = data.frame("sample"= UMAP_md_05_nn_100[,2], "x"= UMAP_md_05_nn_100[,3],"y"=UMAP_md_05_nn_100[,4])
+
+
+
+UMAP_md_1_nn_10  <- read.table("umap_MD_1_NN10_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_1_nn_10 = data.frame("sample"= UMAP_md_1_nn_10[,2], "x"= UMAP_md_1_nn_10[,3],"y"=UMAP_md_1_nn_10[,4])
+
+UMAP_md_1_nn_50  <- read.table("umap_MD_1_NN50_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_1_nn_50 = data.frame("sample"= UMAP_md_1_nn_50[,2], "x"= UMAP_md_1_nn_50[,3],"y"=UMAP_md_1_nn_50[,4])
+
+UMAP_md_1_nn_100  <- read.table("umap_MD_1_NN100_coords.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+UMAP_md_1_nn_100 = data.frame("sample"= UMAP_md_1_nn_100[,2], "x"= UMAP_md_1_nn_100[,3],"y"=UMAP_md_1_nn_100[,4])
+
+
+CP_umap_md_0_nn_10_R<- read.table("CP_pulmo_R_UMAP_MD0_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_0_nn_50_R<- read.table("CP_pulmo_R_UMAP_MD0_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_0_nn_100_R<- read.table("CP_pulmo_R_UMAP_MD0_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+CP_umap_md_05_nn_10_R<- read.table("CP_pulmo_R_UMAP_MD05_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_05_nn_50_R<- read.table("CP_pulmo_R_UMAP_MD05_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_05_nn_100_R<- read.table("CP_pulmo_R_UMAP_MD05_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+CP_umap_md_1_nn_10_R<- read.table("CP_pulmo_R_UMAP_MD1_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_1_nn_50_R<- read.table("CP_pulmo_R_UMAP_MD1_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+CP_umap_md_1_nn_100_R<- read.table("CP_pulmo_R_UMAP_MD1_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+CP_PCA_expr_R<- read.table("CP_pulmo_R_MOFA_by_20.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+
+list_CP_df = list( CP_umap_md_0_nn_10_R,CP_umap_md_0_nn_50_R, CP_umap_md_0_nn_100_R, CP_umap_md_05_nn_10_R,CP_umap_md_05_nn_50_R, CP_umap_md_05_nn_100_R,
+                   CP_umap_md_1_nn_10_R, CP_umap_md_1_nn_50_R, CP_umap_md_1_nn_100_R,  CP_PCA_expr_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
+Name = c('umap_md_0_nn_10_R',"umap_md_0_nn_50_R",'umap_md_0_nn_100_R', 'umap_md_05_nn_10_R', 'umap_md_05_nn_50_R', 'umap_md_05_nn_100_R' , 'umap_md_1_nn_10_R',
+        'CP_umap_md_1_nn_50_R', 'CP_umap_md_1_nn_100_R' , 'PCA_Expr_R')#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
+CP_mean_by_k(list_CP_df,Name, c("blue", 'blue4', "cyan4", "chocolate1", "chocolate4", "coral3", "darkmagenta", "pink", "darkorchid1", "black"))
+
+
+list_CP_df = list( CP_umap_md_0_nn_10_R,CP_umap_md_0_nn_50_R, CP_umap_md_0_nn_100_R, CP_PCA_expr_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
+Name = c('umap_md_0_nn_10_R',"umap_md_0_nn_50_R",'umap_md_0_nn_100_R', 'PCA_Expr_R')#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
+CP_mean_by_k(list_CP_df,Name, c("blue", 'blue4', "cyan4",  "black"))
+
+list_CP_df = list( CP_umap_md_1_nn_10_R, CP_umap_md_1_nn_50_R, CP_umap_md_1_nn_100_R,  CP_PCA_expr_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
+Name = c('CP_md_1_nn_10_R','CP_umap_md_1_nn_50_R', 'CP_umap_md_1_nn_100_R' , 'PCA_Expr_R')#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
+CP_mean_by_k(list_CP_df,Name, c( "chocolate1", "chocolate4", "coral3", 'black'))
+
+
+
+list_CP_df = list( CCP_umap_md_05_nn_10_R,CP_umap_md_05_nn_50_R, CP_umap_md_05_nn_100_R,  CP_PCA_expr_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
+Name = c('umap_md_05_nn_10_R', 'umap_md_05_nn_50_R', 'umap_md_05_nn_100_R'  , 'PCA_Expr_R')#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
+CP_mean_by_k(list_CP_df,Name, c("darkmagenta", "pink", "darkorchid1", "black"))
+
+
+# CP PCA
+
+# Set 
+#----
+
+set_umap_md_0_nn_10_R<- read.table("set_diff_pulmo_R_UMAP_MD0_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+set_umap_md_0_nn_50_R<- read.table("set_diff_pulmo_R_UMAP_MD0_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+set_umap_md_0_nn_100_R<- read.table("set_diff_pulmo_R_UMAP_MD0_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+set_umap_md_05_nn_10_R<- read.table("set_diff_pulmo_R_UMAP_MD05_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+set_umap_md_05_nn_50_R<- read.table("set_diff_pulmo_R_UMAP_MD05_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+set_umap_md_05_nn_100_R<- read.table("set_diff_pulmo_R_UMAP_MD05_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+set_umap_md_1_nn_10_R<- read.table("set_diff_pulmo_R_UMAP_MD1_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+set_umap_md_1_nn_50_R<- read.table("set_diff_pulmo_R_UMAP_MD1_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+set_umap_md_1_nn_100_R<- read.table("set_diff_pulmo_R_UMAP_MD1_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+set_diff_pulmo_R_MOFA<- read.table("set_diff_pulmo_R_MOFA_by20.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+
+
+list_df_set= list(set_diff_pulmo_R_MOFA,  set_umap_md_0_nn_10_R ,  set_umap_md_0_nn_50_R , set_umap_md_0_nn_100_R , set_umap_md_05_nn_10_R,set_umap_md_05_nn_50_R ,
+                   set_umap_md_05_nn_100_R, set_umap_md_1_nn_10_R,set_umap_md_1_nn_50_R, set_umap_md_1_nn_100_R)
+Name = c( 'R_MOFA', 'umap_md_0_nn_10_R' ,  'umap_md_0_nn_50_R' , 'umap_md_0_nn_100_R' , 'umap_md_05_nn_10_R' , 'umap_md_05_nn_50_R',
+         'umap_md_05_nn_100_R', 'umap_md_1_nn_10_R','umap_md_1_nn_50_R' ,'umap_md_1_nn_100_R')
+dist_set(c(5,10,50,100),list_df_set, Name )
+
+Set_diff_mean_by_k(list_df_set, Name, c())
+
+
+Set_diff_mean_by_k(list_df_set, Name, c("black","blue", 'blue4', "cyan4", "chocolate1", "chocolate4", "coral3", "darkmagenta", "pink", "darkorchid1"))
+
+
+
+
+list_df_set= list(set_diff_pulmo_R_MOFA,  set_umap_md_0_nn_10_R ,  set_umap_md_0_nn_50_R , set_umap_md_0_nn_100_R )
+Name = c( 'R_MOFA', 'umap_md_0_nn_10_R' ,  'umap_md_0_nn_50_R' , 'umap_md_0_nn_100_R' )
+Set_diff_mean_by_k(list_df_set, Name, c("black","blue", 'blue4', "cyan4"))
+
+
+list_df_set= list(set_diff_pulmo_R_MOFA, set_umap_md_05_nn_10_R,set_umap_md_05_nn_50_R ,
+                  set_umap_md_05_nn_100_R)
+Name = c( 'R_MOFA','umap_md_05_nn_10_R' , 'umap_md_05_nn_50_R','umap_md_05_nn_100_R')
+Set_diff_mean_by_k(list_df_set, Name, c("black", "chocolate1", "chocolate4", "coral3"))
+
+
+list_df_set= list(set_diff_pulmo_R_MOFA,set_umap_md_1_nn_10_R,set_umap_md_1_nn_50_R, set_umap_md_1_nn_100_R)
+Name = c( 'R_MOFA', 'umap_md_1_nn_10_R','umap_md_1_nn_50_R' ,'umap_md_1_nn_100_R')
+Set_diff_mean_by_k(list_df_set, Name, c("black", "darkmagenta", "pink", "darkorchid1"))
+
+
+
+# Seq
+#----
+seq_umap_md_0_nn_10_R<- read.table("seq_diff_pulmo_R_UMAP_MD0_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+seq_umap_md_0_nn_50_R<- read.table("seq_diff_pulmo_R_UMAP_MD0_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+seq_umap_md_0_nn_100_R<- read.table("seq_diff_pulmo_R_UMAP_MD0_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+seq_umap_md_05_nn_10_R<- read.table("seq_diff_pulmo_R_UMAP_MD05_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+seq_umap_md_05_nn_50_R<- read.table("seq_diff_pulmo_R_UMAP_MD05_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+seq_umap_md_05_nn_100_R<- read.table("seq_diff_pulmo_R_UMAP_MD05_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+seq_umap_md_1_nn_10_R<- read.table("seq_diff_pulmo_R_UMAP_MD1_NN10.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+seq_umap_md_1_nn_50_R<- read.table("seq_diff_pulmo_R_UMAP_MD1_NN50.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+seq_umap_md_1_nn_100_R<- read.table("seq_diff_pulmo_R_UMAP_MD1_NN100.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+seq_diff_pulmo_R_MOFA<- read.table("seq_diff_pulmo_R_MOFA_by20.txt", sep = "\t", dec="." , header = TRUE,   quote="")
+
+
+
+list_df_seq= list(seq_diff_pulmo_R_MOFA,  seq_umap_md_0_nn_10_R ,  seq_umap_md_0_nn_50_R , seq_umap_md_0_nn_100_R , seq_umap_md_05_nn_10_R,seq_umap_md_05_nn_50_R ,
+                  seq_umap_md_05_nn_100_R, seq_umap_md_1_nn_10_R,seq_umap_md_1_nn_50_R, seq_umap_md_1_nn_100_R)
+Name = c( 'R_MOFA', 'umap_md_0_nn_10_R' ,  'umap_md_0_nn_50_R' , 'umap_md_0_nn_100_R' , 'umap_md_05_nn_10_R' , 'umap_md_05_nn_50_R',
+          'umap_md_05_nn_100_R', 'umap_md_1_nn_10_R','umap_md_1_nn_50_R' ,'umap_md_1_nn_100_R')
+
+
+Seq_diff_mean_by_k(list_df_seq, Name, F,c("black","blue", 'blue4', "cyan4", "chocolate1", "chocolate4", "coral3", "darkmagenta", "pink", "darkorchid1"))
+Seq_diff_mean_by_k(list_df_seq, Name, T,c("black","blue", 'blue4', "cyan4", "chocolate1", "chocolate4", "coral3", "darkmagenta", "pink", "darkorchid1"))
+
+
+
+list_df_seq= list(seq_diff_pulmo_R_MOFA,  seq_umap_md_0_nn_10_R ,  seq_umap_md_0_nn_50_R , seq_umap_md_0_nn_100_R )
+Name = c( 'R_MOFA', 'umap_md_0_nn_10_R' ,  'umap_md_0_nn_50_R' , 'umap_md_0_nn_100_R' )
+Seq_diff_mean_by_k(list_df_seq, Name, F,c("black","blue", 'blue4', "cyan4"))
+Seq_diff_mean_by_k(list_df_seq, Name, T,c("black","blue", 'blue4', "cyan4"))
+
+
+list_df_seq= list(seq_diff_pulmo_R_MOFA, seq_umap_md_05_nn_10_R,seq_umap_md_05_nn_50_R ,
+                  seq_umap_md_05_nn_100_R)
+Name = c( 'R_MOFA','umap_md_05_nn_10_R' , 'umap_md_05_nn_50_R','umap_md_05_nn_100_R')
+Seq_diff_mean_by_k(list_df_seq, Name, F,c("black", "chocolate1", "chocolate4", "coral3"))
+
+
+list_df_seq= list(seq_diff_pulmo_R_MOFA,seq_umap_md_1_nn_10_R,seq_umap_md_1_nn_50_R, seq_umap_md_1_nn_100_R)
+Name = c( 'R_MOFA', 'umap_md_1_nn_10_R','umap_md_1_nn_50_R' ,'umap_md_1_nn_100_R')
+Seq_diff_mean_by_k(list_df_seq, Name, F,c("black", "darkmagenta", "pink", "darkorchid1"))
 
 
