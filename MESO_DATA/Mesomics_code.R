@@ -969,7 +969,29 @@ colnames(m) <- as.character(data_lv_sample[,1])
 
 
 
+# For jupyter Notebook 
+# ---------------------
 
+head(data_lv_t_sample)
+dim(data_lv_t_sample)
+dim(data_lv_sample)
+
+data_lv_sample_type <- merge(data_lv_sample, Type_df, by="sample")
+write.table(data_lv_sample_type, file='Meso_data_lv_sample_type.tsv', quote=FALSE, sep='\t', row.names = F) 
+
+which(colnames(Attributes5)=="VISTA")
+which(colnames(Attributes5)=="PDL1")
+which(colnames(Attributes5)=="Survival")
+spatial_cor_att <- data.frame("VISTA"= Attributes5[,19], "PDL1"= Attributes5[,27], "Survival"= Attributes5[,17])
+
+write.table(spatial_cor_att, file='Meso_spatial_cor_att.tsv', quote=FALSE, sep='\t', row.names = F) 
+
+PCA_coords <- data.frame("sample" = suptable1$Sample , "x"= suptable1$Dimension.1 , "y"= suptable1$Dimension.2)
+
+target_sample_order = data_lv_sample_type$sample
+
+PCA_coords_2 <- PCA_coords[match(target_sample_order, PCA_coords$sample),]
+write.table(PCA_coords_2, file='PCA_coords_MESO.tsv', quote=FALSE, sep='\t', row.names = F) 
 
 
 
