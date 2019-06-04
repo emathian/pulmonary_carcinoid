@@ -5,25 +5,25 @@
 # Available Maps 
 #---------------
 
-Title : mesomics_PCA_Coords_v2_1305
+Title : mesomics_PCA_Coords_v2_2405
 Obj : Reproduction of Fig1 with IHC data
 link :  https://tumormap.ucsc.edu/?bookmark=b54d1aef106e2e48fc93b3864421b263c77fcab54d3569fe84bee3d99b4ea961
 Attributes File : Attributes_4_with_IHC.tsv
 Coordinates File : Coordinates_PCA_f2_invY.tsv
 
-Title : mesomics_TM_Coords_gene_LV_1305
+Title : mesomics_TM_Coords_gene_LV_2405
 Obj : Reproduction of FIg1 according to tumor Map algorithm, according transcriptome data with 7145 genes
 link : https://tumormap.ucsc.edu/?bookmark=a1aac4f19f7cee6c0b46e5f6ab56c82c53ca52b832853684cab454080c4ed799
 Attributes File : Attributes_4_with_IHC.tsv
 Features File : feature_data_with_lv_2.tsv
 
-Title : mesomics_fig3a_bottom_v2_1305
+Title : mesomics_fig3a_bottom_v2_2405
 Obj : Reproduction of figure 3A bottom panel according PCA coordinates
 link : https://tumormap.ucsc.edu/?bookmark=4f13c74859a7a29d4e6d5fa95eeebc14b4343e6a02349e16db71897e81f6a638
 Attributes file : Attribute_fig3a_b.tsv
 Coordinates File : Coordinates_PCA_f3a_B.tsv
 
-Title : mesomics_fig3a_top_3004_1305
+Title : mesomics_fig3a_top_3004_2405
 Obj : Reproduction  of figure 3a bottom panel with PCA coordinates
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : to_write_data_attributes_fi3a_top.tsv
@@ -31,7 +31,7 @@ Coordinate file : Coordinates_fig3a_top.tsv
 
 
 
-Title : mesomics_umap_MD_02_1605
+Title : mesomics_umap_MD_02_2405
 Obj : umap layout on mesomics data from fig1 samples with min-dist = 0.2 
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : Attributes_4_with_IHC.tsv
@@ -40,28 +40,28 @@ Coordinate file : Meso_MD02_df_coord.tsv
 
 
 
-Title : mesomics_umap_MD_09_1605
+Title : mesomics_umap_MD_09_2405
 Obj : umap layout on mesomics data from fig1 samples with min-dist = 0.9
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : to_write_data_attributes_fi3a_top.tsv
 Coordinate file : Meso_MD09_df_coord.tsv
 
 
-Title : mesomics_umap_NN_20_1905
+Title : mesomics_umap_NN_20_2405
 Obj : umap layout on mesomics data from fig1 samples with n_neighbors = 20
 link : # https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : Attributes_4_with_IHC.tsv
 Coordinate file : Meso_NN20_df_coord.tsv
 
 
-Title : mesomics_umap_NN_230_1905
+Title : mesomics_umap_NN_230_2405
 Obj : umap layout on mesomics data from fig1 samples with n_neighbors = 230
 link : https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : Attributes_4_with_IHC.tsv
 Coordinate file : Meso_NN230_df_coord.tsv
 
 
-Title : mesomics_umap_NN150_MD05_1905
+Title : mesomics_umap_NN150_MD05_2405
 Obj : umap layout on mesomics data from fig1 samples with n_neighbors = 230
 link : # https://tumormap.ucsc.edu/?bookmark=a526120ee9959bcbddad6aa624491728c1b51b3e06755e0af82597d6236e2ab7
 Attributes file  : Attributes_4_with_IHC.tsv
