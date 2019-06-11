@@ -317,7 +317,8 @@ CP_mean_by_k  <-function (list_CP_diff , Name , list_col){
 
 
 
-Set_diff_mean_by_k  <-function (list_set_diff , Name){
+Set_diff_mean_by_k  <-function (list_set_diff , Name, list_col){
+  if (length(list_col)==0){
   par(mfrow=c(1,2))
   c= 1 
   c_data_frame = as.data.frame(list_set_diff[1])
@@ -355,9 +356,52 @@ Set_diff_mean_by_k  <-function (list_set_diff , Name){
          legend = Name, 
          col = c(unique(Col)),
          pch = 15)
+  }
+  else{
+    par(mfrow=c(1,2))
+    c= 1 
+    c_data_frame = as.data.frame(list_set_diff[1])
+    Set_diff_mean_df = data.frame("k" =unique(c_data_frame$k ))
+    for (i in 1:length(list_set_diff)){
+      c_data_frame = as.data.frame(list_set_diff[i])
+      Mean_by_k =tapply(c_data_frame$set_diff ,c_data_frame$k, mean)
+      Set_diff_mean_df <- cbind(Set_diff_mean_df,Mean_by_k )
+      colnames(Set_diff_mean_df)[dim(Set_diff_mean_df)[2]] <- Name[i]
+      # print(head(Set_diff_mean_df))
+      
+    }
+    Col = c()
+    C=1
+    initial_list_col =list_col
+    for (i in 2:dim(Set_diff_mean_df)[2]){
+      
+      Col = c(Col,C)
+      if (i ==2 ){
+        plot(Set_diff_mean_df$k, Set_diff_mean_df[,i] , col=list_col[1] , xlab="k",ylab = "Mean Set Difference ", main="Means Set Difference view by level k ", type ='l' )
+        C =C+1
+        Col = c(Col,C)
+        list_col= list_col[-1]
+      }
+      else{
+        lines(Set_diff_mean_df$k, Set_diff_mean_df[,i] , col=list_col[1] )
+        list_col= list_col[-1]
+        
+        C =C+1
+        Col = c(Col,C)
+      }
+      
+    }
+    print(unique(Col))
+    plot.new()
+    legend("bottomleft", 
+           legend = Name, 
+           col = c(initial_list_col),
+           pch = 15)
+  }
+    
+  }
   
-  
-}
+
 
 
 Seq_diff_mean_by_k  <-function (list_Seq_diff , Name, scale_log , list_col){
