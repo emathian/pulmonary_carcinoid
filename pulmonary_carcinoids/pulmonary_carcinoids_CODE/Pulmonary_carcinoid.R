@@ -801,20 +801,26 @@ Coords_PCA_S6A <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA
 which(Coords_PCA_S6A$Sample_ID=="S02322")
 Coords_PCA_S6A$Sample_ID <- as.character(Coords_PCA_S6A$Sample_ID)
 Coords_PCA_S6A$Sample_ID[194]<- "S02322.R1"
-Coords_PCA_S6A$Sample_ID[195]<- "S02322.R1"
+Coords_PCA_S6A$Sample_ID[195]<- "S02322.R2"
 Coords_PCA_S6A<- Coords_PCA_S6A[complete.cases(Coords_PCA_S6A),]
 Sample_id_fig6A = data.frame("Sample_ID"=Coords_PCA_S6A$Sample_ID)
 Attributes_fig6A = merge(Attributes2 , Sample_id_fig6A  , by="Sample_ID")
 
 write.table(Coords_PCA_S6A,  file='Coords_PCA_S6A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 write.table(Attributes_fig6A, file='Attributes_fig6A.tsv', quote=FALSE, sep='\t', row.names = F)
-
+corrds_fig_6A_D <- read.table("cords_fig6A_download.tab", header=T)
+sample_ID_coords_fig_6A_D <- list(as.character(corrds_fig_6A_D$ID))[[1]]
+sample_ID_Coords_PCA_S6A <- list(as.character(Coords_PCA_S6A$Sample_ID))[[1]]
+setdiff(sample_ID_Coords_PCA_S6A, sample_ID_coords_fig_6A_D)
+length(sample_ID_Coords_PCA_S6A)
+length(sample_ID_coords_fig_6A_D)
 # FIG 6B
 # -------
 
 
 Coords_PCA_S6B <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNEN , "Axis2" =as.numeric( PCA_RNA_seq$PC2.LNEN)*-1)
 Coords_PCA_S6B<- Coords_PCA_S6B[complete.cases(Coords_PCA_S6B),]
+plot(Coords_PCA_S6B$Axis1, Coords_PCA_S6B$Axis2)
 Sample_id_fig6B = data.frame("Sample_ID"=Coords_PCA_S6B$Sample_ID)
 Attributes_fig6B = merge(Attributes2 , Sample_id_fig6B  , by="Sample_ID")
 #write.table(Coords_PCA_S6B,  file='Coords_PCA_S6B.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
@@ -826,6 +832,10 @@ Attributes_fig6B = merge(Attributes2 , Sample_id_fig6B  , by="Sample_ID")
 Coords_PCA_S6C <- data.frame("Sample_ID" = PCA_RNA_seq$Sample_ID , "Axis1" = PCA_RNA_seq$PC1.LNET_SCLC , "Axis2" =as.numeric(PCA_RNA_seq$PC2.LNET_SCLC)*-1)
 Coords_PCA_S6C<- Coords_PCA_S6C[complete.cases(Coords_PCA_S6C),]
 Sample_id_fig6C = data.frame("Sample_ID"=Coords_PCA_S6C$Sample_ID)
+
+setdiff(Sample_6C_test,Coords_PCA_S6C$Sample_ID )
+setdiff(Coords_PCA_S6C$Sample_ID , Sample_6C_test)
+
 Attributes_fig6C = merge(Attributes2 , Sample_id_fig6C  , by="Sample_ID")
 Attributes_fig6C = Attributes_fig6C[ , -c(124,127)] # Any TP53 and RB1 mutation
 #write.table(Coords_PCA_S6C,  file='Coords_PCA_S6C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
@@ -880,25 +890,31 @@ Attributes_fig7B = Attributes_fig7B[,-c(99,100,101,103,106)]
 
 # Fig S13A:
 # --------
-Coords_MOFA_S13A<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNEN_SCLC, "Axis2" = Sample_overview$LF2.LNEN_SCLC * -1)
+Coords_MOFA_S13A<- data.frame("Sample_ID" = rownames(data_frame_coords_MOFAb) , "Axis1" = data_frame_coords_MOFAb$LF1, "Axis2" = data_frame_coords_MOFAb$LF2*-1)
 Coords_MOFA_S13A[,1] <- as.character(Coords_MOFA_S13A[,1])
-Coords_MOFA_S13A[242,] 
-Coords_MOFA_S13A <- rbind(Coords_MOFA_S13A , Coords_MOFA_S13A[242,] )
-which(Coords_MOFA_S13A$Sample_ID == "S02322")
-Coords_MOFA_S13A[242, 1] = "S02322.R1"
-Coords_MOFA_S13A[259, 1] = "S02322.R2"
+which(Coords_MOFA_S13A$Sample_ID=="S02322_A")
+which(Coords_MOFA_S13A$Sample_ID=="S02322_B")
+
+Coords_MOFA_S13A$Sample_ID[which(Coords_MOFA_S13A$Sample_ID=="S02322_A")]= "S02322.R1"
+Coords_MOFA_S13A$Sample_ID[which(Coords_MOFA_S13A$Sample_ID=="S02322_B")]= "S02322.R2"
+
 ################ ATTENTION A CHANGER VERIFIER LES COOODS DE LF1.LNEN_SLS
 
 Coords_MOFA_S13A <- Coords_MOFA_S13A[complete.cases(Coords_MOFA_S13A),]
+
 Sample_id_fig13A = data.frame("Sample_ID"=Coords_MOFA_S13A$Sample_ID)
 Attributes_fig13A = merge(Attributes2 , Sample_id_fig13A  , by="Sample_ID")
-#write.table(Coords_MOFA_S13A,  file='Coords_MOFA_S13A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-#write.table(Attributes_fig13A, file='Attributes_fig13A.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coords_MOFA_S13A,  file='Coords_MOFA_S13A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+write.table(Attributes_fig13A, file='Attributes_fig13A.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 # Fig S13C:
 # --------
-Coords_MOFA_S13C<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET_SCLC, "Axis2" = Sample_overview$LF2.LNET_SCLC *-1)
+
+Calculate_var_MOFACSb= calculateVarianceExplained(MOFACSb) # Fig 13D
+
+
+Coords_MOFA_S13C<- data.frame("Sample_ID" = Sample_overview$Sample_ID , "Axis1" = Sample_overview$LF1.LNET_SCLC, "Axis2" = Sample_overview$LF2.LNET_SCLC )
 Coords_MOFA_S13C[,1] <- as.character(Coords_MOFA_S13C[,1])
 Coords_MOFA_S13C[242,] # S02322
 Coords_MOFA_S13C <- rbind(Coords_MOFA_S13C , Coords_MOFA_S13C[242,] )
@@ -906,14 +922,23 @@ which(Coords_MOFA_S13C$Sample_ID == "S02322")
 Coords_MOFA_S13C[242, 1] = "S02322.R1"
 
 Coords_MOFA_S13C[259, 1] = "S02322.R2"
+
 MOFACSb.factors["S02322_A",]
 MOFACSb.factors["S02322_B",]
 Coords_MOFA_S13C[242, 2:3]  = MOFACSb.factors["S02322_A",][1:2]
 Coords_MOFA_S13C[259, 2:3]  = MOFACSb.factors["S02322_B",][1:2]
 Coords_MOFA_S13C <- Coords_MOFA_S13C[complete.cases(Coords_MOFA_S13C),]
+plot(Coords_MOFA_S13C$Axis1, Coords_MOFA_S13C$Axis2)
 Sample_id_fig13C = data.frame("Sample_ID"=Coords_MOFA_S13C$Sample_ID)
 Attributes_fig13C = merge(Attributes2 , Sample_id_fig13C  , by="Sample_ID")
 Attributes_fig13C = Attributes_fig13C[ , -c(124,127)] # Any TP53 and RB1 mutation
+# Check 
+# -----
+
+Expected_sample =c( as.character(Sample_overview$Sample_ID[is.na(Sample_overview$cluster_LNET)==F ]),as.character(Sample_overview$Sample_ID[Sample_overview$Histopathology=="SCLC" & Sample_overview$RNAseq=="yes" ] ) ) 
+setdiff(as.character(Expected_sample),as.character(Sample_id_fig13C$Sample_ID))
+setdiff(Sample_id_fig13C,Expected_sample)
+
 #write.table(Coords_MOFA_S13C,  file='Coords_MOFA_S13C.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
 #write.table(Attributes_fig13C, file='Attributes_fig13C.tsv', quote=FALSE, sep='\t', row.names = F)
 
@@ -927,18 +952,18 @@ Attributes_fig13C = Attributes_fig13C[ , -c(124,127)] # Any TP53 and RB1 mutatio
 
 Sample_ID_expr_methyl = Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes"  & Sample_overview$Epic.850K == "yes"]
 Sample_ID_expr_methyl = data.frame("Sample_ID"= Sample_ID_expr_methyl)
-t_data_vst_50 = t(Data_vst_50)
-t_data_vst_50 = as.data.frame(t_data_vst_50)
-t_data_vst_50 =  setDT(t_data_vst_50 , keep.rownames = TRUE)[]
-colnames(t_data_vst_50)[1] <- "Sample_ID"
-Data_expr_methyl = merge( t_data_vst_50, Sample_ID_expr_methyl, by="Sample_ID" )
+t_data_vst_50_TCACLCNEC = t(Data_vst_50_TCACLCNEC )
+t_data_vst_50_TCACLCNEC = as.data.frame(t_data_vst_50_TCACLCNEC)
+t_data_vst_50_TCACLCNEC =  setDT(t_data_vst_50_TCACLCNEC , keep.rownames = TRUE)[]
+colnames(t_data_vst_50_TCACLCNEC)[1] <- "Sample_ID"
+Data_expr_methyl = merge( t_data_vst_50_TCACLCNEC, Sample_ID_expr_methyl, by="Sample_ID" )
 t_Mdata = as.data.frame(t_Mdata )
 t_Mdata =  setDT(t_Mdata , keep.rownames = TRUE)[]
 colnames(t_Mdata)[1] <- "Sample_ID"
 Data_metyl = merge(t_Mdata , Sample_ID_expr_methyl ,by="Sample_ID" )
 Data_expr_methyl = merge(Data_expr_methyl, Data_metyl , by="Sample_ID" )
 t_Data_expr_methyl = t(Data_expr_methyl)
-#write.table(t_Data_expr_methyl,  file='t_Data_expr_methyl.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+write.table(t_Data_expr_methyl,  file='t_Data_expr_methyl.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 
 Attributes_methyl_expr = merge(Attributes2 , Sample_ID_expr_methyl  , by="Sample_ID")
 which(colnames(Attributes_methyl_expr) == "Mutation_RLIM")
@@ -947,19 +972,25 @@ which(colnames(Attributes_methyl_expr) == "Mutation_SEC31A")
 which(colnames(Attributes_methyl_expr) == "Mutation_SMARCA2")
 
 Attributes_methyl_expr = Attributes_methyl_expr[,-c(117,118,120,123)]
-#write.table(Attributes_methyl_expr, file='Attributes_methyl_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attributes_methyl_expr, file='Attributes_methyl_expr.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 #  Expr
 # ------
 
 Sample_ID_expr = Sample_overview$Sample_ID[Sample_overview$RNAseq == "yes"  ]
+t_data_vst_50 = as.data.frame(t(Data_vst_50 ))
+t_data_vst_50 =  setDT(t_data_vst_50 , keep.rownames = TRUE)[]
+colnames(t_data_vst_50)[1] <- "Sample_ID"
 Sample_ID_expr = data.frame("Sample_ID"= Sample_ID_expr)
 Data_expr = merge( t_data_vst_50, Sample_ID_expr, by="Sample_ID" )
 t_Data_expr = t(Data_expr)
-#write.table(t_Data_expr,  file='t_Data_expr.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+write.table(t_Data_expr,  file='t_Data_expr.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 Attributes_expr = merge(Attributes2 , Sample_ID_expr  , by="Sample_ID")
-#write.table(Attributes_expr, file='Attributes_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attributes_expr, file='Attributes_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+
 
 #################################################
 # IMPUTATION DES DONNNEES   AVEC MOFA           #
@@ -979,9 +1010,6 @@ pFMOFACb <- plotFactorScatter(MOFACb,factors = 1:2)
 pFMOFACb$data[1:10,]
 LNET_Coords <- data.frame("Sample" = Sample_overview$Sample_ID ,"LF1.LNET"= Sample_overview$LF1.LNET, "LF2.LNET"= Sample_overview$LF2.LNET)
 Sample_overview$LF1.LNET[1:10]
-
-
-
 
 MOFACLSb = impute(MOFACLSb)
 ImputedDataMOFACLSb = getImputedData(MOFACLSb)
@@ -1040,10 +1068,11 @@ t_ImputedDataMOFACLb_Methyl =t(ImputedDataMOFACLb$Methyl)
 t_ImputedDataMOFACLb_RNA =t(ImputedDataMOFACLb$RNA)
 Feature_data_ImputedDataMOFACLb = merge(t_ImputedDataMOFACLb_Methyl,t_ImputedDataMOFACLb_RNA  , by= 0)
 Feature_data_ImputedDataMOFACLb = t(Feature_data_ImputedDataMOFACLb )
-#write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+
+write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 MOFACLb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACLb$Methyl))
 Attributes_MOFACLb  = merge(Attributes2 , MOFACLb_SampleID , by = "Sample_ID")
-#write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 
@@ -1055,6 +1084,7 @@ t_ImputedDataMOFACb_Methyl =t(ImputedDataMOFACb$Methyl)
 t_ImputedDataMOFACb_RNA =t(ImputedDataMOFACb$RNA)
 Feature_data_ImputedDataMOFACb = merge(t_ImputedDataMOFACb_Methyl,t_ImputedDataMOFACb_RNA  , by= 0)
 Feature_data_ImputedDataMOFACb = t(Feature_data_ImputedDataMOFACb)
+
 #write.table(Feature_data_ImputedDataMOFACb ,  file='Feature_data_ImputedDataMOFACb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 MOFACb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACb$Methyl))
 Attributes_MOFACb  = merge(Attributes2 , MOFACb_SampleID , by = "Sample_ID")
@@ -1125,21 +1155,50 @@ Attribute_MOFACLSb <- merge(Attributes2 ,t_impute_data.SampleID , by="Sample_ID"
 #     à NA.
 ###########################################
 
-Calculate_var_MOFACLSb= calculateVarianceExplained(MOFACLSb)
-Var_per_factor = as.data.frame(Calculate_var_MOFACLSb[["R2PerFactor"]])
+
+# Run with : MOFATCACLCNECSCLC_maxLF5_best.Rdata
+plotFactorScatter(MOFAb,factors = 1:2)
+plot(MOFAb@Expectations$Z[,1], MOFAb@Expectations$Z[,2], xlim=c(-2.5,1.5), ylim=c(-1,1))
+
+
+Calculate_var_MOFAb= calculateVarianceExplained(MOFAb) # Fig 13D
+Var_per_factor = as.data.frame(Calculate_var_MOFAb[["R2PerFactor"]])
 which(Var_per_factor$Methyl<0.02)
+
 # LF2
 
 SampleID_LF1_LF2= as.character(Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) ==T & is.na(Sample_overview$LF2.LNEN_SCLC) ==T ])
-length(SampleID_LF1_LF2 )
+length(SampleID_LF1_LF2 ) # 24 ni dans l'axe 1 ni dans l'axe 2 -> NA
 
-Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) == F   &  is.na(Sample_overview$LF2.LNEN_SCLC) == T  ] # 25
+Sample_ID_LF1Y_LF2N = Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) == F   &  is.na(Sample_overview$LF2.LNEN_SCLC) == T  ] # 25
+# length = 25 Dans l'axe 1 mais pas dans l' axe 2 
+# C'est ceci à mettre à NA
 
-setdiff( Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) == F   &  is.na(Sample_overview$LF2.LNEN_SCLC) == T  ] # 25
-         , SampleID_LF1_LF2 )
+data_frame_coords_MOFAb= as.data.frame(MOFAb@Expectations$Z )
+data_frame_coords_MOFAb = data_frame_coords_MOFAb[,1:2]
+
+for (i in 1:dim(data_frame_coords_MOFAb)[1]){
+  
+  if(rownames(data_frame_coords_MOFAb)[i] %in%Sample_ID_LF1Y_LF2N ){
+    print(rownames(data_frame_coords_MOFAb)[i])
+    data_frame_coords_MOFAb[rownames(data_frame_coords_MOFAb)[i],1]<-NA
+    data_frame_coords_MOFAb[rownames(data_frame_coords_MOFAb)[i],2]<-NA
+  }
+}
+
+#sum(is.na(data_frame_coords_MOFAb$LF1)==T) # ;)
+
+setdiff( Sample_overview$Sample_ID[is.na(Sample_overview$LF1.LNEN_SCLC) == F   &  is.na(Sample_overview$LF2.LNEN_SCLC) == T  ]  , SampleID_LF1_LF2 )
+plot(data_frame_coords_MOFAb$LF1, data_frame_coords_MOFAb$LF2) # :) 
+
+data_frame_coords_MOFAb["S02322",]
+data_frame_coords_MOFAb = data_frame_coords_MOFAb[complete.cases(data_frame_coords_MOFAb),]
 
 
-plotFactorScatter(MOFACSb,factors = 1:2)
+
+write.table(data_frame_coords_MOFAb, file='data_frame_coords_MOFAb.tsv', quote=FALSE, sep='\t', row.names = T)
+
+
 plotFactorScatter(MOFACLb,factors = 1:2)
 
 
@@ -1218,21 +1277,26 @@ HISTO_df[nrow(HISTO_df) + 1,] = list("SCLC","S02322_A")
 which(HISTO_df$Sample_ID == "S02322")
 HISTO_df = HISTO_df[-which(HISTO_df$Sample_ID == "S02322"),]
 
-t_data_vst_50_type = merge(t_data_vst_50, HISTO_df, by="Sample_ID")
+t_data_vst_50_type = merge(t_data_vst_50_TCACLCNEC, HISTO_df, by="Sample_ID")
+#t_data_vst_50_type =as.data.frame(t_data_vst_50_type )
+#t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="SCLC"),]
+t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
+t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
+write.table(t_data_vst_50_type, file='t_data_vst_50_type_3class.tsv', quote=FALSE, sep='\t', row.names = F)
+
 Jupyter_sample_1 = data.frame("Sample_ID"=t_data_vst_50_type$Sample_ID)
 ML_pred_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"ML_pred" = Attributes_fig1A$ML_predictions_fig1)
 ML_pred_fig1_df <- merge(ML_pred_fig1_df ,Jupyter_sample_1 , by='Sample_ID' )
 write.table(ML_pred_fig1_df, file='ML_pred_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
 
-t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="SCLC")]
-t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
-t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
 
-write.table(t_data_vst_50_type, file='t_data_vst_50_type_3class.tsv', quote=FALSE, sep='\t', row.names = F)
+Spatial_analysis_attribute <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"OTP"= Attributes_fig1A$OTP,  "ANGPTL3" =Attributes_fig1A$ANGPTL3, "Dendritic_cell" =Attributes_fig1A$Dendritic.cells  )
+Spatial_analysis_attribute<- merge(Spatial_analysis_attribute,Jupyter_sample_1, by="Sample_ID")
+write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
-
-write.table(t_data_vst_50_type, file='t_data_vst_50_type.tsv', quote=FALSE, sep='\t', row.names = F)
-t_data_vst_50_type$Histpopathology_4_classes = as.factor(t_data_vst_50_type$Histpopathology_4_classes)
+cluster_LNEN <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"Cluster_LNEN"= Attributes_fig1A$Cluster_LNEN  )
+cluster_LNEN<- merge(cluster_LNEN,Jupyter_sample_1, by="Sample_ID")
+write.table(cluster_LNEN, file='cluster_LNEN.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
 
 # 5 classes 
@@ -1254,6 +1318,13 @@ Jupyter_sample_5 <- data.frame('Sample_ID' = t_data_vst_50_type_5$Sample_ID)
 ML_pred_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"ML_pred" = Attributes_fig1A$ML_predictions_fig1)
 ML_pred_fig1_df <- merge(ML_pred_fig1_df ,Jupyter_sample_5 , by='Sample_ID' ) 
 write.table(ML_pred_fig1_df, file='ML_pred_fig1_5class_df.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+cluster_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"cluster_LNEN" = Attributes_fig1A$Cluster_LNEN, "cluster_LNET" =Attributes_fig1A$Cluster_LNET )
+cluster_fig1_df <- merge(cluster_fig1_df ,Jupyter_sample_5 , by='Sample_ID' ) 
+write.table(cluster_fig1_df, file='cluster_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
 
 setdiff(Coords_MOFA_fig1$Sample_ID,Jupyter_sample_5$Sample_ID)
 setdiff(Jupyter_sample_5$Sample_ID, Coords_MOFA_fig1$Sample_ID)
@@ -1381,9 +1452,7 @@ Mofa_expr_coords = data.frame("sample"=Mofa_expr_coords[,1], "x"= Mofa_expr_coor
 Mofa_expr_coords= merge(Mofa_expr_coords, Sample_ID_UMAP_analysis, by='sample' )
 
 colnames(Mofa_expr_coords)[1] <- "Sample_ID"
-Attributes_UMAP_analysis <- merge(Attributes_fig1A, Mofa_expr_coords , by="Sample_ID")
-Spatial_analysis_attribute <- data.frame("OTP"= Attributes_UMAP_analysis[,31],  "ANGPTL3" =Attributes_UMAP_analysis[,29], "Dendritic_cell" =Attributes_UMAP_analysis$Dendritic.cells  )
-write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+A
 colnames(Mofa_expr_coords)[1] <- "sample"
 
 CP_supervised_coords_R<- read.table("CP_pulmo_R_unsupervised.txt", sep = "\t", dec="." , header = TRUE,   quote="")
