@@ -119,7 +119,7 @@ par(mfrow=c(1,1))
 
 list_CP_df = list( CP_R_PCA, CP_R_TM ,CP_R_UMAP_MD02)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
 Name = c("CP_R_PCA" , "CP_R_TM" ,"CP_R_UMAP_MD02")#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
-CP_mean_by_k(list_CP_df,Name)
+FORMER_R <- CP_mean_by_k(list_CP_df,Name, c('blue','black', 'red'))
 
 # Set Diff
 # ---------

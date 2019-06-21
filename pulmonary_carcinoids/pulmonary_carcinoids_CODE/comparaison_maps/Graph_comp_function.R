@@ -312,6 +312,8 @@ CP_mean_by_k  <-function (list_CP_diff , Name , list_col){
     legend("bottomleft",  legend = Name, col = c(initial_list_col), pch = 15)
     
   }
+  return(CP_diff_mean_df)
+  
 }
 
 

@@ -827,28 +827,28 @@ for (i in 1:dim(Attributes4)[1]){
 #____________________________
 
 
-write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F) # Coordinates2 = coordinates1 with y*-1
-write.table(Attributes4, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
+#write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F) # Coordinates2 = coordinates1 with y*-1
+write.table(Attributes4, file='Attributes_PCA_f1.txt', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
 # Fig 1 with Features Data
 #_________________________
 
-write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
-write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = T, col.names = F)
+#write.table(Attributes4, file='Attributes_4_with_IHC.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(data_lv_t_sample, file='feature_data_with_lv_2.tsv', quote=FALSE, sep='\t', row.names = T, col.names = F)
 
 
 
 # Fig 3 bottom  panel
 #_________________________
-write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\t', row.names = F)
-write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
+#write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
 
 
 # Fig 3 top panel
 #_________________________
 
-write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Coordinates_fig3a_top, file='Coordinates_fig3a_top.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+#write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 
@@ -957,9 +957,8 @@ Meso_NN150_MD_05_df_coord = data.frame("sample"= data_lv.L$sample , "x"= Meso_NN
 # Distance in n Dim               #
 ##################################@
 
-
-library(stats)
-library(graphics)
+#library(stats)
+#library(graphics)
 
 Dist <- dist(data_lv_sample, diag = TRUE, upper = TRUE)
 m <- as.matrix(Dist)
@@ -977,21 +976,21 @@ dim(data_lv_t_sample)
 dim(data_lv_sample)
 
 data_lv_sample_type <- merge(data_lv_sample, Type_df, by="sample")
-write.table(data_lv_sample_type, file='Meso_data_lv_sample_type.tsv', quote=FALSE, sep='\t', row.names = F) 
+#write.table(data_lv_sample_type, file='Meso_data_lv_sample_type.tsv', quote=FALSE, sep='\t', row.names = F) 
 
 which(colnames(Attributes5)=="VISTA")
 which(colnames(Attributes5)=="PDL1")
 which(colnames(Attributes5)=="Survival")
-spatial_cor_att <- data.frame("VISTA"= Attributes5[,19], "PDL1"= Attributes5[,27], "Survival"= Attributes5[,17])
+spatial_cor_att <- data.frame("Sample_ID" = Attributes5$sample ,"VISTA"= Attributes5[,19], "PDL1"= Attributes5[,27], "Survival"= Attributes5[,17])
 
 write.table(spatial_cor_att, file='Meso_spatial_cor_att.tsv', quote=FALSE, sep='\t', row.names = F) 
 
-PCA_coords <- data.frame("sample" = suptable1$Sample , "x"= suptable1$Dimension.1 , "y"= suptable1$Dimension.2)
+#PCA_coords <- data.frame("sample" = suptable1$Sample , "x"= suptable1$Dimension.1 , "y"= suptable1$Dimension.2)
 
 target_sample_order = data_lv_sample_type$sample
 
 PCA_coords_2 <- PCA_coords[match(target_sample_order, PCA_coords$sample),]
-write.table(PCA_coords_2, file='PCA_coords_MESO.tsv', quote=FALSE, sep='\t', row.names = F) 
+#write.table(PCA_coords_2, file='PCA_coords_MESO.tsv', quote=FALSE, sep='\t', row.names = F) 
 
 
 

@@ -44,7 +44,7 @@ library(caret)
 library(cluster)
 library(bumphunter)
 library(minfi)
-
+library(MOFA)
 #######################
 # IMPORTATION OF DATA #
 #######################
@@ -806,8 +806,8 @@ Coords_PCA_S6A<- Coords_PCA_S6A[complete.cases(Coords_PCA_S6A),]
 Sample_id_fig6A = data.frame("Sample_ID"=Coords_PCA_S6A$Sample_ID)
 Attributes_fig6A = merge(Attributes2 , Sample_id_fig6A  , by="Sample_ID")
 
-write.table(Coords_PCA_S6A,  file='Coords_PCA_S6A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-write.table(Attributes_fig6A, file='Attributes_fig6A.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Coords_PCA_S6A,  file='Coords_PCA_S6A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+#write.table(Attributes_fig6A, file='Attributes_fig6A.tsv', quote=FALSE, sep='\t', row.names = F)
 corrds_fig_6A_D <- read.table("cords_fig6A_download.tab", header=T)
 sample_ID_coords_fig_6A_D <- list(as.character(corrds_fig_6A_D$ID))[[1]]
 sample_ID_Coords_PCA_S6A <- list(as.character(Coords_PCA_S6A$Sample_ID))[[1]]
@@ -904,8 +904,8 @@ Coords_MOFA_S13A <- Coords_MOFA_S13A[complete.cases(Coords_MOFA_S13A),]
 
 Sample_id_fig13A = data.frame("Sample_ID"=Coords_MOFA_S13A$Sample_ID)
 Attributes_fig13A = merge(Attributes2 , Sample_id_fig13A  , by="Sample_ID")
-write.table(Coords_MOFA_S13A,  file='Coords_MOFA_S13A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
-write.table(Attributes_fig13A, file='Attributes_fig13A.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Coords_MOFA_S13A,  file='Coords_MOFA_S13A.tsv', quote=FALSE, sep='\t', row.names = F, col.names = F)
+#write.table(Attributes_fig13A, file='Attributes_fig13A.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 # Fig S13C:
@@ -963,7 +963,7 @@ colnames(t_Mdata)[1] <- "Sample_ID"
 Data_metyl = merge(t_Mdata , Sample_ID_expr_methyl ,by="Sample_ID" )
 Data_expr_methyl = merge(Data_expr_methyl, Data_metyl , by="Sample_ID" )
 t_Data_expr_methyl = t(Data_expr_methyl)
-write.table(t_Data_expr_methyl,  file='t_Data_expr_methyl.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+#write.table(t_Data_expr_methyl,  file='t_Data_expr_methyl.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 
 Attributes_methyl_expr = merge(Attributes2 , Sample_ID_expr_methyl  , by="Sample_ID")
 which(colnames(Attributes_methyl_expr) == "Mutation_RLIM")
@@ -972,7 +972,7 @@ which(colnames(Attributes_methyl_expr) == "Mutation_SEC31A")
 which(colnames(Attributes_methyl_expr) == "Mutation_SMARCA2")
 
 Attributes_methyl_expr = Attributes_methyl_expr[,-c(117,118,120,123)]
-write.table(Attributes_methyl_expr, file='Attributes_methyl_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Attributes_methyl_expr, file='Attributes_methyl_expr.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 #  Expr
@@ -985,11 +985,84 @@ colnames(t_data_vst_50)[1] <- "Sample_ID"
 Sample_ID_expr = data.frame("Sample_ID"= Sample_ID_expr)
 Data_expr = merge( t_data_vst_50, Sample_ID_expr, by="Sample_ID" )
 t_Data_expr = t(Data_expr)
-write.table(t_Data_expr,  file='t_Data_expr.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
+#write.table(t_Data_expr,  file='t_Data_expr.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
 Attributes_expr = merge(Attributes2 , Sample_ID_expr  , by="Sample_ID")
-write.table(Attributes_expr, file='Attributes_expr.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Attributes_expr, file='Attributes_expr.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
+# UMAP For Tumor MAp
+# ------------------
+
+# Fig 6A = SCLC + LCNEC  + Typical + Atypical + Carcinoids
+t_data_vst_50$Sample_ID[which(t_data_vst_50$Sample_ID == "S02322_A")] <- "S02322.R1"
+t_data_vst_50$Sample_ID[which(t_data_vst_50$Sample_ID == "S02322_B")] <- "S02322.R2"
+
+Attributes_fig6A_sample <- data.frame("Sample_ID"= Attributes_fig6A$Sample_ID)
+t_data_vst_50_type_5 = merge(t_data_vst_50, Attributes_fig6A_sample, by="Sample_ID")
+umap_6A <- umap(as.matrix(t_data_vst_50_type_5[,2:6399]))
+umap_6A <- data.frame("Sample_ID"= Attributes_fig6A_sample, "x" = umap_6A$layout[,1], "y"=umap_6A$layout[,2] )  
+
+
+Attributes_fig6A$Cluster_LNET <- as.character( Attributes_fig6A$Cluster_LNET )
+Attributes_fig6A$Cluster_LNEN <- as.character( Attributes_fig6A$Cluster_LNEN )
+
+Cluster_LNET_LCNEC_SCLC <- c()
+for (i in 1:dim(Attributes_fig6A)[1]){
+  if (is.na(Attributes_fig6A$Cluster_LNET[i])){
+    if(as.character(Attributes_fig6A$Histpopathology_simplified[i] )== "LCNEC"){
+      Cluster_LNET_LCNEC_SCLC <- c(Cluster_LNET_LCNEC_SCLC ,"LCNEC")
+    }
+    else{
+      Cluster_LNET_LCNEC_SCLC <- c(Cluster_LNET_LCNEC_SCLC, "SCLC")
+    }
+  }
+  else{
+    Cluster_LNET_LCNEC_SCLC <- c(Cluster_LNET_LCNEC_SCLC, as.character(Attributes_fig6A$Cluster_LNET[i])[[1]])
+  }
+}
+
+Attributes_fig6A = cbind(Attributes_fig6A, "Cluster_LNET_LCNEC_SCLC" = Cluster_LNET_LCNEC_SCLC)
+
+write.table(umap_6A,  file='umap_6A_coords.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
+
+write.table(Attributes_fig6A, file='Attributes_UMAP_g6A.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+# Fig 6B =LCNEC  + Typical + Atypical + Carcinoids
+
+t_data_vst_50_TCACLCNEC = t(Data_vst_50_TCACLCNEC )
+t_data_vst_50_TCACLCNEC = as.data.frame(t_data_vst_50_TCACLCNEC)
+t_data_vst_50_TCACLCNEC =  setDT(t_data_vst_50_TCACLCNEC , keep.rownames = TRUE)[]
+colnames(t_data_vst_50_TCACLCNEC)[1] <- "Sample_ID"
+
+Sample_fig7B_df <- data.frame("Sample_ID" = Coords_PCA_S6B$Sample_ID)
+
+t_data_vst_50_TCACLCNEC <- merge(t_data_vst_50_TCACLCNEC, Sample_fig7B_df, by="Sample_ID")
+
+umap_6B <- umap(as.matrix(t_data_vst_50_TCACLCNEC[,2:6010]))
+umap_6B <- data.frame("Sample_ID"= Coords_PCA_S6B$Sample_ID, "x" = umap_6B$layout[,1], "y"=umap_6B$layout[,2] )  
+
+write.table(umap_6B,  file='umap_6B_coords.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
+Attributes_fig6B$Cluster_LNET <- as.character( Attributes_fig6B$Cluster_LNET )
+Attributes_fig6B$Cluster_LNEN <- as.character( Attributes_fig6B$Cluster_LNEN )
+
+Cluster_LNET_LCNEC_SCLC <- list()
+for (i in 1:dim(Attributes_fig6B)[1]){
+  if (is.na(Attributes_fig6B$Cluster_LNET[i])){
+    if(as.character(Attributes_fig6B$Cluster_LNEN[i] )== "LCNEC"){
+      Cluster_LNET_LCNEC_SCLC[i] <- "LCNEC"
+    }
+    else{
+      Cluster_LNET_LCNEC_SCLC[i] <- "SCLC"
+    }
+  }
+  else{
+    Cluster_LNET_LCNEC_SCLC[i] <- as.character(Attributes_fig6B$Cluster_LNET[i])
+  }
+}
+
+Attributes_fig6B
+write.table(Attributes_fig6B, file='Attributes_UMAP_fig6B.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 #################################################
@@ -1070,9 +1143,9 @@ Feature_data_ImputedDataMOFACLb = merge(t_ImputedDataMOFACLb_Methyl,t_ImputedDat
 Feature_data_ImputedDataMOFACLb = t(Feature_data_ImputedDataMOFACLb )
 
 write.table(Feature_data_ImputedDataMOFACLb ,  file='Feature_data_ImputedDataMOFACLb.tsv', quote=FALSE, sep='\t',  row.names = T , col.names = F)
-MOFACLb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACLb$Methyl))
+#MOFACLb_SampleID = data.frame("Sample_ID"= colnames(ImputedDataMOFACLb$Methyl))
 Attributes_MOFACLb  = merge(Attributes2 , MOFACLb_SampleID , by = "Sample_ID")
-write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Attributes_MOFACLb, file='Attributes_MOFACLb.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 
@@ -1282,21 +1355,28 @@ t_data_vst_50_type = merge(t_data_vst_50_TCACLCNEC, HISTO_df, by="Sample_ID")
 #t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="SCLC"),]
 t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
 t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
-write.table(t_data_vst_50_type, file='t_data_vst_50_type_3class.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(t_data_vst_50_type, file='t_data_vst_50_type_3class.tsv', quote=FALSE, sep='\t', row.names = F)
 
 Jupyter_sample_1 = data.frame("Sample_ID"=t_data_vst_50_type$Sample_ID)
 ML_pred_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"ML_pred" = Attributes_fig1A$ML_predictions_fig1)
 ML_pred_fig1_df <- merge(ML_pred_fig1_df ,Jupyter_sample_1 , by='Sample_ID' )
-write.table(ML_pred_fig1_df, file='ML_pred_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(ML_pred_fig1_df, file='ML_pred_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
+
+
+t_data_vst_50_type_5 = merge(t_data_vst_50, Attributes5$Type, by="Sample_ID")
+t_data_vst_50_type_5=t_data_vst_50_type_5[-which(t_data_vst_50_type_5$Histpopathology_4_classes=="SCLC")]
+#t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
+#t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
+#write.table(t_data_vst_50_type_5, file='t_data_vst_50_type_5class.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 Spatial_analysis_attribute <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"OTP"= Attributes_fig1A$OTP,  "ANGPTL3" =Attributes_fig1A$ANGPTL3, "Dendritic_cell" =Attributes_fig1A$Dendritic.cells  )
 Spatial_analysis_attribute<- merge(Spatial_analysis_attribute,Jupyter_sample_1, by="Sample_ID")
-write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+#write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
 cluster_LNEN <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"Cluster_LNEN"= Attributes_fig1A$Cluster_LNEN  )
 cluster_LNEN<- merge(cluster_LNEN,Jupyter_sample_1, by="Sample_ID")
-write.table(cluster_LNEN, file='cluster_LNEN.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+#write.table(cluster_LNEN, file='cluster_LNEN.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
 
 # 5 classes 
@@ -1308,21 +1388,19 @@ setdiff(HISTO_df$Sample_ID , t_data_vst_50$Sample_ID)
 setdiff(t_data_vst_50$Sample_ID , HISTO_df$Sample_ID )
 
 
-t_data_vst_50_type_5 = merge(t_data_vst_50, Attributes5$Type, by="Sample_ID")
-t_data_vst_50_type_5=t_data_vst_50_type_5[-which(t_data_vst_50_type_5$Histpopathology_4_classes=="SCLC")]
 #t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Supra_carcinoid")]
 #t_data_vst_50_type=t_data_vst_50_type[-which(t_data_vst_50_type$Histpopathology_4_classes=="Carcinoid")]
-write.table(t_data_vst_50_type_5, file='t_data_vst_50_type_5class.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(t_data_vst_50_type_5, file='t_data_vst_50_type_5class.tsv', quote=FALSE, sep='\t', row.names = F)
 
 Jupyter_sample_5 <- data.frame('Sample_ID' = t_data_vst_50_type_5$Sample_ID)
 ML_pred_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"ML_pred" = Attributes_fig1A$ML_predictions_fig1)
 ML_pred_fig1_df <- merge(ML_pred_fig1_df ,Jupyter_sample_5 , by='Sample_ID' ) 
-write.table(ML_pred_fig1_df, file='ML_pred_fig1_5class_df.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(ML_pred_fig1_df, file='ML_pred_fig1_5class_df.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 cluster_fig1_df <- data.frame("Sample_ID"= Attributes_fig1A$Sample_ID,"cluster_LNEN" = Attributes_fig1A$Cluster_LNEN, "cluster_LNET" =Attributes_fig1A$Cluster_LNET )
 cluster_fig1_df <- merge(cluster_fig1_df ,Jupyter_sample_5 , by='Sample_ID' ) 
-write.table(cluster_fig1_df, file='cluster_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(cluster_fig1_df, file='cluster_fig1_df.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 
@@ -1331,12 +1409,12 @@ setdiff(Jupyter_sample_5$Sample_ID, Coords_MOFA_fig1$Sample_ID)
 
 
 Mofa_expr_coords_5_classes = merge(Coords_MOFA_fig1,Jupyter_sample_5, by="Sample_ID")
-write.table(Mofa_expr_coords_5_classes, file='Mofa_expr_coords_5_classes.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(Mofa_expr_coords_5_classes, file='Mofa_expr_coords_5_classes.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 Attributes_UMAP_analysis <- merge(Attributes_fig1A, Mofa_expr_coords_5_classes , by="Sample_ID")
 Spatial_analysis_attribute <- data.frame("OTP"= Attributes_UMAP_analysis[,31],  "ANGPTL3" =Attributes_UMAP_analysis[,29], "Dendritic_cell" =Attributes_UMAP_analysis$Dendritic.cells  )
-write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute_5_classes.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+#write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute_5_classes.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
 
 
@@ -1372,7 +1450,7 @@ for (i in 1:dim(Cluster_LNET_df)[1]){
   }
 }
 t_data_vst_50_cluster = merge(t_data_vst_50,Cluster_LNET_df, by='Sample_ID')
-write.table(t_data_vst_50_cluster, file='t_data_vst_50_cluster.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(t_data_vst_50_cluster, file='t_data_vst_50_cluster.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
 
@@ -1467,7 +1545,13 @@ plot_centrality_preservation(CP_supervised_coords_R,UMAP_supervised_coords, ku_s
 plot_centrality_preservation(CP_Unsupervised_coords_R, UMAP_Unsupervised_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R & Unsupervised UMAP" )
 plot_centrality_preservation(CP_Unsupervised_coords_R,UMAP_Unsupervised_coords, ku_stack  , "N", "CPN drawn on the 2D projection : R & Unsupervised UMAP" )
 
+colnames(Mofa_expr_coords)[1] <- "sample"
+plot_centrality_preservation(CP_R_MOFA_expr, Mofa_expr_coords, ku_stack  , "2", "CP2 drawn on the 2D projection : R & Unsupervised UMAP" )
 
+CP_R_MOFA_expr_v2 = data.frame("Sample_ID" = CP_R_MOFA_expr$sample, "K" = CP_R_MOFA_expr$K, "CP"  = CP_R_MOFA_expr$CP2)
+Mofa_expr_coords_V2 = data.frame("Sample_ID" = Mofa_expr_coords$sample , "Axis1" = Mofa_expr_coords$x, "Axis2"=Mofa_expr_coords$y)
+CP_K56 = CP_R_MOFA_expr_v2[which(CP_R_MOFA_expr_v2$K ==91  | CP_R_MOFA_expr_v2$K ==111),]
+CP_map(CP_K56, Mofa_expr_coords_V2, list(91,111), Title = 'Centrality preservation map for PCA')
 
 list_CP_df = list(CP_supervised_coords_R,CP_R_MOFA_expr, CP_Unsupervised_coords_R)#, CP_R_UMAP_NN150_MD05 , CP_R_UMAP_NN230 , CP_R_UMAP_NN20 , CP_R_UMAP_MD09, CP_PCA_TM ,
 Name = c('R_UMAP_supervised',"R_MOFA_expr",'R_UMAP_Unsupervised' )#, "CP_R_UMAP_NN150_MD05", "CP_R_UMAP_NN230" , "CP_R_UMAP_NN20" , "CP_R_UMAP_MD09", "CP_PCA_TM" 
@@ -1750,5 +1834,13 @@ Seq_diff_mean_by_k(list_df_seq, Name, F,c("black", "chocolate1", "chocolate4", "
 list_df_seq= list(seq_diff_pulmo_R_MOFA,seq_umap_md_1_nn_10_R,seq_umap_md_1_nn_50_R, seq_umap_md_1_nn_100_R)
 Name = c( 'R_MOFA', 'umap_md_1_nn_10_R','umap_md_1_nn_50_R' ,'umap_md_1_nn_100_R')
 Seq_diff_mean_by_k(list_df_seq, Name, F,c("black", "darkmagenta", "pink", "darkorchid1"))
+
+
+########################################################################################################################
+
+
+# UMAP FOR TUMOR MAP
+# __________________
+
 
 
