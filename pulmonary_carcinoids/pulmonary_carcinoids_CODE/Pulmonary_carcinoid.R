@@ -44,10 +44,17 @@ library(caret)
 library(cluster)
 library(bumphunter)
 library(minfi)
-library(MOFA)
+library(MOFAtools)
+
+
+#install.packages("rngtools", repos="http://R-Forge.R-project.org")
+devtools::install_github("bioFAM/MOFA", ref ="9b9c5ae5a3", subdir="MOFAtools")
+
 #######################
 # IMPORTATION OF DATA #
 #######################
+
+
 Sample_overview <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet = 1, startRow = 41, colNames = TRUE,
                              rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
                              skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = TRUE,
@@ -59,7 +66,11 @@ Somatic_mutation  <- read.xlsx("../SupplementaryTables_R1_20190318.xlsx", sheet 
                                namedRegion = NULL, na.strings = "NA")
 
 Data_vst_50_TCACLCNEC <- read.table("../expr/VST_nosex_50pc_TCACLCNEC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
-Data_vst_50 <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+Data_vst_50_TCACLCNECSCLC <- read.table("../data/VST_nosex_50pc_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+Data_vst_50_TCAC <- read.table("../data/VST_nosex_50pc_TCAC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+Data_vst_50_TCACSCLC <- read.table("../data/VST_nosex_50pc_TCACSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
+
+
 Data_vst_all <- read.table("../data/VST_nosex_TCACLCNECSCLC.txt",  sep = " ", dec="." , header = TRUE,   quote="")
 
 
@@ -115,6 +126,8 @@ Attributes_from_overview <- cbind(Attributes_from_overview , Sample_overview[ , 
 # Later
 ##  Attributes_from_overview <- merge(Attributes_from_overview , mofa_lnen_sample_id, by="Sample_ID")
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 # Genes of interest
 # =================
 
@@ -147,8 +160,34 @@ t_Data_vst_all <- setDT(t_Data_vst_all , keep.rownames = TRUE)[]
 colnames(t_Data_vst_all)[1] <- "Sample_ID"
 t_Data_vst_all <- as.data.frame(t_Data_vst_all)
 Data_vst_all_with_sample <- merge(t_Data_vst_all , All_sample_id, by='Sample_ID')
+
+
+t_Data_vst_tcac <-as.data.frame(t( Data_vst_50_TCAC )) 
+t_Data_vst_tcac <- setDT(t_Data_vst_tcac , keep.rownames = TRUE)[] 
+colnames(t_Data_vst_tcac)[1] <- "Sample_ID"
+t_Data_vst_tcac <- as.data.frame(t_Data_vst_tcac) ; dim(t_Data_vst_tcac)
+
+t_Data_vst_tcaclcnec <-as.data.frame(t( Data_vst_50_TCACLCNEC ))
+t_Data_vst_tcaclcnec <- setDT(t_Data_vst_tcaclcnec , keep.rownames = TRUE)[]
+colnames(t_Data_vst_tcaclcnec)[1] <- "Sample_ID"
+t_Data_vst_tcaclcnec <- as.data.frame(t_Data_vst_tcaclcnec) ; dim(t_Data_vst_tcaclcnec)
+
+t_Data_vst_tcaclcnecsclc <-as.data.frame(t( Data_vst_50_TCACLCNECSCLC))
+t_Data_vst_tcaclcnecsclc <- setDT(t_Data_vst_tcaclcnecsclc , keep.rownames = TRUE)[]
+colnames(t_Data_vst_tcaclcnecsclc)[1] <- "Sample_ID"
+t_Data_vst_tcaclcnecsclc <- as.data.frame(t_Data_vst_tcaclcnecsclc); dim(t_Data_vst_tcaclcnecsclc)
+
+t_Data_vst_tcacsclc <-as.data.frame(t( Data_vst_50_TCACSCLC))
+t_Data_vst_tcacsclc <- setDT(t_Data_vst_tcacsclc , keep.rownames = TRUE)[]
+colnames(t_Data_vst_tcacsclc)[1] <- "Sample_ID"
+t_Data_vst_tcacsclc <- as.data.frame(t_Data_vst_tcacsclc); dim(t_Data_vst_tcacsclc)
+
+
 # Rmq : Only 158 samples with RNA seq data
-Sample_id_rna_seq = Data_vst_all_with_sample$Sample_ID
+Sample_id_rna_seq_tcac = t_Data_vst_tcac$Sample_ID ; length(Sample_id_rna_seq_tcac)
+Sample_id_rna_seq_tcaclcnecsclc = t_Data_vst_tcaclcnecsclc$Sample_ID; length(Sample_id_rna_seq_tcaclcnecsclc)
+Sample_id_rna_seq_tcaclcnec = t_Data_vst_tcaclcnec$Sample_ID; length(Sample_id_rna_seq_tcaclcnec)
+Sample_id_rna_seq_tcacsclc = t_Data_vst_tcacsclc$Sample_ID; length(Sample_id_rna_seq_tcacsclc)
 
 # Name of genes of interest :
 gene_interest_names <- c("LAG3" , "IGSF11" , "VISTA_VSIR" , "PDCD1LG2" , "LGALS9" , "CD274" ,
@@ -160,17 +199,56 @@ for (i in 1:12){
 }
 
 # Data frame :
-gene_interest_fig2E <- data.frame("Sample_ID" = Sample_id_rna_seq)
+gene_interest_tcac <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 for (i in 1:23){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl[i]))
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl[i]))
+  
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names[i]))
+  }
+  
   #print(as.numeric(n_col))
   gene_name <- as.character(gene_interest_names[i])
   #print(gene_name)
-  gene_interest_fig2E[gene_name] <- Data_vst_all_with_sample[,n_col ]
+  gene_interest_tcac[gene_name] <- t_Data_vst_tcac[,n_col_tcac ]
+  gene_interest_tcaclcnecsclc[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc ]
+  gene_interest_tcaclcnec[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec ]
+  gene_interest_tcacsclc[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc ] 
 }
 
-HLA_D_sum = rowSums(gene_interest_fig2E[,13:24], na.rm = TRUE)
-HLA_D_mean= apply(gene_interest_fig2E[,13:24], 1 , mean)
+HLA_D_sum_tcac = rowSums(gene_interest_tcac[,min(which(unlist(lapply(colnames(gene_interest_tcac),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                              max(which(unlist(lapply(colnames(gene_interest_tcac),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], na.rm = TRUE)
+HLA_D_mean_tca= apply(gene_interest_tcac[,min(which(unlist(lapply(colnames(gene_interest_tcac),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                           max(which(unlist(lapply(colnames(gene_interest_tcac),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], 1 , mean)
+
+HLA_D_sum_tcaclcnecsclc = rowSums(gene_interest_tcaclcnecsclc[,min(which(unlist(lapply(colnames(gene_interest_tcaclcnecsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                              max(which(unlist(lapply(colnames(gene_interest_tcaclcnecsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], na.rm = TRUE)
+HLA_D_mean_tcaclcnecsclc= apply(gene_interest_tcaclcnecsclc[,min(which(unlist(lapply(colnames(gene_interest_tcaclcnecsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                           max(which(unlist(lapply(colnames(gene_interest_tcaclcnecsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], 1 , mean)
+
+HLA_D_sum_tcaclcnec = rowSums(gene_interest_tcaclcnec[,min(which(unlist(lapply(colnames(gene_interest_tcaclcnec),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                                                max(which(unlist(lapply(colnames(gene_interest_tcaclcnec),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], na.rm = TRUE)
+HLA_D_mean_tcaclcnec= apply(gene_interest_tcaclcnec[,min(which(unlist(lapply(colnames(gene_interest_tcaclcnec),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                                              max(which(unlist(lapply(colnames(gene_interest_tcaclcnec),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], 1 , mean)
+
+
+HLA_D_sum_tcacsclc = rowSums(gene_interest_tcacsclc[,min(which(unlist(lapply(colnames(gene_interest_tcacsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                                        max(which(unlist(lapply(colnames(gene_interest_tcacsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], na.rm = TRUE)
+HLA_D_mean_tcacsclc= apply(gene_interest_tcacsclc[,min(which(unlist(lapply(colnames(gene_interest_tcacsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1))):
+                                                      max(which(unlist(lapply(colnames(gene_interest_tcacsclc),function(x) ifelse(length(grep("HLA-D+",x)) == 0, 0, 1) )==1)))], 1 , mean)
+
+
+
+dim(gene_interest_tcac); dim(gene_interest_tcaclcnecsclc); dim(gene_interest_tcaclcnec); dim(gene_interest_tcacsclc)
+
 # Mutation Fig3A:
 length(unique(Somatic_mutation$Gene.Symbol))
 mutation_matrix =matrix(ncol = length(unique(Somatic_mutation$Gene.Symbol)) , nrow= length(mofa_lnen_sample_id$Sample_ID))
@@ -207,7 +285,7 @@ for (i in 1:dim(mutation_matrix)[2]){
 }
 colnames(mutation_matrix) <- New_col_name
 # Doit-on tous les inclure ?
-
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Genes Fig5A :
 Embl_ASCL1 =as.character(Ref_gene$V1[Ref_gene$V7 == "ASCL1"])
 Embl_DLL3= as.character(Ref_gene$V1[Ref_gene$V7 == "DLL3"])
@@ -220,13 +298,35 @@ Embl_NKX2_1 = as.character(Ref_gene$V1[Ref_gene$V7 == "NKX2-1"])
 
 gene_interest_names_fi5A <- c("ASCL1","DLL3","SLIT1" , "ROBO1","ANGPTL3","ERBB4","OTP", "NKX2-1" )
 gene_interest_embl_fig5A <- c(Embl_ASCL1,Embl_DLL3,Embl_SLIT1,Embl_ROBO1,Embl_ANGPTL3,Embl_ERBB4,Embl_OTP,Embl_NKX2_1)
-gene_interest_fig5A <- data.frame("Sample_ID" = Sample_id_rna_seq)
-for (i in 1:8){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig5A[i]))
-  gene_name <- as.character(gene_interest_names_fi5A[i])
-  gene_interest_fig5A[gene_name] <- Data_vst_all_with_sample[,n_col ]
-}
 
+# Data frame :
+gene_interest_tcac_fi5A  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_fi5A  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_fi5A  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_fi5A   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
+for (i in 1:8){
+  
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_fig5A[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_fig5A[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_fig5A[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_fig5A[i]))
+  
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_fi5A[i]))
+  }
+  
+  gene_name <- as.character(gene_interest_names_fi5A[i])
+  gene_interest_tcac_fi5A[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_fi5A[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_fi5A[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_fi5A[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
+  
+}
+dim(gene_interest_tcac_fi5A); dim(gene_interest_tcaclcnecsclc_fi5A); dim(gene_interest_tcaclcnec_fi5A); dim(gene_interest_tcacsclc_fi5A)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Machine Learning Fig1 :
 
 ML_prediction <- function(data){
@@ -260,8 +360,9 @@ ML_Mofa <- ML_prediction(Sample_overview[,62:64])
 ML_expr_methyl <- ML_prediction( Sample_overview[,65:67])  # Fig S9
 
 table(ML_Mofa)
-# Cobfusion matrix of ML and Mofa sample :
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Confusion matrix of ML and Mofa sample :
 Histpopathology_4_classes = Sample_overview$Histopathology
 table(Histpopathology_4_classes)
 for (i in 1:length(Histpopathology_4_classes )){
@@ -293,11 +394,8 @@ tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_mofa$Pr
 prop.table(tab_conf, 2)
 
 
-
 # For Expr 
 # --------
-
-
 EXPR_ML = data.frame("Expr_ML"= ML_expr, "Sample_ID"  = Sample_overview$Sample_ID)
 merge_pred_expr = merge(HISTO_df, EXPR_ML, by="Sample_ID")
 tab_conf =  table(merge_pred_mofa$Histpopathology_4_classes , merge_pred_expr$Expr_ML)
@@ -354,6 +452,8 @@ for (i in 1:dim(ML_histopatholical_type)[1])
 
 Res_type_ml
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 # Confusion matrix  fig1B
 # ------------------------
 
@@ -366,16 +466,33 @@ prop.table(table_conf_f1B,1)
 Embl_CD1A =as.character(Ref_gene$V1[Ref_gene$V7 == "CD1A"])
 Embl_LAMP3 =as.character(Ref_gene$V1[Ref_gene$V7 == "LAMP3"])
 
-gene_interest_names_fi4B <- c("CD1A",  "LAMP3" )
+gene_interest_names_fig4B <- c("CD1A",  "LAMP3" )
 gene_interest_embl_fig4B <- c(Embl_CD1A , Embl_LAMP3)
-gene_interest_fig4B <- data.frame("Sample_ID" =Sample_id_rna_seq)
+gene_interest_tcac_fig4B  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_fig4B  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_fig4B  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_fig4B   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 for (i in 1:2){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig4B[i]))
-  gene_name <- as.character(gene_interest_names_fi4B[i])
-  gene_interest_fig4B[gene_interest_names_fi4B ] <- Data_vst_all_with_sample[,n_col ]
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_fig4B[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_fig4B[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_fig4B[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_fig4B[i]))
+  
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_fig4B[i]))
+  }
+  
+  gene_name <- as.character(gene_interest_names_fig4B[i])
+  gene_interest_tcac_fig4B[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_fig4B[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_fig4B[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_fig4B[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
+
 }
 
-
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # Retinoid and Xenobiotic
 # -----------------------
@@ -393,26 +510,69 @@ Embl_UGT2B17 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B17"])
 Embl_UGT2B10 = as.character(Ref_gene$V1[Ref_gene$V7 == "UGT2B10"])
 
 
-gene_interest_names_fi4D <- c("CYP2C8", "CYP2C9", "CYP2C19", "CYP3A5", "UGT2A3","UGT2B4", "UGT2B7", "UGT2B11","UGT2B15", "UGT2B17" )
+gene_interest_names_fig4D <- c("CYP2C8", "CYP2C9", "CYP2C19", "CYP3A5", "UGT2A3","UGT2B4", "UGT2B7", "UGT2B11","UGT2B15", "UGT2B17" )
 gene_interest_embl_fig4D <- c(Embl_CYP2C8,Embl_CYP2C9, Embl_CYP2C19,Embl_CYP3A5, Embl_UGT2A3, Embl_UGT2B4, Embl_UGT2B7, Embl_UGT2B11, Embl_UGT2B15 , Embl_UGT2B17 )
-gene_interest_fig4D <- data.frame("Sample_ID" =Sample_id_rna_seq)
+#gene_interest_fig4D <- data.frame("Sample_ID" =Sample_id_rna_seq)
+gene_interest_tcac_fig4D  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_fig4D  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_fig4D  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_fig4D   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
+
 for (i in 1:10){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig4D[i]))
-  gene_name <- as.character(gene_interest_names_fi4D[i])
-  gene_interest_fig4D[gene_interest_names_fi4D ] <- Data_vst_all_with_sample[,n_col ]
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_fig4D[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_fig4D[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_fig4D[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_fig4D[i]))
+  
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_fig4D[i]))
+  }
+  
+  gene_name <- as.character(gene_interest_names_fig4D[i])
+  gene_interest_tcac_fig4D[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_fig4D[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_fig4D[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_fig4D[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
 }
 
+dim(gene_interest_tcac_fig4D); dim(gene_interest_tcaclcnecsclc_fig4D); dim(gene_interest_tcaclcnec_fig4D); dim(gene_interest_tcacsclc_fig4D)
+
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Gene expression Fig 6
 # ----------------------
 Embl_MKI67 = as.character(Ref_gene$V1[Ref_gene$V7 == "MKI67"])
 gene_interest_names_fig6 <- c("MKI67" )
 gene_interest_embl_fig6 <- c(Embl_MKI67 )
-gene_interest_fig6 <- data.frame("Sample_ID" =Sample_id_rna_seq)
+#gene_interest_fig6 <- data.frame("Sample_ID" =Sample_id_rna_seq)
+
+gene_interest_tcac_fig6  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_fig6  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_fig6  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_fig6   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 for (i in 1:1){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_fig6[i]))
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_fig6[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_fig6[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_fig6[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_fig6[i]))
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_fig6[i]))
+  }
   gene_name <- as.character(gene_interest_names_fig6[i])
-  gene_interest_fig6[gene_interest_names_fig6 ] <- Data_vst_all_with_sample[,n_col ]
+  gene_interest_tcac_fig6[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_fig6[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_fig6[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_fig6[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
+  
 }
+
+dim(gene_interest_tcac_fig6); dim(gene_interest_tcaclcnecsclc_fig6); dim(gene_interest_tcaclcnec_fig6); dim(gene_interest_tcacsclc_fig6)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 #############################
@@ -430,13 +590,31 @@ Embl_CXCL5=as.character(Ref_gene$V1[Ref_gene$V7 == "CXCL5"])
 
 gene_interest_names_chemokines <- c("CCL2","CCL7" , "CCL19",  "CCL21","CCL22", "IL8","CXCL1", "CXCL3","CXCL5")
 gene_interest_embl_chemokines<- c(Embl_CCL2, Embl_CCL7, Embl_CCL19 ,Embl_CCL21, Embl_CCL22, Embl_IL8, Embl_CXCL1, Embl_CXCL3, Embl_CXCL5)
-gene_interest_chemokines <- data.frame("Sample_ID" =Sample_id_rna_seq)
+#gene_interest_chemokines <- data.frame("Sample_ID" =Sample_id_rna_seq)
+gene_interest_tcac_chemokines  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_chemokines  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_chemokines  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_chemokines   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 for (i in 1:9){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_chemokines[i]))
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_chemokines[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_chemokines[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_chemokines[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_chemokines[i]))
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_chemokines[i]))
+  }
   gene_name <- as.character(gene_interest_names_chemokines[i])
-  gene_interest_chemokines[gene_interest_names_chemokines ] <- Data_vst_all_with_sample[,n_col ]
+  gene_interest_tcac_chemokines[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_chemokines[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_chemokines[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_chemokines[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
 }
 
+dim(gene_interest_tcac_chemokines); dim(gene_interest_tcaclcnecsclc_chemokines); dim(gene_interest_tcaclcnec_chemokines); dim(gene_interest_tcacsclc_chemokines)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 New_col_name = c()
 for (i in 2:10){
   New_col_name[i-1] = paste("Chemokine_" , colnames(gene_interest_chemokines)[i], sep="")
@@ -452,12 +630,29 @@ Embl_NOTCH3=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "NOTCH3"])
 Embl_NOTCH4=as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "NOTCH4"])
 gene_interest_names_notch <- c("NOTCH1", "NOTCH2", "NOTCH3", "NOTCH4")
 gene_interest_embl_notch<- c(Embl_NOTCH1, Embl_NOTCH2, Embl_NOTCH3, Embl_NOTCH4)
-gene_interest_notch<- data.frame("Sample_ID" =Sample_id_rna_seq)
+#gene_interest_notch<- data.frame("Sample_ID" =Sample_id_rna_seq)
+gene_interest_tcac_notch  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_notch  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_notch  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_notch   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 for (i in 1:4){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_notch[i]))
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_notch[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_notch[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_notch[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_notch[i]))
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_notch[i]))
+  }
   gene_name <- as.character(gene_interest_names_notch[i])
-  gene_interest_notch[gene_interest_names_notch ] <- Data_vst_all_with_sample[,n_col ]
+  gene_interest_tcac_notch[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_notch[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_notch[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_notch[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
 }
+
+dim(gene_interest_tcac_notch); dim(gene_interest_tcaclcnecsclc_notch); dim(gene_interest_tcaclcnec_notch); dim(gene_interest_tcacsclc_notch)
 
 ##############################################################
 # Fig S14  :  LA class I and related immunostimulatory genes #
@@ -481,19 +676,34 @@ names(HLA_C)<-Ref_gene_all$V7[c(index_HLA_C )] ; HLA_C
 names(HLA_G)<-Ref_gene_all$V7[c(index_HLA_G )] ; HLA_G
 
 
-gene_interest_names_S14 <- c( "IFNG" ,names(HLA_A) , names(HLA_B) , names(HLA_C) , names(HLA_G))
-gene_interest_embl_S14 <- c(Embl_IFNG , as.character(HLA_A[[1]]), as.character(HLA_A[[2]]) , as.character(HLA_B[[1]]), as.character(HLA_C[[1]] )  , as.character(HLA_G[[1]])  )
+gene_interest_names_figS14 <- c( "IFNG" ,names(HLA_A) , names(HLA_B) , names(HLA_C) , names(HLA_G))
+gene_interest_embl_figS14 <- c(Embl_IFNG , as.character(HLA_A[[1]]), as.character(HLA_A[[2]]) , as.character(HLA_B[[1]]), as.character(HLA_C[[1]] )  , as.character(HLA_G[[1]])  )
 
 # Data frame :
-gene_interest_figS14 <- data.frame("Sample_ID" = Sample_id_rna_seq)
+#gene_interest_figS14 <- data.frame("Sample_ID" = Sample_id_rna_seq)
+gene_interest_tcac_figS14  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_figS14  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_figS14  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_figS14   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
+
 for (i in 1:6){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_S14[i]))
-  #print(as.numeric(n_col))
-  gene_name <- as.character(gene_interest_names_S14[i])
-  #print(gene_name)
-  gene_interest_figS14[gene_name] <- Data_vst_all_with_sample[,n_col ]
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_figS14[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_figS14[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_figS14[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_figS14[i]))
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_figS14[i]))
+  }
+  gene_name <- as.character(gene_interest_names_figS14[i])
+  gene_interest_tcac_figS14[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_figS14[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_figS14[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_figS14[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
 }
 
+dim(gene_interest_tcac_figS14); dim(gene_interest_tcaclcnecsclc_figS14); dim(gene_interest_tcaclcnec_figS14); dim(gene_interest_tcacsclc_figS14)
 
 #############################################################################################
 # Fig S27  :  Genes expression associated with good or pooro survival prognosis in custer B #
@@ -509,38 +719,74 @@ Embl_BAIAP2L2 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "BAIAP2L2"])
 
 gene_interest_names_S27 <- c("LMX1A",  "ZG16B","GABRA1", "IL22RA1", "C1orf87", "GHSR","BAIAP2L2"  )
 gene_interest_embl_S27<- c(Embl_LMX1A,Embl_ZG16B,Embl_GABRA1,Embl_IL22RA1 , Embl_C1orf87, Embl_GHSR, Embl_BAIAP2L2)
-gene_interest_S27 <- data.frame("Sample_ID" =Sample_id_rna_seq)
+#gene_interest_S27 <- data.frame("Sample_ID" =Sample_id_rna_seq)
+gene_interest_tcac_S27  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_S27  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_S27  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_S27   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 
 for (i in 1:7){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_S27[i]))
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_S27[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_S27[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_S27[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_S27[i]))
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_S27[i]))
+  }
   gene_name <- as.character(gene_interest_names_S27[i])
-  gene_interest_S27[gene_interest_names_S27 ] <- Data_vst_all_with_sample[,n_col ]
+  gene_interest_tcac_S27[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_S27[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_S27[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_S27[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
 }
+
+dim(gene_interest_tcac_S27); dim(gene_interest_tcaclcnecsclc_S27); dim(gene_interest_tcaclcnec_S27); dim(gene_interest_tcacsclc_S27)
 
 ###############################################################
 # Fig S2B  :  Genes expression  characterised supra_cacinoids #
 ###############################################################
-
-# Evading_growth_suppressor
-# -------------------------
-
-Embl_BAP1 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "BAP1"])
-Embl_PYCARD  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PYCARD"])
-Embl_SIN3A= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "SIN3A"])
-Embl_TP53= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TP53"])
-
-gene_interest_names_Evading_growth_suppressor <- c("BAP1","PYCARD", "SIN3A",  "TP53")
-gene_interest_embl_Evading_growth_suppressor<- c(Embl_BAP1, Embl_PYCARD, Embl_SIN3A,Embl_TP53 )
-gene_interest_Evading_growth_suppressor <- data.frame("Sample_ID" =Sample_id_rna_seq)
-
-for (i in 1:4){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_Evading_growth_suppressor[i]))
-  gene_name <- as.character(gene_interest_names_Evading_growth_suppressor[i])
-  gene_interest_Evading_growth_suppressor[gene_interest_names_Evading_growth_suppressor] <- Data_vst_all_with_sample[,n_col ]
-}
-
-
-gene_mean_Evading_growth_suppressor = apply(gene_interest_Evading_growth_suppressor[,2:5], 1 , mean)
+# 
+# # Evading_growth_suppressor
+# # -------------------------
+# 
+# Embl_BAP1 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "BAP1"])
+# Embl_PYCARD  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PYCARD"])
+# Embl_SIN3A= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "SIN3A"])
+# Embl_TP53= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TP53"])
+# 
+# gene_interest_names_Evading_growth_suppressor <- c("BAP1","PYCARD", "SIN3A",  "TP53")
+# gene_interest_embl_Evading_growth_suppressor<- c(Embl_BAP1, Embl_PYCARD, Embl_SIN3A,Embl_TP53 )
+# #gene_interest_Evading_growth_suppressor <- data.frame("Sample_ID" =Sample_id_rna_seq)
+# gene_interest_tcac_Evading_growth_suppressor  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+# gene_interest_tcaclcnecsclc_Evading_growth_suppressor  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+# gene_interest_tcaclcnec_Evading_growth_suppressor  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+# gene_interest_tcacsclc_Evading_growth_suppressor   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+# 
+# 
+# for (i in 1:4){
+#   n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_Evading_growth_suppressor[i]))
+#   n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_Evading_growth_suppressor[i]))
+#   n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_Evading_growth_suppressor[i]))
+#   n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_Evading_growth_suppressor[i]))
+#   if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+#     print("warning")
+#     print( as.character(gene_interest_names_Evading_growth_suppressor[i]))
+#   }
+#   gene_name <- as.character(gene_interest_names_Evading_growth_suppressor[i])
+#   gene_interest_tcac_Evading_growth_suppressor[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+#   gene_interest_tcaclcnecsclc_Evading_growth_suppressor[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+#   gene_interest_tcaclcnec_Evading_growth_suppressor[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+#   gene_interest_tcacsclc_Evading_growth_suppressor[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
+# }
+# dim(gene_interest_tcac_Evading_growth_suppressor); dim(gene_interest_tcaclcnecsclc_Evading_growth_suppressor); dim(gene_interest_tcaclcnec_Evading_growth_suppressor)
+# dim(gene_interest_tcacsclc_Evading_growth_suppressor)
+# 
+# gene_mean_tcac_Evading_growth_suppressor = apply(gene_interest_tcac_Evading_growth_suppressor[,2:5], 1 , mean)
+# gene_mean_tcaclcnecsclc_Evading_growth_suppressor = apply(gene_interest_tcaclcnecsclc_Evading_growth_suppressor[,2:5], 1 , mean)
+# gene_mean_tcaclcnec_Evading_growth_suppressor = apply(gene_interest_tcaclcnec_Evading_growth_suppressor[,2:5], 1 , mean)
+# gene_mean_tcacsclc_Evading_growth_suppressor = apply(gene_interest_tcacsclc_Evading_growth_suppressor[,2:5], 1 , mean)
 
 # Activating invasion and matastasis
 # ----------------------------------
@@ -556,49 +802,97 @@ Embl_TNR= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TNR"])
 
 gene_interest_names_Activating_invasion_metastasis <- c("ATXN3", "JMJD1C", "PYCARD", "CDH17", "LYN", "COBLL1","MYLK" , "TNR")
 gene_interest_embl_Activating_invasion_metastasis<- c(Embl_ATXN3 , Embl_JMJD1C, Embl_PYCARD, Embl_CDH17, Embl_LYN, Embl_COBLL1, Embl_MYLK, Embl_TNR )
-gene_interest_Activating_invasion_metastasis <- data.frame("Sample_ID" =Sample_id_rna_seq)
+#gene_interest_Activating_invasion_metastasis <- data.frame("Sample_ID" =Sample_id_rna_seq)
+gene_interest_tcac_Activating_invasion_metastasis  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+gene_interest_tcaclcnecsclc_Activating_invasion_metastasis  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+gene_interest_tcaclcnec_Activating_invasion_metastasis  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+gene_interest_tcacsclc_Activating_invasion_metastasis   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+
 
 for (i in 1:8){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_Activating_invasion_metastasis[i]))
+  n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_Activating_invasion_metastasis[i]))
+  n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_Activating_invasion_metastasis[i]))
+  n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_Activating_invasion_metastasis[i]))
+  n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_Activating_invasion_metastasis[i]))
+  if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+    print("warning")
+    print( as.character(gene_interest_names_Activating_invasion_metastasis[i]))
+  }
   gene_name <- as.character(gene_interest_names_Activating_invasion_metastasis[i])
-  gene_interest_Activating_invasion_metastasis[gene_interest_names_Activating_invasion_metastasis] <- Data_vst_all_with_sample[,n_col ]
+  gene_interest_tcac_Activating_invasion_metastasis[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+  gene_interest_tcaclcnecsclc_Activating_invasion_metastasis[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+  gene_interest_tcaclcnec_Activating_invasion_metastasis[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+  gene_interest_tcacsclc_Activating_invasion_metastasis[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
+  
 }
+ dim(gene_interest_tcac_Activating_invasion_metastasis); dim(gene_interest_tcaclcnecsclc_Activating_invasion_metastasis); dim(gene_interest_tcaclcnec_Activating_invasion_metastasis)
+ dim(gene_interest_tcacsclc_Activating_invasion_metastasis)
 
-
-gene_mean_Activating_invasion_metastasis = apply(gene_interest_Activating_invasion_metastasis[,2:9], 1 , mean)
-
+#gene_mean_Activating_invasion_metastasis = apply(gene_interest_Activating_invasion_metastasis[,2:9], 1 , mean)
+gene_mean_tcac_Activating_invasion_metastasis = apply(gene_interest_tcac_Activating_invasion_metastasis[,2:dim(gene_interest_tcac_Activating_invasion_metastasis)], 1 , mean)
+gene_mean_tcaclcnecsclc_Activating_invasion_metastasis = apply(gene_interest_tcaclcnecsclc_Activating_invasion_metastasis[,2:dim(gene_interest_tcaclcnecsclc_Activating_invasion_metastasis)], 1 , mean)
+gene_mean_tcaclcnec_Activating_invasion_metastasis = apply(gene_interest_tcaclcnec_Activating_invasion_metastasis[,2:dim(gene_interest_tcaclcnec_Activating_invasion_metastasis)], 1 , mean)
+gene_mean_tcacsclc_Activating_invasion_metastasis = apply(gene_interest_tcacsclc_Activating_invasion_metastasis[,2:dim(gene_interest_tcacsclc_Activating_invasion_metastasis)], 1 , mean)
 
 # Genome instability and mutation
 # -------------------------------
 
-Embl_ATXN3 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "ATXN3"])
-Embl_PRKDC  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PRKDC"])
-Embl_TP53= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TP53"])
+# Embl_ATXN3 = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "ATXN3"])
+# Embl_PRKDC  = as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "PRKDC"])
+# Embl_TP53= as.character(Ref_gene_all$V1[Ref_gene_all$V7 == "TP53"])
+# 
+# gene_interest_names_Genome_instability_mutation <- c("ATXN3", "PRKDC", "TP53")
+# gene_interest_embl_Genome_instability_mutation<- c(Embl_ATXN3 ,Embl_PRKDC , Embl_TP53)
+# #gene_interest_Genome_instability_mutation <- data.frame("Sample_ID" =Sample_id_rna_seq)
+# gene_interest_tcac_Genome_instability_mutation  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcac)
+# gene_interest_tcaclcnecsclc_Genome_instability_mutation  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnecsclc)
+# gene_interest_tcaclcnec_Genome_instability_mutation  <- data.frame("Sample_ID" = Sample_id_rna_seq_tcaclcnec)
+# gene_interest_tcacsclc_Genome_instability_mutation   <- data.frame("Sample_ID" = Sample_id_rna_seq_tcacsclc)
+# 
+# 
+# for (i in 1:3){
+#   n_col_tcac = which(colnames(t_Data_vst_tcac) == as.name(gene_interest_embl_Genome_instability_mutation[i]))
+#   n_col_tcaclcnecsclc = which(colnames(t_Data_vst_tcaclcnecsclc) == as.name(gene_interest_embl_Genome_instability_mutation[i]))
+#   n_col_tcaclcnec = which(colnames(t_Data_vst_tcaclcnec) == as.name(gene_interest_embl_Genome_instability_mutation[i]))
+#   n_col_tcacsclc = which(colnames(t_Data_vst_tcacsclc) == as.name(gene_interest_embl_Genome_instability_mutation[i]))
+#   if(length(n_col_tcac)| length(n_col_tcaclcnec)| length(n_col_tcaclcnecsclc)| length(n_col_tcacsclc) == 0){
+#     print("warning")
+#     print( as.character(gene_interest_names_Genome_instability_mutation[i]))
+#   }
+#   gene_name <- as.character(gene_interest_names_Genome_instability_mutation[i])
+#   gene_interest_tcac_Genome_instability_mutation[gene_name] <- t_Data_vst_tcac[,n_col_tcac]
+#   gene_interest_tcaclcnecsclc_Genome_instability_mutation[gene_name] <- t_Data_vst_tcaclcnecsclc[,n_col_tcaclcnecsclc]
+#   gene_interest_tcaclcnec_Genome_instability_mutation[gene_name] <- t_Data_vst_tcaclcnec[,n_col_tcaclcnec]
+#   gene_interest_tcacsclc_Genome_instability_mutation[gene_name] <- t_Data_vst_tcacsclc[,n_col_tcacsclc] 
+# }
+# dim(gene_interest_tcac_Genome_instability_mutation); dim(gene_interest_tcaclcnecsclc_Genome_instability_mutation); dim(gene_interest_tcaclcnec_Genome_instability_mutation)
+# dim(gene_interest_tcacsclc_Genome_instability_mutation)
+# 
+# #gene_mean_Genome_instability_mutation = apply(gene_interest_Genome_instability_mutation[,2:4], 1 , mean)
+# gene_mean_tcac_Genome_instability_mutation = apply(gene_interest_tcac_Genome_instability_mutation[,2:9], 1 , mean)
+# gene_mean_tcaclcnecsclc_Genome_instability_mutation = apply(gene_interest_tcaclcnecsclc_Genome_instability_mutation[,2:9], 1 , mean)
+# gene_mean_tcaclcnec_Genome_instability_mutation = apply(gene_interest_tcaclcnec_Genome_instability_mutation[,2:9], 1 , mean)
+# gene_mean_tcacsclc_Genome_instability_mutation = apply(gene_interest_tcacsclc_Genome_instability_mutation[,2:9], 1 , mean)
+# 
+# Fig2B_tcac_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq_tcac, "Genome_instability_and_mutation" = gene_mean_tcac_Genome_instability_mutation , 
+#                            "Activating_invasion_and_metastasis" = gene_mean_tcac_Activating_invasion_metastasis ,  "Evading_growth_suppressor" =  gene_mean_tcac_Evading_growth_suppressor)
+# 
+# Fig2B_tcaclcnecsclc_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq_tcaclcnecsclc, "Genome_instability_and_mutation" = gene_mean_tcaclcnecsclc_Genome_instability_mutation , 
+#                                 "Activating_invasion_and_metastasis" = gene_mean_tcaclcnecsclc_Activating_invasion_metastasis ,  "Evading_growth_suppressor" =  gene_mean_tcaclcnecsclc_Evading_growth_suppressor)
+# 
+# Fig2B_tcaclcnec_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq_tcaclcnec, "Genome_instability_and_mutation" = gene_mean_tcaclcnec_Genome_instability_mutation , 
+#                                          "Activating_invasion_and_metastasis" = gene_mean_tcaclcnec_Activating_invasion_metastasis ,  "Evading_growth_suppressor" =  gene_mean_tcaclcnec_Evading_growth_suppressor)
+# 
+# 
+# Fig2B_tcacsclc_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq_tcacsclc, "Genome_instability_and_mutation" = gene_mean_tcacsclc_Genome_instability_mutation , 
+#                                      "Activating_invasion_and_metastasis" = gene_mean_tcacsclc_Activating_invasion_metastasis ,  "Evading_growth_suppressor" =  gene_mean_tcacsclc_Evading_growth_suppressor)
 
-gene_interest_names_Genome_instability_mutation <- c("ATXN3", "PRKDC", "TP53")
-gene_interest_embl_Genome_instability_mutation<- c(Embl_ATXN3 ,Embl_PRKDC , Embl_TP53)
-gene_interest_Genome_instability_mutation <- data.frame("Sample_ID" =Sample_id_rna_seq)
-
-for (i in 1:3){
-  n_col = which(colnames(t_Data_vst_all) == as.name(gene_interest_embl_Genome_instability_mutation[i]))
-  gene_name <- as.character(gene_interest_names_Genome_instability_mutation[i])
-  gene_interest_Genome_instability_mutation[gene_interest_names_Genome_instability_mutation] <- Data_vst_all_with_sample[,n_col ]
-}
-
-
-gene_mean_Genome_instability_mutation = apply(gene_interest_Genome_instability_mutation[,2:4], 1 , mean)
-
-Fig2B_mean_df = data.frame("Sample_ID" =Sample_id_rna_seq, "Genome_instability_and_mutation" = gene_mean_Genome_instability_mutation , 
-                           "Activating_invasion_and_metastasis" = gene_mean_Activating_invasion_metastasis ,  "Evading_growth_suppressor" =  gene_mean_Evading_growth_suppressor)
-
-
-
-
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 # Metylation 
 # ----------
-Methyl <- load("../methylation_final.RData") #
+#Methyl <- load("../methylation_final.RData") #
 metadata=pData(funnometa) # metadata
 Mdata = minfi::getM(funnometa)
 colnames(Mdata)=sapply(colnames(Mdata),function(i) metadata$Ms_id[which(metadata$barcode==i)])
@@ -649,7 +943,7 @@ HNF1A_Methyl_mean <- apply(HNF1A_Methyl_df[,2:7], 1, mean)
 HNF4A_Methyl_mean <- apply(HNF4A_Methyl_df[,2:10], 1, mean)
 
 
-
+# HERE 8888888888888888888888
 #############################
 # MERGE ALL ATTRIBUTES      #
 #############################
@@ -661,25 +955,29 @@ Mutation_df  <- setDT(Mutation_df  , keep.rownames = TRUE)[]
 colnames(Mutation_df )[1] <- "Sample_ID"
 head(mutation_matrix,3)
 
-length(ML_methyl)
-length(ML_expr)
-length(ML_MKI67)
-length(ML_Mofa )
-length(ML_expr_methyl)
-length(Res_type_ml) # Fig 1A pred
-
-dim(gene_interest_fig5A)
-dim(gene_interest_fig2E)
-length(HLA_D_mean)
-dim(gene_interest_fig4B)
-dim(gene_interest_fig4D)
-dim(gene_interest_fig6)
-dim(gene_interest_chemokines)
-dim(gene_interest_notch)
-dim(gene_interest_figS14)
+# length(ML_methyl)
+# length(ML_expr)
+# length(ML_MKI67)
+# length(ML_Mofa )
+# length(ML_expr_methyl)
+# length(Res_type_ml) # Fig 1A pred
+# 
+# dim(gene_interest_fig5A)
+# dim(gene_interest_fig2E)
+# length(HLA_D_mean)
+# dim(gene_interest_fig4B)
+# dim(gene_interest_fig4D)
+# dim(gene_interest_fig6)
+# dim(gene_interest_chemokines)
+# dim(gene_interest_notch)
+# dim(gene_interest_figS14)
 
 # Merge Genes Expr
 # ----------------
+gene_interest_tcac_M <- merge(gene_interest_tcacn, gene_interest_tcac_fi5A )
+  merge(gene_interest_fig5A ,gene_interest_fig2E , by= "Sample_ID")
+
+
 gene_interest = merge(gene_interest_fig5A ,gene_interest_fig2E , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig4B , by= "Sample_ID")
 gene_interest = merge(gene_interest , gene_interest_fig4D , by= "Sample_ID")
@@ -704,7 +1002,7 @@ df_HNF_methyl <- data.frame("Sample_ID" = colnames(Mdata) , "HNF1A.Mean.beta.val
 ML_prediction_df = data.frame("Sample_ID" = Sample_overview$Sample_ID ,"ML_predictions_Methylation_Data" =ML_methyl , "ML_predictions_Expression_Data" = ML_expr , "ML_prediction_MKI67_Data"= ML_MKI67,
                               "ML_predictions_Mofa_Data"= ML_Mofa, "ML_predictions_Expression_Methylation_Data"= ML_expr_methyl, "ML_predictions_fig1"= Res_type_ml )
 
-# Merging of iffrent attributes :
+# Merging all diffrent attributes :
 # -------------------------------
 
 # Add Supra carcinoid class
@@ -775,6 +1073,8 @@ Attributes_fig1A = merge(Attributes2 , Fig1_LNEN_sample_id , by="Sample_ID")
 #write.table(Coords_MOFA_fig1, file='Coords_MOFA_fig1.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
 #write.table(Attributes_fig1A, file='Attributes_fig1A.tsv', quote=FALSE, sep='\t', row.names = F)
 
+
+
 # Fig 4A :
 # --------
 
@@ -814,6 +1114,11 @@ sample_ID_Coords_PCA_S6A <- list(as.character(Coords_PCA_S6A$Sample_ID))[[1]]
 setdiff(sample_ID_Coords_PCA_S6A, sample_ID_coords_fig_6A_D)
 length(sample_ID_Coords_PCA_S6A)
 length(sample_ID_coords_fig_6A_D)
+
+
+
+
+
 # FIG 6B
 # -------
 
@@ -994,11 +1299,26 @@ Attributes_expr = merge(Attributes2 , Sample_ID_expr  , by="Sample_ID")
 # ------------------
 
 # Fig 6A = SCLC + LCNEC  + Typical + Atypical + Carcinoids
+
+all_genes <- read.table("../expr/VST_nosex_TCACLCNECSCLC.txt", header = T)
+which(colnames(all_genes) == "S02322_A"| colnames(all_genes) == "S02322_B")
+colnames(all_genes)[which(colnames(all_genes) == "S02322_A"| colnames(all_genes) == "S02322_B")] <- c("S02322.R1","S02322.R2")
+vst_mat <- all_genes[,c(which(colnames(all_genes) %in% as.character(Coords_PCA_S6A$Sample_ID)))]
+rvdm <- apply(vst_mat,1,stats::var)
+ntopdm = rev(which( cumsum( sort(rvdm,decreasing = T) )/sum(rvdm) <= 0.5 ))[1] + 1
+selectdm <- order(rvdm, decreasing = TRUE)[seq_len(min(ntopdm, length(rvdm)))]
+dim(vst_mat)
+vst_mat <- vst_mat[selectdm,]
+#dim(vst_mat)
+#vst_mat  <- t(vst_mat)
+
+
 t_data_vst_50$Sample_ID[which(t_data_vst_50$Sample_ID == "S02322_A")] <- "S02322.R1"
 t_data_vst_50$Sample_ID[which(t_data_vst_50$Sample_ID == "S02322_B")] <- "S02322.R2"
 
 Attributes_fig6A_sample <- data.frame("Sample_ID"= Attributes_fig6A$Sample_ID)
 t_data_vst_50_type_5 = merge(t_data_vst_50, Attributes_fig6A_sample, by="Sample_ID")
+
 umap_6A <- umap(as.matrix(t_data_vst_50_type_5[,2:6399]))
 umap_6A <- data.frame("Sample_ID"= Attributes_fig6A_sample, "x" = umap_6A$layout[,1], "y"=umap_6A$layout[,2] )  
 
@@ -1023,10 +1343,10 @@ for (i in 1:dim(Attributes_fig6A)[1]){
 
 Attributes_fig6A = cbind(Attributes_fig6A, "Cluster_LNET_LCNEC_SCLC" = Cluster_LNET_LCNEC_SCLC)
 
-write.table(umap_6A,  file='umap_6A_coords.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
+#write.table(umap_6A,  file='umap_6A_coords.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
 
-write.table(Attributes_fig6A, file='Attributes_UMAP_g6A.tsv', quote=FALSE, sep='\t', row.names = F)
-
+#write.table(Attributes_fig6A, file='Attributes_UMAP_g6A.tsv', quote=FALSE, sep='\t', row.names = F)
+#write.table(t_data_vst_50_type_5,  file='gene_expr_LNEN_SCLC_LCNEC.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
 
 # Fig 6B =LCNEC  + Typical + Atypical + Carcinoids
 
@@ -1042,7 +1362,9 @@ t_data_vst_50_TCACLCNEC <- merge(t_data_vst_50_TCACLCNEC, Sample_fig7B_df, by="S
 umap_6B <- umap(as.matrix(t_data_vst_50_TCACLCNEC[,2:6010]))
 umap_6B <- data.frame("Sample_ID"= Coords_PCA_S6B$Sample_ID, "x" = umap_6B$layout[,1], "y"=umap_6B$layout[,2] )  
 
-write.table(umap_6B,  file='umap_6B_coords.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
+#write.table(t_data_vst_50_TCACLCNEC,  file='t_data_vst_50_TCACLCNEC.txt', quote=FALSE, sep='\t', row.names = F,  col.names = T)
+
+#write.table(umap_6B,  file='umap_6B_coords.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F)
 Attributes_fig6B$Cluster_LNET <- as.character( Attributes_fig6B$Cluster_LNET )
 Attributes_fig6B$Cluster_LNEN <- as.character( Attributes_fig6B$Cluster_LNEN )
 
@@ -1413,8 +1735,8 @@ Mofa_expr_coords_5_classes = merge(Coords_MOFA_fig1,Jupyter_sample_5, by="Sample
 
 
 Attributes_UMAP_analysis <- merge(Attributes_fig1A, Mofa_expr_coords_5_classes , by="Sample_ID")
-Spatial_analysis_attribute <- data.frame("OTP"= Attributes_UMAP_analysis[,31],  "ANGPTL3" =Attributes_UMAP_analysis[,29], "Dendritic_cell" =Attributes_UMAP_analysis$Dendritic.cells  )
-#write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute_5_classes.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
+Spatial_analysis_attribute <- data.frame("OTP"= Attributes_UMAP_analysis[,31],  "ANGPTL3" =Attributes_UMAP_analysis[,29], "Dendritic_cell" =Attributes_UMAP_analysis$Dendritic.cells ,"Survival" = Attributes_UMAP_analysis$Survival_months )
+write.table(Spatial_analysis_attribute, file='Spatial_analysis_attribute_5_classes.tsv', quote=FALSE, sep='\t', row.names = F , col.names = T)
 
 
 

@@ -64,9 +64,10 @@ TILS <- data.frame( sample = suptable1$Samples , B = suptable1$B , Macrophages.M
                     Tregs = suptable1$Tregs , Dendritic.cells = suptable1$Dendritic.cells )
 
 
-ClinicalAttributes <- data.frame( sample = groupsBuenoTCGAred_2$Sample, Asbestos =  groupsBuenoTCGAred_2$Asbestos , 
-                                  Sex= groupsBuenoTCGAred_2$Sex , Type = groupsBuenoTCGAred_2$Type , 
-                                  Age = groupsBuenoTCGAred_2$Age , Survival = groupsBuenoTCGAred_2$Survival , cohort=metadata$Study ) 
+ClinicalAttributes <- data.frame( sample = groupsBuenoTCGAred_2$Sample,  Type = groupsBuenoTCGAred_2$Type , 
+                                  Age = groupsBuenoTCGAred_2$Age , Survival = groupsBuenoTCGAred_2$Survival , cohort=metadata$Study, 
+                                  Sex= groupsBuenoTCGAred_2$Sex , Smoking = groupsBuenoTCGAred_2$Smoking) #, Asbestos =  groupsBuenoTCGAred_2$Asbestos 
+                                                                                                                                      
 
 # Finaly not include 
 #Subtype_Type_revised =  data.frame( sample = as.character(metadata$Sample) , Subtype_FGS = metadata$Subtype.FGS , Type_FGS = metadata$Type.FGS , Necrosis = metadata$Necrosis, grade = metadata$Grade, stringsAsFactors=FALSE)
@@ -118,52 +119,49 @@ gene_interet2 <- gene_interet_samples_names[,-1]
 
 # PROFILES
 #---------
+# 
+# max(suptable1$Dimension.1)
+# min(suptable1$Dimension.1)
+# max(suptable1$Dimension.2)
+# min(suptable1$Dimension.2)
+# 
+# 
+# profiles <- c()
+# for (i in 1:dim(suptable1)[1]){
+#   if (suptable1$Dimension.1[i] <= min(suptable1$Dimension.1) + (max(suptable1$Dimension.1)   + -1*min(suptable1$Dimension.1)) *1/3  & 
+#       suptable1$Dimension.2[i] >= min(suptable1$Dimension.2) + (max(suptable1$Dimension.2)   + -1*min(suptable1$Dimension.2)) *2/3 ){
+#     profiles[i] <- "Hot/IC+/Angio+"
+#   }
+#   else if (suptable1$Dimension.1[i] >=  min(suptable1$Dimension.1) + (max(suptable1$Dimension.1)   + -1*min(suptable1$Dimension.1)) *2/3
+#            & suptable1$Dimension.2[i] >= min(suptable1$Dimension.2) + (max(suptable1$Dimension.2)   + -1*min(suptable1$Dimension.2)) *2/3  ){
+#     profiles[i] <- "VEGFR2+/VISTA+"
+#   }
+#   else if (suptable1$Dimension.1[i] <=  min(suptable1$Dimension.1) + (max(suptable1$Dimension.1)   + -1*min(suptable1$Dimension.1)) *1/3   
+#            & suptable1$Dimension.2[i] <= min(suptable1$Dimension.2) + (max(suptable1$Dimension.2)   + -1*min(suptable1$Dimension.2)) *1/3  ){
+#     profiles[i] <- "Cold/Angio+"
+#   }
+#   else{
+#     profiles[i]<- NA
+#   }
+# }
+# 
+# 
+# plot(suptable1$Dimension.1 , suptable1$Dimension.2 , col= as.factor(profiles))
+# 
+# profile_df <- data.frame("sample" = suptable1$Sample , "Profiles" =profiles )
 
-max(suptable1$Dimension.1)
-min(suptable1$Dimension.1)
-max(suptable1$Dimension.2)
-min(suptable1$Dimension.2)
-
-
-profiles <- c()
-for (i in 1:dim(suptable1)[1]){
-  if (suptable1$Dimension.1[i] <= min(suptable1$Dimension.1) + (max(suptable1$Dimension.1)   + -1*min(suptable1$Dimension.1)) *1/3  & 
-      suptable1$Dimension.2[i] >= min(suptable1$Dimension.2) + (max(suptable1$Dimension.2)   + -1*min(suptable1$Dimension.2)) *2/3 ){
-    profiles[i] <- "Hot/IC+/Angio+"
-  }
-  else if (suptable1$Dimension.1[i] >=  min(suptable1$Dimension.1) + (max(suptable1$Dimension.1)   + -1*min(suptable1$Dimension.1)) *2/3
-           & suptable1$Dimension.2[i] >= min(suptable1$Dimension.2) + (max(suptable1$Dimension.2)   + -1*min(suptable1$Dimension.2)) *2/3  ){
-    profiles[i] <- "VEGFR2+/VISTA+"
-  }
-  else if (suptable1$Dimension.1[i] <=  min(suptable1$Dimension.1) + (max(suptable1$Dimension.1)   + -1*min(suptable1$Dimension.1)) *1/3   
-           & suptable1$Dimension.2[i] <= min(suptable1$Dimension.2) + (max(suptable1$Dimension.2)   + -1*min(suptable1$Dimension.2)) *1/3  ){
-    profiles[i] <- "Cold/Angio+"
-  }
-  else{
-    profiles[i]<- NA
-  }
-}
-
-
-plot(suptable1$Dimension.1 , suptable1$Dimension.2 , col= as.factor(profiles))
-
-profile_df <- data.frame("sample" = suptable1$Sample , "Profiles" =profiles )
 #################################
 #   MERGE ATTRIBUTES            #
 #################################
 
-
-
 Attributes1 <- merge(TILS, ClinicalAttributes, by="sample")
-
 Attributes2 <- merge(Attributes1, gene_interet2, by="sample")
-Attributes2 <- merge(Attributes2 , profile_df , by="sample")
+# Attributes2 <- merge(Attributes2 , profile_df , by="sample")
 Attributes3 <- Attributes2 # FOR SIMPLIFY THE FOLLOWING SCRIPT
 
 # Convert factor to char
 Attributes3$Type = as.character(Attributes3$Type)
 table(Attributes3$Type)
-
 
 # Survie en mois
 Attributes3$Survival<- Attributes3$Survival*12
@@ -172,200 +170,202 @@ Attributes3$Survival<- Attributes3$Survival*12
 #############################
 #   ADD IHC DATA            #
 #############################
-IHC_333.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_333_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
-IHC_334.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_334_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
-IHC_351.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_351_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
-IHC_352.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_352_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
-IHC_353.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_353_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
-IHC_354.1 <-   read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_354_1.csv", sep = ";", dec="." , header = TRUE,na.strings=c("","NA"))
-
-change_sample_name_IHC_file <- function(data){
-  TGCA_ID <- c()
-  for (i in 1:dim(data)[1]){
-    if (is.na(data$IARC_ID[i])==F){
-      if (sum(is.na(data[i,4:8])) != 5){
-        withM <- test_ID <- sub("GNT", "M", data$IARC_ID[i])[1]    
-        g_expr = gregexpr(pattern ='_',withM)[[1]][1]
-        if  (g_expr !=  -1){
-          TGCA_ID[i] <- paste(substr(withM, 1, g_expr-1), "PT", sep="")[1]
-        }
-        else{
-          TGCA_ID[i] <- paste(withM, "PT", sep="")[1]
-        }
-      }
-      else{
-        TGCA_ID[i] <- NA
-      }
-    }
-    else{
-      TGCA_ID[i] <- NA
-    }
-  }
-  return(TGCA_ID)
-}
-
-IHC_333.2["Sample"] =  change_sample_name_IHC_file(IHC_333.2)
-IHC_334.2["Sample"]  = change_sample_name_IHC_file(IHC_334.2)
-IHC_351.1["Sample"]  = change_sample_name_IHC_file(IHC_351.1)
-colnames(IHC_352.1)[2] <- "IARC_ID"
-IHC_352.1["Sample"]  = change_sample_name_IHC_file(IHC_352.1)
-colnames(IHC_353.1)[2] <- "IARC_ID"
-IHC_353.1["Sample"]  = change_sample_name_IHC_file(IHC_353.1)
-colnames(IHC_354.1)[2] <- "IARC_ID"
-IHC_354.1["Sample"]  = change_sample_name_IHC_file(IHC_354.1)
-
-
-# Pour CD8 et VEGFR3M passage en pourcentage 
-# ------------------------------------------
-
-CD8_VEGFR3_Pourcent <- function(data){
-  CD8_p <- c()
-  VEGFR3M_p <- c()
-  for (i in 1:dim(data)[1]){
-    if (is.na(data$CD8[i]) == F){
-      if (data$CD8[i]==0){
-        CD8_p[i]<- 0
-      }
-      else if(data$CD8[i]==1){
-        CD8_p[i]<- 25
-      }
-      else if(data$CD8[i]==2){
-        CD8_p[i]<- 50
-      }
-      else if(data$CD8[i]==3){
-        CD8_p[i]<- 75
-      }
-      else if(data$CD8[i]==4){
-        CD8_p[i]<- 100
-      }
-      else {
-        CD8_p[i]<- NA
-      }
-    }
-    else{
-      CD8_p[i]<- NA
-    }
-    if (is.na(data$VEGFR3M[i])==F){
-      if (data$VEGFR3M[i]==0){
-        VEGFR3M_p[i]<- 0
-      }
-      else if(data$VEGFR3M[i]==1){
-        VEGFR3M_p[i]<- 25
-      }
-      else if(data$VEGFR3M[i]==2){
-        VEGFR3M_p[i]<- 50
-      }
-      else if(data$VEGFR3M[i]==3){
-        VEGFR3M_p[i]<- 75
-      }
-      else if(data$VEGFR3M[i]==4){
-        VEGFR3M_p[i]<- 100
-      }
-      else {
-        VEGFR3M_p[i]<- NA
-      }
-    }
-    else{
-      VEGFR3M_p[i]<- NA
-    }
-  }
-  CD8_VEGFR3_Pourcent_df <- data.frame(CD8_p, VEGFR3M_p) 
-  return (CD8_VEGFR3_Pourcent_df)
-}
-
-
-IHC_333.2["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_333.2)[,1]
-IHC_333.2["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_333.2)[,2]
-
-IHC_334.2["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_334.2)[,1]
-IHC_334.2["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_334.2)[,2]   
-
-IHC_351.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_351.1)[,1]
-IHC_351.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_351.1)[,2]    
-
-IHC_352.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_352.1)[,1]
-IHC_352.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_352.1)[,2] 
-
-
-IHC_353.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_353.1)[,1]
-IHC_353.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_353.1)[,2] 
-
-IHC_354.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_354.1)[,1]
-IHC_354.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_354.1)[,2] 
-
-
-# Création d'une table finale 
-#  __________________________
-
-
-IHC_all <- data.frame()
-
-IHC_333.2_2 <- data.frame( Sample = IHC_333.2$Sample , VISTA = IHC_333.2$VISTA, PDL1 = IHC_333.2$PDL1 , VEGFR3 = IHC_333.2$VEGFR3M_p , CD8 = IHC_333.2$CD8_p , VEGFR2 = IHC_333.2$VEGFR2)
-
-IHC_all <- rbind(IHC_333.2_2 ,IHC_all)
-
-
-IHC_334.2_2<- data.frame( Sample = IHC_334.2$Sample , VISTA = IHC_334.2$VISTA, PDL1 = IHC_334.2$PDL1 , VEGFR3 = IHC_334.2$VEGFR3M_p , CD8 = IHC_334.2$CD8_p , VEGFR2 = IHC_334.2$VEGFR2)
-
-IHC_all <- rbind(IHC_334.2_2 ,IHC_all)
-
-IHC_351.1_2<- data.frame( Sample = IHC_351.1$Sample , VISTA = IHC_351.1$VISTA, PDL1 = IHC_351.1$PDL1 , VEGFR3 = IHC_351.1$VEGFR3M_p , CD8 = IHC_351.1$CD8_p , VEGFR2 = IHC_351.1$VEGFR2)
-
-IHC_all <- rbind(IHC_351.1_2 ,IHC_all)
-
-IHC_352.1_2<- data.frame( Sample = IHC_352.1$Sample , VISTA = IHC_352.1$VISTA, PDL1 = IHC_352.1$PDL1 , VEGFR3 = IHC_352.1$VEGFR3M_p , CD8 = IHC_352.1$CD8_p , VEGFR2 = IHC_352.1$VEGFR2)
-IHC_all <- rbind(IHC_352.1_2 ,IHC_all)
-
-
-IHC_354.1_2<- data.frame( Sample = IHC_354.1$Sample , VISTA = IHC_354.1$VISTA, PDL1 = IHC_354.1$PDL1 , VEGFR3 = IHC_354.1$VEGFR3M_p , CD8 = IHC_354.1$CD8_p , VEGFR2 = IHC_354.1$VEGFR2)
-IHC_all <- rbind(IHC_354.1_2 ,IHC_all)
-
-tot_sample <- c(IHC_333.2$Sample , IHC_334.2$Sample, IHC_351.1$Sample, IHC_352.1$Sample,  IHC_353.1$Sample , IHC_354.1$Sample     ) #IHC_411.1$Sample , IHC_412.1$Sample 
-uniq_tot_sample= unique(tot_sample)[-1]  
-
-
-# Moyenne par échantillon
-# -----------------------
-
-IHC_moy_df <- data.frame(sample =uniq_tot_sample  ,  VEGFR2.IHC = rep(0,length(uniq_tot_sample)), VEGFR3M.IHC = rep(0,length(uniq_tot_sample)), 
-                         PDL1.IHC = rep(0,length(uniq_tot_sample)), CD8.IHC = rep(0,length(uniq_tot_sample)), 
-                         VISTA.IHC = rep(0,length(uniq_tot_sample)),  stringsAsFactors = F)
-
-IHC_moy_sample <- function(data, res_df){
-  for (i in 1:length(uniq_tot_sample)){
-    c_sample_id = IHC_moy_df$sample[i]
-    c_CD8_m =  mean(as.numeric(IHC_all$CD8[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,5] <-c_CD8_m # Ok
-    c_VISTA =  mean(as.numeric(IHC_all$VISTA[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,6] <-c_VISTA 
-    c_PDL1 =  mean(as.numeric(IHC_all$PDL1[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,4] <-c_PDL1 #OK
-    c_VEGFR3 =  mean(as.numeric(IHC_all$VEGFR3[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,3] <-c_VEGFR3
-    c_VEGFR2 =  mean(as.numeric(IHC_all$VEGFR2[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
-    res_df[i,2] <- c_VEGFR2 
-  }
-  return(res_df)
-  
-}
-
-IHC_moy_df = IHC_moy_sample(IHC_all , IHC_moy_df)
-# Supression des données pour lesquels les données génomiques sont manquantes
-v1 = which(IHC_moy_df$sample=="M654PT")
-IHC_moy_df = IHC_moy_df [-v1,]
-v2 = which(IHC_moy_df$sample=="M78PT")
-IHC_moy_df = IHC_moy_df [-v2,]
-v3 = which(IHC_moy_df$sample=="M601PT")
-IHC_moy_df = IHC_moy_df [-v3,]
-
-
+# IHC_333.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_333_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+# IHC_334.2 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_334_2.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+# IHC_351.1 <- read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_351_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+# IHC_352.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_352_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+# IHC_353.1 <-  read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_353_1.csv", sep = ";", dec="." , header = TRUE, na.strings=c("","NA"))
+# IHC_354.1 <-   read.csv("../IHC_Lecture_LM_20181121/IHC_Lecture_LM_20181116_354_1.csv", sep = ";", dec="." , header = TRUE,na.strings=c("","NA"))
+# 
+# change_sample_name_IHC_file <- function(data){
+#   TGCA_ID <- c()
+#   for (i in 1:dim(data)[1]){
+#     if (is.na(data$IARC_ID[i])==F){
+#       if (sum(is.na(data[i,4:8])) != 5){
+#         withM <- test_ID <- sub("GNT", "M", data$IARC_ID[i])[1]    
+#         g_expr = gregexpr(pattern ='_',withM)[[1]][1]
+#         if  (g_expr !=  -1){
+#           TGCA_ID[i] <- paste(substr(withM, 1, g_expr-1), "PT", sep="")[1]
+#         }
+#         else{
+#           TGCA_ID[i] <- paste(withM, "PT", sep="")[1]
+#         }
+#       }
+#       else{
+#         TGCA_ID[i] <- NA
+#       }
+#     }
+#     else{
+#       TGCA_ID[i] <- NA
+#     }
+#   }
+#   return(TGCA_ID)
+# }
+# 
+# IHC_333.2["Sample"] =  change_sample_name_IHC_file(IHC_333.2)
+# IHC_334.2["Sample"]  = change_sample_name_IHC_file(IHC_334.2)
+# IHC_351.1["Sample"]  = change_sample_name_IHC_file(IHC_351.1)
+# colnames(IHC_352.1)[2] <- "IARC_ID"
+# IHC_352.1["Sample"]  = change_sample_name_IHC_file(IHC_352.1)
+# colnames(IHC_353.1)[2] <- "IARC_ID"
+# IHC_353.1["Sample"]  = change_sample_name_IHC_file(IHC_353.1)
+# colnames(IHC_354.1)[2] <- "IARC_ID"
+# IHC_354.1["Sample"]  = change_sample_name_IHC_file(IHC_354.1)
+# 
+# 
+# # Pour CD8 et VEGFR3M passage en pourcentage 
+# # ------------------------------------------
+# 
+# CD8_VEGFR3_Pourcent <- function(data){
+#   CD8_p <- c()
+#   VEGFR3M_p <- c()
+#   for (i in 1:dim(data)[1]){
+#     if (is.na(data$CD8[i]) == F){
+#       if (data$CD8[i]==0){
+#         CD8_p[i]<- 0
+#       }
+#       else if(data$CD8[i]==1){
+#         CD8_p[i]<- 25
+#       }
+#       else if(data$CD8[i]==2){
+#         CD8_p[i]<- 50
+#       }
+#       else if(data$CD8[i]==3){
+#         CD8_p[i]<- 75
+#       }
+#       else if(data$CD8[i]==4){
+#         CD8_p[i]<- 100
+#       }
+#       else {
+#         CD8_p[i]<- NA
+#       }
+#     }
+#     else{
+#       CD8_p[i]<- NA
+#     }
+#     if (is.na(data$VEGFR3M[i])==F){
+#       if (data$VEGFR3M[i]==0){
+#         VEGFR3M_p[i]<- 0
+#       }
+#       else if(data$VEGFR3M[i]==1){
+#         VEGFR3M_p[i]<- 25
+#       }
+#       else if(data$VEGFR3M[i]==2){
+#         VEGFR3M_p[i]<- 50
+#       }
+#       else if(data$VEGFR3M[i]==3){
+#         VEGFR3M_p[i]<- 75
+#       }
+#       else if(data$VEGFR3M[i]==4){
+#         VEGFR3M_p[i]<- 100
+#       }
+#       else {
+#         VEGFR3M_p[i]<- NA
+#       }
+#     }
+#     else{
+#       VEGFR3M_p[i]<- NA
+#     }
+#   }
+#   CD8_VEGFR3_Pourcent_df <- data.frame(CD8_p, VEGFR3M_p) 
+#   return (CD8_VEGFR3_Pourcent_df)
+# }
+# 
+# 
+# IHC_333.2["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_333.2)[,1]
+# IHC_333.2["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_333.2)[,2]
+# 
+# IHC_334.2["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_334.2)[,1]
+# IHC_334.2["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_334.2)[,2]   
+# 
+# IHC_351.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_351.1)[,1]
+# IHC_351.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_351.1)[,2]    
+# 
+# IHC_352.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_352.1)[,1]
+# IHC_352.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_352.1)[,2] 
+# 
+# 
+# IHC_353.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_353.1)[,1]
+# IHC_353.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_353.1)[,2] 
+# 
+# IHC_354.1["CD8_p"]<-CD8_VEGFR3_Pourcent(IHC_354.1)[,1]
+# IHC_354.1["VEGFR3M_p"]<-CD8_VEGFR3_Pourcent(IHC_354.1)[,2] 
+# 
+# 
+# # Création d'une table finale 
+# #  __________________________
+# 
+# 
+# IHC_all <- data.frame()
+# 
+# IHC_333.2_2 <- data.frame( Sample = IHC_333.2$Sample , VISTA = IHC_333.2$VISTA, PDL1 = IHC_333.2$PDL1 , VEGFR3 = IHC_333.2$VEGFR3M_p , CD8 = IHC_333.2$CD8_p , VEGFR2 = IHC_333.2$VEGFR2)
+# 
+# IHC_all <- rbind(IHC_333.2_2 ,IHC_all)
+# 
+# 
+# IHC_334.2_2<- data.frame( Sample = IHC_334.2$Sample , VISTA = IHC_334.2$VISTA, PDL1 = IHC_334.2$PDL1 , VEGFR3 = IHC_334.2$VEGFR3M_p , CD8 = IHC_334.2$CD8_p , VEGFR2 = IHC_334.2$VEGFR2)
+# 
+# IHC_all <- rbind(IHC_334.2_2 ,IHC_all)
+# 
+# IHC_351.1_2<- data.frame( Sample = IHC_351.1$Sample , VISTA = IHC_351.1$VISTA, PDL1 = IHC_351.1$PDL1 , VEGFR3 = IHC_351.1$VEGFR3M_p , CD8 = IHC_351.1$CD8_p , VEGFR2 = IHC_351.1$VEGFR2)
+# 
+# IHC_all <- rbind(IHC_351.1_2 ,IHC_all)
+# 
+# IHC_352.1_2<- data.frame( Sample = IHC_352.1$Sample , VISTA = IHC_352.1$VISTA, PDL1 = IHC_352.1$PDL1 , VEGFR3 = IHC_352.1$VEGFR3M_p , CD8 = IHC_352.1$CD8_p , VEGFR2 = IHC_352.1$VEGFR2)
+# IHC_all <- rbind(IHC_352.1_2 ,IHC_all)
+# 
+# 
+# IHC_354.1_2<- data.frame( Sample = IHC_354.1$Sample , VISTA = IHC_354.1$VISTA, PDL1 = IHC_354.1$PDL1 , VEGFR3 = IHC_354.1$VEGFR3M_p , CD8 = IHC_354.1$CD8_p , VEGFR2 = IHC_354.1$VEGFR2)
+# IHC_all <- rbind(IHC_354.1_2 ,IHC_all)
+# 
+# tot_sample <- c(IHC_333.2$Sample , IHC_334.2$Sample, IHC_351.1$Sample, IHC_352.1$Sample,  IHC_353.1$Sample , IHC_354.1$Sample     ) #IHC_411.1$Sample , IHC_412.1$Sample 
+# uniq_tot_sample= unique(tot_sample)[-1]  
+# 
+# 
+# # Moyenne par échantillon
+# # -----------------------
+# 
+# IHC_moy_df <- data.frame(sample =uniq_tot_sample  ,  VEGFR2.IHC = rep(0,length(uniq_tot_sample)), VEGFR3M.IHC = rep(0,length(uniq_tot_sample)), 
+#                          PDL1.IHC = rep(0,length(uniq_tot_sample)), CD8.IHC = rep(0,length(uniq_tot_sample)), 
+#                          VISTA.IHC = rep(0,length(uniq_tot_sample)),  stringsAsFactors = F)
+# 
+# IHC_moy_sample <- function(data, res_df){
+#   for (i in 1:length(uniq_tot_sample)){
+#     c_sample_id = IHC_moy_df$sample[i]
+#     c_CD8_m =  mean(as.numeric(IHC_all$CD8[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+#     res_df[i,5] <-c_CD8_m # Ok
+#     c_VISTA =  mean(as.numeric(IHC_all$VISTA[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+#     res_df[i,6] <-c_VISTA 
+#     c_PDL1 =  mean(as.numeric(IHC_all$PDL1[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+#     res_df[i,4] <-c_PDL1 #OK
+#     c_VEGFR3 =  mean(as.numeric(IHC_all$VEGFR3[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+#     res_df[i,3] <-c_VEGFR3
+#     c_VEGFR2 =  mean(as.numeric(IHC_all$VEGFR2[which(IHC_all$Sample== c_sample_id)]), na.rm=TRUE)
+#     res_df[i,2] <- c_VEGFR2 
+#   }
+#   return(res_df)
+#   
+# }
+# 
+# IHC_moy_df = IHC_moy_sample(IHC_all , IHC_moy_df)
+# # Supression des données pour lesquels les données génomiques sont manquantes
+# v1 = which(IHC_moy_df$sample=="M654PT")
+# IHC_moy_df = IHC_moy_df [-v1,]
+# v2 = which(IHC_moy_df$sample=="M78PT")
+# IHC_moy_df = IHC_moy_df [-v2,]
+# v3 = which(IHC_moy_df$sample=="M601PT")
+# IHC_moy_df = IHC_moy_df [-v3,]
+# 
+# 
 
 # Attributes with IHC 
 # --------------------
 
-Attributes4 <- merge(Attributes3 , IHC_moy_df , by= "sample" , all= TRUE) 
-colnames(Attributes4)[which(colnames(Attributes4)=="B")] <- "B.Cells"
+#Attributes4 <- merge(Attributes3 , IHC_moy_df , by= "sample" , all= TRUE) 
+#colnames(Attributes4)[which(colnames(Attributes4)=="B")] <- "B.Cells"
 
+Attributes4 <- Attributes3
+colnames(Attributes4)[which(colnames(Attributes4)=="B")] <- "B.Cells"
 
 ############################################
 # Feature_DATA with the largest variance   #
@@ -411,9 +411,6 @@ colnames(suptable1)[1]<-"Sample"
 suptable1.2 <- merge(suptable1, metadata, by='Sample')
 plot(acp_fig1_li_df$Axis1 , acp_fig1_li_df$Axis2 , col=as.factor(acp_fig1_li_df$Type) )  # ;)   Victoire
 plot(suptable1.2$Dimension.1 , suptable1.2$Dimension.2 , col=suptable1.2$Type ) #OK
-
-
-
 
 
 ######################
@@ -564,33 +561,37 @@ Coord_fig3_b$Axis2 = Coord_fig3_b$Axis2*-1
 
 
 
-Attribute_fig3a_b <-data.frame( "sample"=Attributes_replication$X, "Sex" = Attributes_replication$SEXE ,"Age"  = Attributes_replication$Age, "Asbestos"= Attributes_replication$Expo.A.codée , "Smoking"= Attributes_replication$Tabagisme , "Type"= Attributes_replication$GRP , "Survival"= Attributes_replication$Survie, "CD8.IHC" =Attributes_replication$CD8_r  , "Vegfr2.mb.IHC"= Attributes_replication$Vegfr2_r_mb , "Vegfr3.mb.IHC"= Attributes_replication$Vegfr3_r.f , "PDL1.IHC" = Attributes_replication$PDL1_r , "PDL1.TILS" = Attributes_replication$PDL1.TILS_r.f , "VISTA.IHC" = Attributes_replication$Vista_r_mb)
+Attribute_fig3a_b <-data.frame( "sample"=Attributes_replication$X, "Sex" = Attributes_replication$SEXE ,"Age"  = Attributes_replication$Age,
+                                 "Smoking"= Attributes_replication$Tabagisme , 
+                                "Type"= Attributes_replication$GRP , "Survival"= Attributes_replication$Survie, "CD8.IHC" =Attributes_replication$CD8_r  , 
+                                "Vegfr2.mb.IHC"= Attributes_replication$Vegfr2_r_mb , "Vegfr3.mb.IHC"= Attributes_replication$Vegfr3_r.f , 
+                                "PDL1.IHC" = Attributes_replication$PDL1_r , "PDL1.TILS" = Attributes_replication$PDL1.TILS_r.f , 
+                                "VISTA.IHC" = Attributes_replication$Vista_r_mb) #"Asbestos"= Attributes_replication$Expo.A.codée ,
+# 
+# Attribute_fig3a_b$Asbestos <- as.character(Attribute_fig3a_b$Asbestos)
+# Asbestos.2 =c()
+# for (i in 1:63){
+#   if (is.na(Attribute_fig3a_b$Asbestos[i])==F){
+#     if (Attribute_fig3a_b$Asbestos[i] == "non"){
+#       
+#       Asbestos.2[i] = "No"
+#     }
+#     else if (Attribute_fig3a_b$Asbestos[i] == "oui"){
+#       Asbestos.2[i] = "Yes"
+#     }
+#     else  if (Attribute_fig3a_b$Asbestos[i] == "poss"){
+#       Asbestos.2[i] = "Possible"
+#     }
+#     else  if (Attribute_fig3a_b$Asbestos[i]== "prob"){
+#       Asbestos.2[i] = "Probable"
+#     }
+#   }
+#   else{
+#     Asbestos.2[i] = NA
+#   }
+# }
+# Attribute_fig3a_b$Asbestos =  Asbestos.2
 
-Attribute_fig3a_b$Asbestos <- as.character(Attribute_fig3a_b$Asbestos)
-Asbestos.2 =c()
-for (i in 1:63){
-  if (is.na(Attribute_fig3a_b$Asbestos[i])==F){
-    if (Attribute_fig3a_b$Asbestos[i] == "non"){
-      
-      Asbestos.2[i] = "No"
-    }
-    else if (Attribute_fig3a_b$Asbestos[i] == "oui"){
-      Asbestos.2[i] = "Yes"
-    }
-    else  if (Attribute_fig3a_b$Asbestos[i] == "poss"){
-      Asbestos.2[i] = "Possible"
-    }
-    else  if (Attribute_fig3a_b$Asbestos[i]== "prob"){
-      Asbestos.2[i] = "Probable"
-    }
-  }
-  else{
-    Asbestos.2[i] = NA
-  }
-}
-
-
-Attribute_fig3a_b$Asbestos =  Asbestos.2
 Attribute_fig3a_b$Smoking <- as.character(Attribute_fig3a_b$Smoking)
 Smoking.2 = c()
 for (i in 1:63){
@@ -678,99 +679,99 @@ rownames(data_lv_fig3) = ID_selected_df$ID
 
 # ACP avec tous les 7145 gènes
 #------------------------------
-acp_fig3a <- dudi.pca(data_lv_fig3, center = T , scale = F , scannf = F, nf=2)
-summary(acp_fig3a)
-acp_fig3a_li <- acp_fig3a$li
-acp_fig3a_li <- setDT(acp_fig3a_li, keep.rownames = TRUE)[]
-colnames(acp_fig3a_li)[1] = "ID"
-
-data_attributes_fi3a = merge (data_attributes_fi3a ,acp_fig3a_li , by='ID' )
-plot(data_attributes_fi3a$Axis1 , data_attributes_fi3a$Axis2 , col = data_attributes_fi3a$Type_and_survival)
-
-# Fig 3a ACP avec les 5 gènes d'intérêt
-# --------------------------------------
-
-
-VISTA =  dinomesomics["ENSG00000107796.12",]  #ENSG00000107738.19
-ID_dinomesomics = colnames(dinomesomics)
-VISTA.f = c()
-Sample_for_vista= c()
-data_attributes_fi3a_ID =as.list (as.character(data_attributes_fi3a$ID))
-c= 0                          
-for (i in 1:284){
-  if (ID_dinomesomics[i] %in% data_attributes_fi3a_ID){
-    c = c+1
-    VISTA.f[i]= VISTA[i]
-    Sample_for_vista[i]=as.character(Attributes5$sample[which(Attributes5$ID == ID_dinomesomics[i])])
-  }
-}
-
-Vista_sample_df  = data.frame("sample" = Sample_for_vista , "VISTA.f"= VISTA.f)
-Vista_sample_df = Vista_sample_df[complete.cases(Vista_sample_df),]
-
-
-CD8A = data_lv_fig3$ENSG00000153563.15
-CD8A.f = c()
-for (i in 1:113){
-  CD8A.f[i]=CD8A[[i]]
-}
-VEGFR2 = data_lv_fig3$ENSG00000128052.8
-VEGFR2.f = c()
-for (i in 1:113){
-  VEGFR2.f[i]=VEGFR2[[i]]
-}
-
-VEGFR3 = data_lv_fig3$ENSG00000037280.15
-VEGFR3.f = c()
-for (i in 1:113){
-  VEGFR3.f[i]=VEGFR3[[i]]
-}
-
-PDL1 = data_lv_fig3$ENSG00000120217.13
-PDL1.f = c()
-for (i in 1:113){
-  PDL1.f[i]=PDL1[[i]]
-}
-
-
-dat_fig3a_5_genes = data.frame("sample" = data_attributes_fi3a$sample  , "PDL1"= PDL1.f, "VEGFR2"  = VEGFR2.f , "VEGFR3"=VEGFR3.f , "CD8A" = CD8A.f )
-dat_fig3a_5_genes = merge(Vista_sample_df,dat_fig3a_5_genes , by="sample")
-rownames(dat_fig3a_5_genes) <-dat_fig3a_5_genes$sample
-dat_fig3a_5_genes <- dat_fig3a_5_genes[,-1]
-
-acp_5_genes <- dudi.pca(dat_fig3a_5_genes, center = T , scale = F, scannf = F, nf=2)
-summary(acp_5_genes)
-acp_5_genes_li <- acp_5_genes$li
-acp_5_genes_li <- setDT(acp_5_genes_li, keep.rownames = TRUE)[]
-colnames(acp_5_genes_li)[1]="sample"
-data_attributes_fi3a= merge(data_attributes_fi3a, acp_5_genes_li , by="sample")
-to_write_data_attributes_fi3a_top = data_attributes_fi3a[ , -2]
-plot(data_attributes_fi3a$Axis1.y , data_attributes_fi3a$Axis2.y , col = data_attributes_fi3a$Type_and_survival)
-
-
-# Test du 30/05 Reproduction de l'ACP 
-Keep_sample = as.character(Surv_table$sample[is.na(Surv_table$Group)==F ])
-Keep_ID = as.character(metadataID$ID[as.character(metadataID$sample)%in%Keep_sample])
-Keep_ID_Sample = data.frame("sample" = as.character(Keep_sample), "ID" = as.character(Keep_ID))
-Surv_table_complete = Surv_table[complete.cases(Surv_table$Group),]
-Surv_table_complete = merge(Surv_table_complete , Keep_ID_Sample , by="sample")
-data_lv_with_surv_table =merge(data_lv ,Keep_ID_Sample , by='ID' )
-data_lv_with_surv_table.ID = as.character(data_lv_with_surv_table$ID )
-data_lv_with_surv_table.sample = as.character(data_lv_with_surv_table$sample)
+# acp_fig3a <- dudi.pca(data_lv_fig3, center = T , scale = F , scannf = F, nf=2)
+# summary(acp_fig3a)
+# acp_fig3a_li <- acp_fig3a$li
+# acp_fig3a_li <- setDT(acp_fig3a_li, keep.rownames = TRUE)[]
+# colnames(acp_fig3a_li)[1] = "ID"
 # 
-which(colnames(data_lv_with_surv_table)=="sample")
-data_lv_with_surv_table= data_lv_with_surv_table[,-7147]
-data_lv_with_surv_table= data_lv_with_surv_table[,-1]
-data_lv_with_surv_table[] <- lapply(data_lv_with_surv_table[,1:7145], function(x) {
-  if(is.factor(x)) as.numeric(as.character(x)) else x
-})
-#sapply(data_lv_with_surv_table, class)
-rownames(data_lv_with_surv_table) = data_lv_with_surv_table.sample
-acp_data_lv_surv <- dudi.pca(data_lv_with_surv_table, center = T , scale = F , scannf = F , nf=2)
-acp_data_lv_surv_li <- acp_data_lv_surv$li
-acp_data_lv_surv_li["sample"] = data_lv_with_surv_table.sample
-Surv_table_complete = merge(Surv_table_complete, acp_data_lv_surv_li , by="sample")
-plot(Surv_table_complete$Axis1 , Surv_table_complete$Axis2*-1 , col = Surv_table_complete$Group )
+# data_attributes_fi3a = merge (data_attributes_fi3a ,acp_fig3a_li , by='ID' )
+# plot(data_attributes_fi3a$Axis1 , data_attributes_fi3a$Axis2 , col = data_attributes_fi3a$Type_and_survival)
+# 
+# # Fig 3a ACP avec les 5 gènes d'intérêt
+# # --------------------------------------
+# 
+# 
+# VISTA =  dinomesomics["ENSG00000107796.12",]  #ENSG00000107738.19
+# ID_dinomesomics = colnames(dinomesomics)
+# VISTA.f = c()
+# Sample_for_vista= c()
+# data_attributes_fi3a_ID =as.list (as.character(data_attributes_fi3a$ID))
+# c= 0                          
+# for (i in 1:284){
+#   if (ID_dinomesomics[i] %in% data_attributes_fi3a_ID){
+#     c = c+1
+#     VISTA.f[i]= VISTA[i]
+#     Sample_for_vista[i]=as.character(Attributes5$sample[which(Attributes5$ID == ID_dinomesomics[i])])
+#   }
+# }
+# 
+# Vista_sample_df  = data.frame("sample" = Sample_for_vista , "VISTA.f"= VISTA.f)
+# Vista_sample_df = Vista_sample_df[complete.cases(Vista_sample_df),]
+# 
+# 
+# CD8A = data_lv_fig3$ENSG00000153563.15
+# CD8A.f = c()
+# for (i in 1:113){
+#   CD8A.f[i]=CD8A[[i]]
+# }
+# VEGFR2 = data_lv_fig3$ENSG00000128052.8
+# VEGFR2.f = c()
+# for (i in 1:113){
+#   VEGFR2.f[i]=VEGFR2[[i]]
+# }
+# 
+# VEGFR3 = data_lv_fig3$ENSG00000037280.15
+# VEGFR3.f = c()
+# for (i in 1:113){
+#   VEGFR3.f[i]=VEGFR3[[i]]
+# }
+# 
+# PDL1 = data_lv_fig3$ENSG00000120217.13
+# PDL1.f = c()
+# for (i in 1:113){
+#   PDL1.f[i]=PDL1[[i]]
+# }
+# 
+# 
+# dat_fig3a_5_genes = data.frame("sample" = data_attributes_fi3a$sample  , "PDL1"= PDL1.f, "VEGFR2"  = VEGFR2.f , "VEGFR3"=VEGFR3.f , "CD8A" = CD8A.f )
+# dat_fig3a_5_genes = merge(Vista_sample_df,dat_fig3a_5_genes , by="sample")
+# rownames(dat_fig3a_5_genes) <-dat_fig3a_5_genes$sample
+# dat_fig3a_5_genes <- dat_fig3a_5_genes[,-1]
+# 
+# acp_5_genes <- dudi.pca(dat_fig3a_5_genes, center = T , scale = F, scannf = F, nf=2)
+# summary(acp_5_genes)
+# acp_5_genes_li <- acp_5_genes$li
+# acp_5_genes_li <- setDT(acp_5_genes_li, keep.rownames = TRUE)[]
+# colnames(acp_5_genes_li)[1]="sample"
+# data_attributes_fi3a= merge(data_attributes_fi3a, acp_5_genes_li , by="sample")
+# to_write_data_attributes_fi3a_top = data_attributes_fi3a[ , -2]
+# plot(data_attributes_fi3a$Axis1.y , data_attributes_fi3a$Axis2.y , col = data_attributes_fi3a$Type_and_survival)
+# 
+# 
+# # Test du 30/05 Reproduction de l'ACP 
+# Keep_sample = as.character(Surv_table$sample[is.na(Surv_table$Group)==F ])
+# Keep_ID = as.character(metadataID$ID[as.character(metadataID$sample)%in%Keep_sample])
+# Keep_ID_Sample = data.frame("sample" = as.character(Keep_sample), "ID" = as.character(Keep_ID))
+# Surv_table_complete = Surv_table[complete.cases(Surv_table$Group),]
+# Surv_table_complete = merge(Surv_table_complete , Keep_ID_Sample , by="sample")
+# data_lv_with_surv_table =merge(data_lv ,Keep_ID_Sample , by='ID' )
+# data_lv_with_surv_table.ID = as.character(data_lv_with_surv_table$ID )
+# data_lv_with_surv_table.sample = as.character(data_lv_with_surv_table$sample)
+# # 
+# which(colnames(data_lv_with_surv_table)=="sample")
+# data_lv_with_surv_table= data_lv_with_surv_table[,-7147]
+# data_lv_with_surv_table= data_lv_with_surv_table[,-1]
+# data_lv_with_surv_table[] <- lapply(data_lv_with_surv_table[,1:7145], function(x) {
+#   if(is.factor(x)) as.numeric(as.character(x)) else x
+# })
+# #sapply(data_lv_with_surv_table, class)
+# rownames(data_lv_with_surv_table) = data_lv_with_surv_table.sample
+# acp_data_lv_surv <- dudi.pca(data_lv_with_surv_table, center = T , scale = F , scannf = F , nf=2)
+# acp_data_lv_surv_li <- acp_data_lv_surv$li
+# acp_data_lv_surv_li["sample"] = data_lv_with_surv_table.sample
+# Surv_table_complete = merge(Surv_table_complete, acp_data_lv_surv_li , by="sample")
+# plot(Surv_table_complete$Axis1 , Surv_table_complete$Axis2*-1 , col = Surv_table_complete$Group )
 
 
 ##################################
@@ -778,19 +779,12 @@ plot(Surv_table_complete$Axis1 , Surv_table_complete$Axis2*-1 , col = Surv_table
 ##################################
 
 #head(Keep_ID_Sample ,3)
-colnames(Keep_ID_Sample)[1]<- "Sample"
+#colnames(Keep_ID_Sample)[1]<- "Sample"
 #head(suptable1 ,3)
-Coordinates_fig3a_top <- merge( Keep_ID_Sample , suptable1 ,by = "Sample")
-Coordinates_fig3a_top$Dimension.2 =Coordinates_fig3a_top$Dimension.2*-1
-Coordinates_fig3a_top <- Coordinates_fig3a_top[,-2] # Remove IDs
-Coordinates_fig3a_top <- Coordinates_fig3a_top[,1:3]
-
-
-
-
-
-
-
+# Coordinates_fig3a_top <- merge( Keep_ID_Sample , suptable1 ,by = "Sample")
+# Coordinates_fig3a_top$Dimension.2 =Coordinates_fig3a_top$Dimension.2*-1
+# Coordinates_fig3a_top <- Coordinates_fig3a_top[,-2] # Remove IDs
+# Coordinates_fig3a_top <- Coordinates_fig3a_top[,1:3]
 
 ##################################
 #   Checking before writing      # 
@@ -801,7 +795,7 @@ head(Attributes4, 3)
 head(data_lv_t_sample, 3)
 head(Attribute_fig3a_b,3)
 head(Coord_fig3_b,3)
-head(Coordinates_fig3a_top,3)
+#head(Coordinates_fig3a_top,3)
 head(to_write_data_attributes_fi3a_top,3)
 
 dim(to_write_data_attributes_fi3a_top)
@@ -827,8 +821,8 @@ for (i in 1:dim(Attributes4)[1]){
 #____________________________
 
 
-#write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F) # Coordinates2 = coordinates1 with y*-1
-write.table(Attributes4, file='Attributes_PCA_f1.txt', quote=FALSE, sep='\t', row.names = F , col.names = T)
+write.table(Coordinates2, file='Coordinates_PCA_f2_invY.tsv', quote=FALSE, sep='\t', row.names = F,  col.names = F) # Coordinates2 = coordinates1 with y*-1
+write.table(Attributes4, file='Attributes_PCA_f1.tsv', quote=FALSE, sep='\t', row.names = F)
 
 # Fig 1 with Features Data
 #_________________________
@@ -840,8 +834,14 @@ write.table(Attributes4, file='Attributes_PCA_f1.txt', quote=FALSE, sep='\t', ro
 
 # Fig 3 bottom  panel
 #_________________________
-#write.table(Attribute_fig3a_b, file='Attribute_fig3a_b.tsv', quote=FALSE, sep='\t', row.names = F)
-#write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
+
+colnames(Attribute_fig3a_b)[which(colnames(Attribute_fig3a_b) == "Vegfr2.mb.IHC")] = "VEGFR2.IHC"
+colnames(Attribute_fig3a_b)[which(colnames(Attribute_fig3a_b) == "Vegfr3.mb.IHC")] = "VEGFR3.IHC"
+Attribute_fig3a_b$Type[which(Attribute_fig3a_b$Type == "Epithelioid.long.survival" )] = "Epith.long.survival" 
+Attribute_fig3a_b$Type[which(Attribute_fig3a_b$Type == "Epithelioid.short.survival" )] = "Epith.short.survival"
+
+write.table(Attribute_fig3a_b, file='Attribute_fig3a_bottom.tsv', quote=FALSE, sep='\t', row.names = F)
+write.table(Coord_fig3_b, file='Coordinates_PCA_f3a_B.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F)
 
 
 # Fig 3 top panel
@@ -851,146 +851,146 @@ write.table(Attributes4, file='Attributes_PCA_f1.txt', quote=FALSE, sep='\t', ro
 #write.table(to_write_data_attributes_fi3a_top, file='to_write_data_attributes_fi3a_top.tsv', quote=FALSE, sep='\t', row.names = F)
 
 
-
-
-#################################
-#             UMAP              #
-#################################
-
-umap.defaults
-
-data_lv_sample <- t(data_lv_t_sample)  
-
-data_lv.L <- data.frame('sample'= data_lv_sample[,1] )
-Type_df <-data.frame( 'sample'= Attributes4$sample , 'Type'=Attributes4$Type )
-data_lv.L <- merge(data_lv.L , Type_df , by = "sample")
-data_lv.L <- data_lv.L[order(data_lv.L$sample),] 
-  
-
-data_lv.D <-as.data.frame( data_lv_sample )
-data_lv.D <- data_lv.D[order(data_lv.D$sample),]
-data_lv.D <- data_lv.D[,-1] 
-data_lv.D <- apply(data_lv.D, 2, as.numeric)
-test1.umap = umap(data_lv.D)
-
-coord_PCA1 <- merge(Coordinates2, Type_df , by = "sample")
-
-par(mfrow=c(1,2))
-plot(test1.umap$layout[,1] ,test1.umap$layout[,2], col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
-plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
-
-# Test Min Dist 
-# -------------
-
-min_dist_c = c(0.002,0.2,0.4,0.6,0.8,0.9)
-for (i in 1:length(min_dist_c)){
-  Meso.umap = umap(data_lv.D, random_state = 123, min_dist = min_dist_c[i])
-  #par(mfrow=c(1,2))
-  plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("min_dist =" ,as.character(min_dist_c[i]) ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
- # plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
-}
-
-
-# Test N Neighbors
-# -----------------
-
-n_neighbors_c = c(2,10,20,30,50,80,100,120,130,150,160,170,200,230,250,260)
-for (i in 1:length(n_neighbors_c )){
-  Meso.umap = umap(data_lv.D, random_state = 123, n_neighbors =  n_neighbors_c[i] )
-  #par(mfrow=c(1,2))
-  plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("n_neighbors =" ,as.character(n_neighbors_c[i]) ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
-  #plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
-}
-
-
-# Test with N neighbors and min dist
-# -----------------------------------
-
-min_dist_c = c(0.2,0.4,0.6,0.8,0.9)
-n_neighbors_c = c(10,20,50,80,100,120,170,200,230,260)
-
-for (i in 1:length(min_dist_c)){
-  for (j in 1:length(n_neighbors_c )){
-    Meso.umap = umap(data_lv.D, random_state = 123, n_neighbors =  n_neighbors_c[j], min_dist = min_dist_c[i] )
-   # par(mfrow=c(1,2))
-    plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("n_neighbors =" ,as.character(n_neighbors_c[j]), "min_dist = " ,  min_dist_c[i] ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
-   # plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
-
-    }
-}
-
-
-# Write for TumorMap analysis
-#----------------------------
-
-# Min dist 
-
-Meso_MD02.umap = umap(data_lv.D, random_state = 123, min_dist =0.2 )
-Meso_MD02_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD02.umap$layout[,1] , "y"=Meso_MD02.umap$layout[,2] )
-#write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
-
-Meso_MD09.umap = umap(data_lv.D, random_state = 123, min_dist =0.9 )
-Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$layout[,1] , "y"=Meso_MD09.umap$layout[,2] )
-#write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
-
-# Nearest nighbors
-
-Meso_NN20.umap = umap(data_lv.D, random_state = 123, n_neighbors =20 )
-Meso_NN20_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN20.umap$layout[,1] , "y"=Meso_NN20.umap$layout[,2] )
-#write.table(Meso_NN20_df_coord, file='Meso_NN20_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
-
-Meso_NN180.umap = umap(data_lv.D, random_state = 123, n_neighbors =180 )
-Meso_NN180_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN180.umap$layout[,1] , "y"=Meso_NN180.umap$layout[,2] )
-#write.table(Meso_NN180_df_coord, file='Meso_NN180_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
-
-Meso_NN230.umap = umap(data_lv.D, random_state = 123, n_neighbors =230 )
-Meso_NN230_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN230.umap$layout[,1] , "y"=Meso_NN230.umap$layout[,2] )
-#write.table(Meso_NN230_df_coord, file='Meso_NN230_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
-
-# Nearest nighbors and Min dist
-
-Meso_NN150_MD_05.umap = umap(data_lv.D, random_state = 123, n_neighbors =150 , min_dist =0.5 )
-Meso_NN150_MD_05_df_coord = data.frame("sample"= data_lv.L$sample , "x"= Meso_NN150_MD_05.umap$layout[,1] , "y"=   Meso_NN150_MD_05.umap$layout[,2] )
-#write.table(Meso_NN150_MD_05_df_coord , file='Meso_NN150_MD_05_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
-
-###################################
-# Distance in n Dim               #
-##################################@
-
-#library(stats)
-#library(graphics)
-
-Dist <- dist(data_lv_sample, diag = TRUE, upper = TRUE)
-m <- as.matrix(Dist)
-rownames(m) <- as.character(data_lv_sample[,1])
-colnames(m) <- as.character(data_lv_sample[,1])  
-#write.table(m, file='Distance_mesomics.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
-
-
-
-# For jupyter Notebook 
-# ---------------------
-
-head(data_lv_t_sample)
-dim(data_lv_t_sample)
-dim(data_lv_sample)
-
-data_lv_sample_type <- merge(data_lv_sample, Type_df, by="sample")
-#write.table(data_lv_sample_type, file='Meso_data_lv_sample_type.tsv', quote=FALSE, sep='\t', row.names = F) 
-
-which(colnames(Attributes5)=="VISTA")
-which(colnames(Attributes5)=="PDL1")
-which(colnames(Attributes5)=="Survival")
-spatial_cor_att <- data.frame("Sample_ID" = Attributes5$sample ,"VISTA"= Attributes5[,19], "PDL1"= Attributes5[,27], "Survival"= Attributes5[,17])
-
-write.table(spatial_cor_att, file='Meso_spatial_cor_att.tsv', quote=FALSE, sep='\t', row.names = F) 
-
-#PCA_coords <- data.frame("sample" = suptable1$Sample , "x"= suptable1$Dimension.1 , "y"= suptable1$Dimension.2)
-
-target_sample_order = data_lv_sample_type$sample
-
-PCA_coords_2 <- PCA_coords[match(target_sample_order, PCA_coords$sample),]
-#write.table(PCA_coords_2, file='PCA_coords_MESO.tsv', quote=FALSE, sep='\t', row.names = F) 
-
-
-
+# 
+# 
+# #################################
+# #             UMAP              #
+# #################################
+# 
+# umap.defaults
+# 
+# data_lv_sample <- t(data_lv_t_sample)  
+# 
+# data_lv.L <- data.frame('sample'= data_lv_sample[,1] )
+# Type_df <-data.frame( 'sample'= Attributes4$sample , 'Type'=Attributes4$Type )
+# data_lv.L <- merge(data_lv.L , Type_df , by = "sample")
+# data_lv.L <- data_lv.L[order(data_lv.L$sample),] 
+#   
+# 
+# data_lv.D <-as.data.frame( data_lv_sample )
+# data_lv.D <- data_lv.D[order(data_lv.D$sample),]
+# data_lv.D <- data_lv.D[,-1] 
+# data_lv.D <- apply(data_lv.D, 2, as.numeric)
+# test1.umap = umap(data_lv.D)
+# 
+# coord_PCA1 <- merge(Coordinates2, Type_df , by = "sample")
+# 
+# par(mfrow=c(1,2))
+# plot(test1.umap$layout[,1] ,test1.umap$layout[,2], col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+# plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+# 
+# # Test Min Dist 
+# # -------------
+# 
+# min_dist_c = c(0.002,0.2,0.4,0.6,0.8,0.9)
+# for (i in 1:length(min_dist_c)){
+#   Meso.umap = umap(data_lv.D, random_state = 123, min_dist = min_dist_c[i])
+#   #par(mfrow=c(1,2))
+#   plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("min_dist =" ,as.character(min_dist_c[i]) ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+#  # plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+# }
+# 
+# 
+# # Test N Neighbors
+# # -----------------
+# 
+# n_neighbors_c = c(2,10,20,30,50,80,100,120,130,150,160,170,200,230,250,260)
+# for (i in 1:length(n_neighbors_c )){
+#   Meso.umap = umap(data_lv.D, random_state = 123, n_neighbors =  n_neighbors_c[i] )
+#   #par(mfrow=c(1,2))
+#   plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("n_neighbors =" ,as.character(n_neighbors_c[i]) ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+#   #plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+# }
+# 
+# 
+# # Test with N neighbors and min dist
+# # -----------------------------------
+# 
+# min_dist_c = c(0.2,0.4,0.6,0.8,0.9)
+# n_neighbors_c = c(10,20,50,80,100,120,170,200,230,260)
+# 
+# for (i in 1:length(min_dist_c)){
+#   for (j in 1:length(n_neighbors_c )){
+#     Meso.umap = umap(data_lv.D, random_state = 123, n_neighbors =  n_neighbors_c[j], min_dist = min_dist_c[i] )
+#    # par(mfrow=c(1,2))
+#     plot(Meso.umap$layout[,1] ,Meso.umap$layout[,2], main = paste("n_neighbors =" ,as.character(n_neighbors_c[j]), "min_dist = " ,  min_dist_c[i] ) , col= c("orange", "black", "forestgreen", "brown4")[as.factor(data_lv.L$Type)], xlab = "x" , ylab ="y" , pch=20  )
+#    # plot(coord_PCA1$x , coord_PCA1$y , col= c("orange", "black", "forestgreen", "brown4")[as.factor(coord_PCA1$Type)], xlab = "x" , ylab ="y" , pch = 20)
+# 
+#     }
+# }
+# 
+# 
+# # Write for TumorMap analysis
+# #----------------------------
+# 
+# # Min dist 
+# 
+# Meso_MD02.umap = umap(data_lv.D, random_state = 123, min_dist =0.2 )
+# Meso_MD02_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD02.umap$layout[,1] , "y"=Meso_MD02.umap$layout[,2] )
+# #write.table(Meso_MD02_df_coord, file='Meso_MD02_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+# 
+# Meso_MD09.umap = umap(data_lv.D, random_state = 123, min_dist =0.9 )
+# Meso_MD09_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_MD09.umap$layout[,1] , "y"=Meso_MD09.umap$layout[,2] )
+# #write.table(Meso_MD09_df_coord, file='Meso_MD09_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+# 
+# # Nearest nighbors
+# 
+# Meso_NN20.umap = umap(data_lv.D, random_state = 123, n_neighbors =20 )
+# Meso_NN20_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN20.umap$layout[,1] , "y"=Meso_NN20.umap$layout[,2] )
+# #write.table(Meso_NN20_df_coord, file='Meso_NN20_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+# 
+# Meso_NN180.umap = umap(data_lv.D, random_state = 123, n_neighbors =180 )
+# Meso_NN180_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN180.umap$layout[,1] , "y"=Meso_NN180.umap$layout[,2] )
+# #write.table(Meso_NN180_df_coord, file='Meso_NN180_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+# 
+# Meso_NN230.umap = umap(data_lv.D, random_state = 123, n_neighbors =230 )
+# Meso_NN230_df_coord = data.frame("sample"= data_lv.L$sample , "x"=Meso_NN230.umap$layout[,1] , "y"=Meso_NN230.umap$layout[,2] )
+# #write.table(Meso_NN230_df_coord, file='Meso_NN230_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+# 
+# # Nearest nighbors and Min dist
+# 
+# Meso_NN150_MD_05.umap = umap(data_lv.D, random_state = 123, n_neighbors =150 , min_dist =0.5 )
+# Meso_NN150_MD_05_df_coord = data.frame("sample"= data_lv.L$sample , "x"= Meso_NN150_MD_05.umap$layout[,1] , "y"=   Meso_NN150_MD_05.umap$layout[,2] )
+# #write.table(Meso_NN150_MD_05_df_coord , file='Meso_NN150_MD_05_df_coord.tsv', quote=FALSE, sep='\t', row.names = F , col.names = F) # Coordinates2 = coordinates1 with y*-1
+# 
+# ###################################
+# # Distance in n Dim               #
+# ##################################@
+# 
+# #library(stats)
+# #library(graphics)
+# 
+# Dist <- dist(data_lv_sample, diag = TRUE, upper = TRUE)
+# m <- as.matrix(Dist)
+# rownames(m) <- as.character(data_lv_sample[,1])
+# colnames(m) <- as.character(data_lv_sample[,1])  
+# #write.table(m, file='Distance_mesomics.txt', quote=FALSE, sep='\t', row.names = T , col.names = T)  
+# 
+# 
+# 
+# # For jupyter Notebook 
+# # ---------------------
+# 
+# head(data_lv_t_sample)
+# dim(data_lv_t_sample)
+# dim(data_lv_sample)
+# 
+# data_lv_sample_type <- merge(data_lv_sample, Type_df, by="sample")
+# #write.table(data_lv_sample_type, file='Meso_data_lv_sample_type.tsv', quote=FALSE, sep='\t', row.names = F) 
+# 
+# which(colnames(Attributes5)=="VISTA")
+# which(colnames(Attributes5)=="PDL1")
+# which(colnames(Attributes5)=="Survival")
+# spatial_cor_att <- data.frame("Sample_ID" = Attributes5$sample ,"VISTA"= Attributes5[,19], "PDL1"= Attributes5[,27], "Survival"= Attributes5[,17])
+# 
+# write.table(spatial_cor_att, file='Meso_spatial_cor_att.tsv', quote=FALSE, sep='\t', row.names = F) 
+# 
+# #PCA_coords <- data.frame("sample" = suptable1$Sample , "x"= suptable1$Dimension.1 , "y"= suptable1$Dimension.2)
+# 
+# target_sample_order = data_lv_sample_type$sample
+# 
+# PCA_coords_2 <- PCA_coords[match(target_sample_order, PCA_coords$sample),]
+# #write.table(PCA_coords_2, file='PCA_coords_MESO.tsv', quote=FALSE, sep='\t', row.names = F) 
+# 
+# 
+# 

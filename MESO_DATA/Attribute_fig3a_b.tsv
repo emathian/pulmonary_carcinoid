@@ -1,64 +1,64 @@
-sample	Sex	Age	Asbestos	Smoking	Type	Survival	CD8.IHC	Vegfr2.mb.IHC	Vegfr3.mb.IHC	PDL1.IHC	PDL1.TILS	VISTA.IHC
-M1	2	70	No	No.Smoker	Epithelioid.long.survival	45.4	0.25	0.2	0.5	0	0	0.2
-M2	2	76	Possible	NA	Sarcomatoid	5.3	0.75	0	0.25	0.9	0.75	0
-M3	1	81	Yes	No.Smoker	Epithelioid.long.survival	45	0.75	1	1	0	0	0.2
-M5	1	80	Yes	NA	Sarcomatoid	2.2	0	0.75	0	0.9	0	0
-M6	2	75	Yes	No.Smoker	Epithelioid.long.survival	41.1	1	0.8	0.75	0.51	0.25	0
-M7	1	57	Yes	Former.smoker	Epithelioid.long.survival	47.5	0.25	0.7	0.5	0.1	0	0.25
-M8	1	71	No	No.Smoker	Epithelioid.short.survival	0.9	0	0.7	0.5	0.01	0	0.5
-M9	1	72	Yes	Former.smoker	Epithelioid.long.survival	38	0.25	0.7	0.25	0.01	0.25	1
-M10	1	69	Yes	Former.smoker	Sarcomatoid	2.7	0.75	0	0.25	0.9	0.75	0.3
-M11	2	77	No	No.Smoker	Epithelioid.short.survival	9.2	0.25	0.9	0.5	0.3	0	0.7
-M12	2	84	Yes	NA	Sarcomatoid	3.6	0.75	0	0.25	0.9	0.75	0.4
-M13	1	71	Yes	No.Smoker	Epithelioid.short.survival	7.5	0.75	0.25	0.25	0.51	0.25	0.7
-M14	1	64	Yes	Former.smoker	Epithelioid.short.survival	2.8	0.5	0.25	0.25	0.01	0.25	0.01
-M15	1	66	Yes	Former.smoker	Epithelioid.long.survival	44	0.25	0.8	0.25	0.05	0	0.7
-M16	1	76	Yes	NA	Sarcomatoid	0	0.25	0	1	0.8	0	0
-M17	1	69	No	No.Smoker	Epithelioid.short.survival	9.2	0.5	0.7	0.5	0.1	0.25	0.5
-M19	1	76	Yes	Former.smoker	Epithelioid.short.survival	3.2	0.25	0.9	0.75	0	0	0
-M21	1	70	Yes	Smoker	Epithelioid.short.survival	4	0	0.7	0.25	0.1	0.5	0
-M22	1	78	Yes	NA	Sarcomatoid	8	1	0.01	0.5	1	0.75	0
-M23	1	85	Yes	NA	Epithelioid.short.survival	7.9	0.5	0.7	0.25	0.01	0	0.5
-M24	1	78	No	NA	Epithelioid.short.survival	9.6	0.5	0.7	0.25	0.2	0.25	0.7
-M25	2	81	No	No.Smoker	Epithelioid.short.survival	7.9	0	0.7	0.25	0.01	0	0
-M26	1	85	No	Former.smoker	Epithelioid.long.survival	44.2	0.5	0.1	0.5	0.1	0.5	0
-M27	2	83	Possible	NA	Epithelioid.short.survival	3.2	0.25	0.6	0.5	0.3	0	0.6
-M29	1	69	Probable	Former.smoker	Epithelioid.short.survival	3.2	1	0	0.25	1	0.75	0
-M31	2	73	Probable	Smoker	Sarcomatoid	1.8	0.5	0	0.25	0.9	0.75	0
-M32	1	83	Probable	No.Smoker	Sarcomatoid	4.9	1	0	0.25	1	0.75	0.5
-M33	1	71	Yes	NA	Sarcomatoid	6.1	1	0.6	0.5	1	0.75	0
-M34	1	75	Probable	Smoker	Epithelioid.short.survival	8.5	0.75	0.8	0	0.5	0	0
-M35	1	71	Yes	Former.smoker	Epithelioid.long.survival	38	0.75	0.8	0.5	0.2	0	0.8
-M36	1	81	No	NA	Epithelioid.long.survival	45.3	0	1	0.5	0	0	0.5
-M38	1	78	Yes	No.Smoker	Epithelioid.short.survival	5.4	0.25	0.4	0.5	0.61	0.75	0.7
-M39	1	71	Yes	No.Smoker	Epithelioid.long.survival	45	0.25	1	0.25	0	0	0.05
-M40	1	76	No	NA	Epithelioid.long.survival	48.8	0.75	0.7	0	0.3	0.5	0.8
-M41	1	72	No	Former.smoker	Epithelioid.short.survival	6.3	0	0.75	0.25	0	0	0
-M42	1	79	Yes	NA	Epithelioid.long.survival	46.6	0	0.8	0.25	0	0	0.7
-M43	1	81	Yes	No.Smoker	Sarcomatoid	7.2	0.75	0.5	0.25	0.9	0.75	0
-M44	1	79	Yes	Former.smoker	Epithelioid.long.survival	48.9	0.25	0.5	0	0	0.25	0.8
-M47	2	60	Probable	Former.smoker	Epithelioid.long.survival	34.4	0.25	0.8	0.25	0.01	0	0.9
-M48	1	66	Yes	No.Smoker	Sarcomatoid	8.2	1	0	0	1	0.75	0
-M49	1	84	Yes	NA	Sarcomatoid	6.1	0.25	0	0.75	0.01	0	0
-M50	2	58	No	Former.smoker	Epithelioid.short.survival	2.8	0.25	0.8	0	0.1	0	0.8
-M52	1	70	Yes	No.Smoker	Sarcomatoid	8.3	0.5	0	0	0.7	0.75	0
-M53	1	76	Yes	No.Smoker	Epithelioid.long.survival	48.5	0	0.7	0.25	0.2	0.5	0.9
-M54	2	73	No	Former.smoker	Epithelioid.long.survival	37.3	0.25	0.8	0.25	0.2	0.25	0.8
-M55	2	73	No	Former.smoker	Epithelioid.short.survival	6.8	0.5	0.4	0	0.51	0.5	0.2
-M57	1	78	Yes	NA	Epithelioid.long.survival	49	0	0.8	0.25	0.51	0	0.3
-M58	1	76	Yes	NA	Epithelioid.long.survival	50.1	0.25	0.8	0.25	0.2	0.25	1
-M59	1	81	Yes	No.Smoker	Sarcomatoid	3.4	0.75	1	0.25	0.9	0.5	0
-M60	1	73	Yes	Former.smoker	Sarcomatoid	3.6	0.75	0	0	0.9	0.75	0.4
-M62	2	83	Yes	NA	Epithelioid.long.survival	36.9	0.25	0.1	0.25	0.025	0	0.9
-M63	1	79	Yes	Smoker	Epithelioid.short.survival	2.1	0.75	0.6	0	0.51	0.25	0.7
-M64	1	66	Yes	Smoker	Sarcomatoid	1.2	0.75	0	0.5	0.71	0.5	0
-M65	2	85	Yes	Smoker	Epithelioid.long.survival	41.3	0.5	0.8	0	0.19	0.25	0.6
-M66	1	80	Yes	Smoker	Epithelioid.long.survival	34.7	0.25	0.25	0.5	0.01	0	0.5
-M67	1	78	Yes	NA	Sarcomatoid	3.8	0.75	0	0.25	0.9	0.75	0
-M68	1	58	Yes	Former.smoker	Epithelioid.short.survival	3.3	0.5	0.7	0	0.05	0.25	0.7
-M69	1	74	Yes	Former.smoker	Sarcomatoid	8.6	0.25	0	0.25	0.005	0	0
-M70	1	80	Yes	NA	Epithelioid.short.survival	9	0	0.7	0.25	0	0	0
-M73	1	74	Probable	Former.smoker	Epithelioid.long.survival	36.2	0.75	0.6	0	0.005	0.5	0.8
-M76	1	81	Yes	Former.smoker	Sarcomatoid	7.5	0.75	0	0.5	0.9	0.75	0
-M77	2	84	No	NA	Sarcomatoid	3.4	0.75	0	0.25	0.9	0.75	0.25
-M78	2	86	No	No.Smoker	Epithelioid.short.survival	8.7	0.75	1	0	0.3	0.25	0.2
+sample	Sex	Age	Smoking	Type	Survival	CD8.IHC	VEGFR2.IHC	VEGFR3.IHC	PDL1.IHC	PDL1.TILS	VISTA.IHC
+M1	2	70	No.Smoker	Epithelioid.long.survival	45.4	0.25	0.2	0.5	0	0	0.2
+M2	2	76	NA	Sarcomatoid	5.3	0.75	0	0.25	0.9	0.75	0
+M3	1	81	No.Smoker	Epithelioid.long.survival	45	0.75	1	1	0	0	0.2
+M5	1	80	NA	Sarcomatoid	2.2	0	0.75	0	0.9	0	0
+M6	2	75	No.Smoker	Epithelioid.long.survival	41.1	1	0.8	0.75	0.51	0.25	0
+M7	1	57	Former.smoker	Epithelioid.long.survival	47.5	0.25	0.7	0.5	0.1	0	0.25
+M8	1	71	No.Smoker	Epithelioid.short.survival	0.9	0	0.7	0.5	0.01	0	0.5
+M9	1	72	Former.smoker	Epithelioid.long.survival	38	0.25	0.7	0.25	0.01	0.25	1
+M10	1	69	Former.smoker	Sarcomatoid	2.7	0.75	0	0.25	0.9	0.75	0.3
+M11	2	77	No.Smoker	Epithelioid.short.survival	9.2	0.25	0.9	0.5	0.3	0	0.7
+M12	2	84	NA	Sarcomatoid	3.6	0.75	0	0.25	0.9	0.75	0.4
+M13	1	71	No.Smoker	Epithelioid.short.survival	7.5	0.75	0.25	0.25	0.51	0.25	0.7
+M14	1	64	Former.smoker	Epithelioid.short.survival	2.8	0.5	0.25	0.25	0.01	0.25	0.01
+M15	1	66	Former.smoker	Epithelioid.long.survival	44	0.25	0.8	0.25	0.05	0	0.7
+M16	1	76	NA	Sarcomatoid	0	0.25	0	1	0.8	0	0
+M17	1	69	No.Smoker	Epithelioid.short.survival	9.2	0.5	0.7	0.5	0.1	0.25	0.5
+M19	1	76	Former.smoker	Epithelioid.short.survival	3.2	0.25	0.9	0.75	0	0	0
+M21	1	70	Smoker	Epithelioid.short.survival	4	0	0.7	0.25	0.1	0.5	0
+M22	1	78	NA	Sarcomatoid	8	1	0.01	0.5	1	0.75	0
+M23	1	85	NA	Epithelioid.short.survival	7.9	0.5	0.7	0.25	0.01	0	0.5
+M24	1	78	NA	Epithelioid.short.survival	9.6	0.5	0.7	0.25	0.2	0.25	0.7
+M25	2	81	No.Smoker	Epithelioid.short.survival	7.9	0	0.7	0.25	0.01	0	0
+M26	1	85	Former.smoker	Epithelioid.long.survival	44.2	0.5	0.1	0.5	0.1	0.5	0
+M27	2	83	NA	Epithelioid.short.survival	3.2	0.25	0.6	0.5	0.3	0	0.6
+M29	1	69	Former.smoker	Epithelioid.short.survival	3.2	1	0	0.25	1	0.75	0
+M31	2	73	Smoker	Sarcomatoid	1.8	0.5	0	0.25	0.9	0.75	0
+M32	1	83	No.Smoker	Sarcomatoid	4.9	1	0	0.25	1	0.75	0.5
+M33	1	71	NA	Sarcomatoid	6.1	1	0.6	0.5	1	0.75	0
+M34	1	75	Smoker	Epithelioid.short.survival	8.5	0.75	0.8	0	0.5	0	0
+M35	1	71	Former.smoker	Epithelioid.long.survival	38	0.75	0.8	0.5	0.2	0	0.8
+M36	1	81	NA	Epithelioid.long.survival	45.3	0	1	0.5	0	0	0.5
+M38	1	78	No.Smoker	Epithelioid.short.survival	5.4	0.25	0.4	0.5	0.61	0.75	0.7
+M39	1	71	No.Smoker	Epithelioid.long.survival	45	0.25	1	0.25	0	0	0.05
+M40	1	76	NA	Epithelioid.long.survival	48.8	0.75	0.7	0	0.3	0.5	0.8
+M41	1	72	Former.smoker	Epithelioid.short.survival	6.3	0	0.75	0.25	0	0	0
+M42	1	79	NA	Epithelioid.long.survival	46.6	0	0.8	0.25	0	0	0.7
+M43	1	81	No.Smoker	Sarcomatoid	7.2	0.75	0.5	0.25	0.9	0.75	0
+M44	1	79	Former.smoker	Epithelioid.long.survival	48.9	0.25	0.5	0	0	0.25	0.8
+M47	2	60	Former.smoker	Epithelioid.long.survival	34.4	0.25	0.8	0.25	0.01	0	0.9
+M48	1	66	No.Smoker	Sarcomatoid	8.2	1	0	0	1	0.75	0
+M49	1	84	NA	Sarcomatoid	6.1	0.25	0	0.75	0.01	0	0
+M50	2	58	Former.smoker	Epithelioid.short.survival	2.8	0.25	0.8	0	0.1	0	0.8
+M52	1	70	No.Smoker	Sarcomatoid	8.3	0.5	0	0	0.7	0.75	0
+M53	1	76	No.Smoker	Epithelioid.long.survival	48.5	0	0.7	0.25	0.2	0.5	0.9
+M54	2	73	Former.smoker	Epithelioid.long.survival	37.3	0.25	0.8	0.25	0.2	0.25	0.8
+M55	2	73	Former.smoker	Epithelioid.short.survival	6.8	0.5	0.4	0	0.51	0.5	0.2
+M57	1	78	NA	Epithelioid.long.survival	49	0	0.8	0.25	0.51	0	0.3
+M58	1	76	NA	Epithelioid.long.survival	50.1	0.25	0.8	0.25	0.2	0.25	1
+M59	1	81	No.Smoker	Sarcomatoid	3.4	0.75	1	0.25	0.9	0.5	0
+M60	1	73	Former.smoker	Sarcomatoid	3.6	0.75	0	0	0.9	0.75	0.4
+M62	2	83	NA	Epithelioid.long.survival	36.9	0.25	0.1	0.25	0.025	0	0.9
+M63	1	79	Smoker	Epithelioid.short.survival	2.1	0.75	0.6	0	0.51	0.25	0.7
+M64	1	66	Smoker	Sarcomatoid	1.2	0.75	0	0.5	0.71	0.5	0
+M65	2	85	Smoker	Epithelioid.long.survival	41.3	0.5	0.8	0	0.19	0.25	0.6
+M66	1	80	Smoker	Epithelioid.long.survival	34.7	0.25	0.25	0.5	0.01	0	0.5
+M67	1	78	NA	Sarcomatoid	3.8	0.75	0	0.25	0.9	0.75	0
+M68	1	58	Former.smoker	Epithelioid.short.survival	3.3	0.5	0.7	0	0.05	0.25	0.7
+M69	1	74	Former.smoker	Sarcomatoid	8.6	0.25	0	0.25	0.005	0	0
+M70	1	80	NA	Epithelioid.short.survival	9	0	0.7	0.25	0	0	0
+M73	1	74	Former.smoker	Epithelioid.long.survival	36.2	0.75	0.6	0	0.005	0.5	0.8
+M76	1	81	Former.smoker	Sarcomatoid	7.5	0.75	0	0.5	0.9	0.75	0
+M77	2	84	NA	Sarcomatoid	3.4	0.75	0	0.25	0.9	0.75	0.25
+M78	2	86	No.Smoker	Epithelioid.short.survival	8.7	0.75	1	0	0.3	0.25	0.2
